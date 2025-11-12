@@ -3,7 +3,7 @@
     "id": "1",
     "slug": "isc-soufouh",
     "name": "ISC Soufouh",
-    "school": "International School of Creative Science - Soufouh",
+    "school": "International School of Choueifat - Soufouh",
     "location": "Dubai",
     "manager": "Ahmed Al-Rashid",
     "contacts": [
@@ -57,7 +57,7 @@
     "id": "2",
     "slug": "isc-dip",
     "name": "ISC DIP",
-    "school": "International School of Creative Science - Dubai Investment Park",
+    "school": "International School of Choueifat - Dubai Investment Park",
     "location": "Dubai",
     "manager": "Fatima Hassan",
     "contacts": [
@@ -99,7 +99,7 @@
     "id": "3",
     "slug": "isc-sharja",
     "name": "ISC Sharjah",
-    "school": "International School of Creative Science - Sharjah",
+    "school": "International School of Choueifat - Sharjah",
     "location": "Sharjah",
     "manager": "Mohammed Ali",
     "contacts": [
@@ -141,7 +141,7 @@
     "id": "4",
     "slug": "isc-rak",
     "name": "ISC RAK",
-    "school": "International School of Creative Science - Ras Al Khaimah",
+    "school": "International School of Choueifat - Ras Al Khaimah",
     "location": "Ras Al Khaimah",
     "manager": "Layla Ahmed",
     "contacts": [
@@ -182,7 +182,7 @@
     "id": "5",
     "slug": "isc-aljada",
     "name": "ISC Aljada",
-    "school": "International School of Creative Science - Aljada",
+    "school": "International School of Choueifat - Aljada",
     "location": "Sharjah",
     "manager": "Hassan Ibrahim",
     "contacts": [
@@ -224,7 +224,7 @@
     "id": "6",
     "slug": "isc-ajman",
     "name": "ISC Ajman",
-    "school": "International School of Creative Science - Ajman",
+    "school": "International School of Choueifat - Ajman",
     "location": "Ajman",
     "manager": "Noor Al-Mansoori",
     "contacts": [
@@ -265,7 +265,7 @@
     "id": "7",
     "slug": "isc-ueq",
     "name": "ISC UEQ",
-    "school": "International School of Creative Science - Umm Al Quwain",
+    "school": "International School of Choueifat - Umm Al Quwain",
     "location": "Umm Al Quwain",
     "manager": "Khalid Saeed",
     "contacts": [
@@ -306,7 +306,7 @@
     "id": "8",
     "slug": "ck",
     "name": "CK",
-    "school": "Clarion School - Knowledge Park",
+    "school": "Central Kitchen - Dubai Investment Park",
     "location": "Dubai",
     "manager": "Amira Youssef",
     "contacts": [
@@ -396,7 +396,7 @@
     "id": "10",
     "slug": "isc-khalifa",
     "name": "ISC Khalifa",
-    "school": "International School of Creative Science - Khalifa City",
+    "school": "International School of Choueifat - Khalifa ",
     "location": "Abu Dhabi",
     "manager": "Maryam Al-Zaabi",
     "contacts": [
@@ -438,7 +438,7 @@
     "id": "11",
     "slug": "isc-ain",
     "name": "ISC Ain",
-    "school": "International School of Creative Science - Al Ain",
+    "school": "International School of Choueifat - Al Ain",
     "location": "Al Ain",
     "manager": "Rashid Al-Dhaheri",
     "contacts": [
