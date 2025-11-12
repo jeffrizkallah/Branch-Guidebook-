@@ -26,17 +26,22 @@ export default function HomePage() {
       <TopNav onSearch={setSearchQuery} searchQuery={searchQuery} />
 
       <main className="flex-1 container mx-auto px-4 py-8">
-        {/* Header with Location Filter */}
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 text-primary">Branch Guidebook</h1>
-            <p className="text-lg text-muted-foreground">
-              Comprehensive operational guides for all Mikana branches
-            </p>
-          </div>
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 text-primary">Branch Guidebook</h1>
+          <p className="text-lg text-muted-foreground">
+            Comprehensive operational guides for all Mikana branches
+          </p>
+        </div>
+
+        {/* Results Count and Location Filter */}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            Showing {filteredBranches.length} of {allBranches.length} branches
+          </p>
           
-          {/* Compact Location Filter */}
-          <div className="flex items-center gap-2 mt-1">
+          {/* Location Filter */}
+          <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <select
               value={selectedLocation}
@@ -51,13 +56,6 @@ export default function HomePage() {
               ))}
             </select>
           </div>
-        </div>
-
-        {/* Results */}
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredBranches.length} of {allBranches.length} branches
-          </p>
         </div>
 
         {/* Branch grid */}
