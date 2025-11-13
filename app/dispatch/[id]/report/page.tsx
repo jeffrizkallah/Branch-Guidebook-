@@ -69,7 +69,11 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     
     dispatch.branchDispatches.forEach(bd => {
       bd.items.forEach(item => {
-        if (filterIssueType === 'all' || item.issue === filterIssueType || (filterIssueType === 'all' && item.issue)) {
+        const shouldInclude = filterIssueType === 'all' 
+          ? item.issue !== null 
+          : item.issue === filterIssueType
+        
+        if (shouldInclude) {
           csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${item.receivedQty || 0},"${item.unit}","${item.issue || 'none'}","${item.notes}","${bd.status}","${bd.receivedBy || ''}"\n`
         }
       })
