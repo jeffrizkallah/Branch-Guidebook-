@@ -298,7 +298,7 @@ export default function DispatchDashboardPage() {
                           </summary>
                           <div className="mt-3 space-y-2">
                             {dispatch.branchDispatches.map(bd => {
-                              const issueItems = bd.items.filter(item => item.issue !== null)
+                              const issueItems = bd.items.filter((item: any) => item.issue !== null)
                               return (
                                 <div key={bd.branchSlug} className="flex items-center justify-between p-2 bg-muted rounded">
                                   <div className="flex-1">
