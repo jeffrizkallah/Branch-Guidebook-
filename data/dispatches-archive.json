@@ -3229,5 +3229,5206 @@
     ],
     "deletedAt": "2025-11-13T12:57:06.930Z",
     "deletedBy": "Admin"
+  },
+  {
+    "id": "dispatch-2025-11-13-1763041152751",
+    "createdDate": "2025-11-13T13:39:12.751Z",
+    "deliveryDate": "2025-11-13",
+    "createdBy": "Head Office",
+    "branchDispatches": [
+      {
+        "branchSlug": "isc-soufouh",
+        "branchName": "ISC Soufouh",
+        "status": "completed",
+        "items": [
+          {
+            "id": "isc-soufouh-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": 0.2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-1",
+            "name": "Beef For Burrito",
+            "orderedQty": 2.4,
+            "unit": "0.0",
+            "receivedQty": 2.4,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-2",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 5.1,
+            "unit": "0.0",
+            "receivedQty": 5.1,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-3",
+            "name": "Brownies 1 KG",
+            "orderedQty": 17.3,
+            "unit": "2.7",
+            "receivedQty": 17.3,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-4",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 12.6,
+            "unit": "7.2",
+            "receivedQty": 12.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-5",
+            "name": "Chich Barak",
+            "orderedQty": 180,
+            "unit": "0.0",
+            "receivedQty": 180,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-6",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.6,
+            "unit": "0.0",
+            "receivedQty": 3.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-7",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 3.8,
+            "unit": "0.2",
+            "receivedQty": 3.8,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-8",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": 0.4,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-9",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1.5,
+            "unit": "0.0",
+            "receivedQty": 1.5,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-10",
+            "name": "Chicken Kiev Kg",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": 0.8,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-11",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 19.7,
+            "unit": "3.6",
+            "receivedQty": 19.7,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-12",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 1.7,
+            "unit": "0.0",
+            "receivedQty": 1.7,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-13",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 6.4,
+            "unit": "5.8",
+            "receivedQty": 6.4,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-14",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.1",
+            "receivedQty": 0.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-15",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 2.9,
+            "unit": "0.0",
+            "receivedQty": 2.9,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-16",
+            "name": "Dredge For Chicken",
+            "orderedQty": 3.2,
+            "unit": "1.3",
+            "receivedQty": 3.2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-17",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 8.4,
+            "unit": "8.8",
+            "receivedQty": 8.4,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-18",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 4,
+            "unit": "0.5",
+            "receivedQty": 4,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-19",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 22,
+            "unit": "5.3",
+            "receivedQty": 22,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-20",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": 0.5,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-21",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": 3.2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-22",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 2,
+            "unit": "1.7",
+            "receivedQty": 2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-23",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 2,
+            "unit": "2.8",
+            "receivedQty": 0.9,
+            "checked": false,
+            "notes": "missing",
+            "issue": "partial"
+          },
+          {
+            "id": "isc-soufouh-item-24",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": 2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-25",
+            "name": "Sauce BBQ 1 KG",
+            "orderedQty": 5.6,
+            "unit": "0.1",
+            "receivedQty": 5.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-26",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 2.9,
+            "unit": "0.0",
+            "receivedQty": 2.9,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-27",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 3.1,
+            "unit": "0.2",
+            "receivedQty": 3.1,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-28",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 4.2,
+            "unit": "0.0",
+            "receivedQty": 4.2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-29",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": 0.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-30",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": 1,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-31",
+            "name": "Sauce Creamy Cheese",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": 0.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-32",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": 2,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-33",
+            "name": "Sauce Fattouch",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": 0.6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-34",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 6,
+            "unit": "0.0",
+            "receivedQty": 6,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-35",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 2.9,
+            "unit": "0.0",
+            "receivedQty": 2.9,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-36",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 18.5,
+            "unit": "8.3",
+            "receivedQty": 18.5,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-37",
+            "name": "Sour Cream",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": 0.3,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-38",
+            "name": "SW Dough Cookies",
+            "orderedQty": 1.9,
+            "unit": "1.9",
+            "receivedQty": 1.9,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-39",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 120,
+            "unit": "120.0",
+            "receivedQty": 120,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-40",
+            "name": "Waffle",
+            "orderedQty": 17,
+            "unit": "0.0",
+            "receivedQty": 17,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-soufouh-item-41",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3.8,
+            "unit": "0.0",
+            "receivedQty": 3.8,
+            "checked": true,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": "jeff",
+        "receivedAt": "2025-11-13T13:45:59.643Z",
+        "completedAt": "2025-11-13T13:45:59.643Z",
+        "overallNotes": "okay items recieved"
+      },
+      {
+        "branchSlug": "isc-dip",
+        "branchName": "ISC DIP",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-dip-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-1",
+            "name": "Beef Hachwe 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-2",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-3",
+            "name": "Brownies 1 KG",
+            "orderedQty": 6.3,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-4",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 3.2,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-5",
+            "name": "Chich Barak",
+            "orderedQty": 117,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-6",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 1.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-7",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 2.7,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-8",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-9",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-10",
+            "name": "Chicken Kiev Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-11",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 7,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-12",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 1.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-13",
+            "name": "Chicken Pesto 1 Kg",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-14",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 4.2,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-15",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.1,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-16",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 1.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-17",
+            "name": "Dredge For Chicken",
+            "orderedQty": 2.5,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-18",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 6.7,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-19",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-20",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 7,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-21",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 9.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-22",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 1.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-23",
+            "name": "Mixed Cheese",
+            "orderedQty": 7.3,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-24",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 4,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-25",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 4,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-26",
+            "name": "Potato Wedges 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-27",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-28",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-29",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-30",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 3.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-31",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-32",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-33",
+            "name": "Sauce Creamy Cheese",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-34",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-35",
+            "name": "Sauce Creamy Spinach SR",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-36",
+            "name": "Sauce Fattouch",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-37",
+            "name": "Sauce Guacamole Mik",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-38",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 3.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-39",
+            "name": "Sauce Lemon",
+            "orderedQty": 1.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-40",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 1.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-41",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 1.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-42",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 10.2,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-43",
+            "name": "Sour Cream",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-44",
+            "name": "Spinach Stuffed Chicken 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-45",
+            "name": "Steamed Vegetables 1 KG",
+            "orderedQty": 2.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-46",
+            "name": "SW Dough Cookies",
+            "orderedQty": 1.9,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-47",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 150,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-48",
+            "name": "Waffle Batter",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-dip-item-49",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-sharja",
+        "branchName": "ISC Sharjah",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-sharja-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-1",
+            "name": "Beef For Burrito",
+            "orderedQty": 3.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-2",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 1.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-3",
+            "name": "Brownies 1 KG",
+            "orderedQty": 18.5,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-4",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 1.8,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-5",
+            "name": "Chich Barak",
+            "orderedQty": 54,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-6",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 1.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-7",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 23.2,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-8",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 14,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-9",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-10",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 1.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-11",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 18,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-12",
+            "name": "Dough Manakish 120 Gr",
+            "orderedQty": 215,
+            "unit": "10.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-13",
+            "name": "Dough Pizza 23cm",
+            "orderedQty": 304.5,
+            "unit": "17.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-14",
+            "name": "Dredge For Chicken",
+            "orderedQty": 2.1,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-15",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 11.5,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-16",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 1.4,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-17",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 18.5,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-18",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 4.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-19",
+            "name": "Mixed Cheese",
+            "orderedQty": 22.2,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-20",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 10,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-21",
+            "name": "Sauce BBQ 1 KG",
+            "orderedQty": 3.6,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-22",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 14,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-23",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-24",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 1.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-25",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 1.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-26",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 1.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-27",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 28.6,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-28",
+            "name": "Steamed Vegetables 1 KG",
+            "orderedQty": 1.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-29",
+            "name": "Steamed White Rice 1 KG",
+            "orderedQty": 1.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-30",
+            "name": "Sub Brk Cheese Calzone with Side Veggies",
+            "orderedQty": 18,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-31",
+            "name": "SW Dough Cookies",
+            "orderedQty": 7.9,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-32",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 450,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-33",
+            "name": "Waffle Batter",
+            "orderedQty": 2.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-sharja-item-34",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 12.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-aljada",
+        "branchName": "ISC Aljada",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-aljada-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-1",
+            "name": "Beef Burger 1 KG ( 80 grams )",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-2",
+            "name": "Beef For Burrito",
+            "orderedQty": 0.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-3",
+            "name": "Beef Mongolian 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-4",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 9.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-5",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-6",
+            "name": "Brownies 1 KG",
+            "orderedQty": 5.4,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-7",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 9.6,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-8",
+            "name": "Chich Barak",
+            "orderedQty": 285,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-9",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 8.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-10",
+            "name": "Chicken Burger Patty 1 KG",
+            "orderedQty": 1.3,
+            "unit": "1.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-11",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 2.9,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-12",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-13",
+            "name": "Chicken Kiev Kg",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-14",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 15.3,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-15",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-16",
+            "name": "Chicken Quarter Leg  Marinade Sous Vide",
+            "orderedQty": 20,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-17",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 4.2,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-18",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.7,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-19",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 6.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-20",
+            "name": "Date Sable 1 Kg",
+            "orderedQty": 1.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-21",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 48,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-22",
+            "name": "Dough Manakish 120 Gr",
+            "orderedQty": 45,
+            "unit": "10.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-23",
+            "name": "Dough Pizza 23cm",
+            "orderedQty": 75.8,
+            "unit": "17.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-24",
+            "name": "Dredge For Chicken",
+            "orderedQty": 6.7,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-25",
+            "name": "Fish Fillet with Cilantro & Garlic Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-26",
+            "name": "Fish Fried Strips 1 Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-27",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 6,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-28",
+            "name": "Grilled Fish Marination 1 Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-29",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 2.2,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-30",
+            "name": "Hummus Bi Tahini 1 KG",
+            "orderedQty": 6.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-31",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 5.4,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-32",
+            "name": "Lemon Juice Fresh",
+            "orderedQty": 9.5,
+            "unit": "1.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-33",
+            "name": "Loaf English Banana Cake",
+            "orderedQty": 0.6,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-34",
+            "name": "Loaf English Cake White",
+            "orderedQty": 0.9,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-35",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 4.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-36",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-37",
+            "name": "Mixed Cheese",
+            "orderedQty": 6.4,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-38",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 1,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-39",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 4.6,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-40",
+            "name": "Potato Coriander 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-41",
+            "name": "Potato Wedges 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-42",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-43",
+            "name": "Sauce BBQ 1 KG",
+            "orderedQty": 1.1,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-44",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-45",
+            "name": "Sauce Burger 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-46",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-47",
+            "name": "Sauce Cheddar Cheese",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-48",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 5.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-49",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-50",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-51",
+            "name": "Sauce Creamy Cheese",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-52",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-53",
+            "name": "Sauce Creamy Salmon 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-54",
+            "name": "Sauce Creamy Spinach SR",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-55",
+            "name": "Sauce Fattouch",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-56",
+            "name": "Sauce Guacamole Mik",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-57",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 9.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-58",
+            "name": "Sauce Lemon",
+            "orderedQty": 1.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-59",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-60",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 6.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-61",
+            "name": "Sauce Tajin 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-62",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 9.6,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-63",
+            "name": "Sour Cream",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-64",
+            "name": "Spinach Stuffed Chicken 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-65",
+            "name": "Steamed Vegetables 1 KG",
+            "orderedQty": 8.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-66",
+            "name": "Steamed White Rice 1 KG",
+            "orderedQty": 15.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-67",
+            "name": "SW Dough Cookies",
+            "orderedQty": 2.9,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-68",
+            "name": "Sweet and Sour Sauce 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-69",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 240,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-70",
+            "name": "Waffle Batter",
+            "orderedQty": 5.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-aljada-item-71",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 8.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-ajman",
+        "branchName": "ISC Ajman",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-ajman-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-1",
+            "name": "Beef For Burrito",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-2",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-3",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-4",
+            "name": "Brownies 1 KG",
+            "orderedQty": 4.5,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-5",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 4,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-6",
+            "name": "Chich Barak",
+            "orderedQty": 132,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-7",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-8",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-9",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-10",
+            "name": "Chicken Honey SR",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-11",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 5.1,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-12",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-13",
+            "name": "Chicken Pesto 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-14",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 1.5,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-15",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.2,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-16",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 2.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-17",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 18,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-18",
+            "name": "Dough Manakish 120 Gr",
+            "orderedQty": 20,
+            "unit": "10.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-19",
+            "name": "Dough Pizza 23cm",
+            "orderedQty": 23,
+            "unit": "17.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-20",
+            "name": "Dredge For Chicken",
+            "orderedQty": 1.8,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-21",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 2,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-22",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-23",
+            "name": "Hummus Bi Tahini 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-24",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 4.6,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-25",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-26",
+            "name": "Mixed Cheese",
+            "orderedQty": 1.7,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-27",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 1.4,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-28",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 2,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-29",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-30",
+            "name": "Sauce BBQ 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-31",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 1.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-32",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-33",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 2.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-34",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-35",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-36",
+            "name": "Sauce Fattouch",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-37",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 4.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-38",
+            "name": "Sauce Lemon",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-39",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 2.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-40",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 4.6,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-41",
+            "name": "Steamed White Rice 1 KG",
+            "orderedQty": 14.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-42",
+            "name": "SW Dough Cookies",
+            "orderedQty": 2.1,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-43",
+            "name": "Thyme w Oil Kg",
+            "orderedQty": 0.5,
+            "unit": "0.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-44",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 120,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-45",
+            "name": "Waffle",
+            "orderedQty": 18,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ajman-item-46",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-ueq",
+        "branchName": "ISC UEQ",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-ueq-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-1",
+            "name": "Beef For Burrito",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-2",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 4.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-3",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-4",
+            "name": "Brownies 1 KG",
+            "orderedQty": 4.1,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-5",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 4.2,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-6",
+            "name": "Chich Barak",
+            "orderedQty": 138,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-7",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-8",
+            "name": "Chicken Burger Patty 1 KG",
+            "orderedQty": 1.2,
+            "unit": "1.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-9",
+            "name": "Chicken Honey SR",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-10",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 5.3,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-11",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-12",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 2,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-13",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-14",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 2.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-15",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 14,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-16",
+            "name": "Dough Manakish 120 Gr",
+            "orderedQty": 46,
+            "unit": "10.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-17",
+            "name": "Dough Pizza 23cm",
+            "orderedQty": 32.5,
+            "unit": "17.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-18",
+            "name": "Dredge For Chicken",
+            "orderedQty": 1.8,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-19",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 3.1,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-20",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-21",
+            "name": "Hummus Bi Tahini 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-22",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 1.9,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-23",
+            "name": "Lemon Juice Fresh",
+            "orderedQty": 3.3,
+            "unit": "1.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-24",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 1.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-25",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-26",
+            "name": "Mixed Cheese",
+            "orderedQty": 5.2,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-27",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 0.6,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-28",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 1.6,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-29",
+            "name": "Potato Wedges 1 KG",
+            "orderedQty": 2.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-30",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-31",
+            "name": "Sauce BBQ 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-32",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 1.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-33",
+            "name": "Sauce Burger 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-34",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1.2,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-35",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-36",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-37",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-38",
+            "name": "Sauce Creamy Spinach SR",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-39",
+            "name": "Sauce Fattouch",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-40",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-41",
+            "name": "Sauce Lemon",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-42",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-43",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 2.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-44",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 5.6,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-45",
+            "name": "Spinach Stuffed Chicken 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-46",
+            "name": "Steamed Vegetables 1 KG",
+            "orderedQty": 2.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-47",
+            "name": "Steamed White Rice 1 KG",
+            "orderedQty": 16.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-48",
+            "name": "SW Dough Cookies",
+            "orderedQty": 2.2,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-49",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 120,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-50",
+            "name": "Waffle",
+            "orderedQty": 14,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ueq-item-51",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-rak",
+        "branchName": "ISC RAK",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-rak-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-1",
+            "name": "Beef Burger 1 KG ( 80 grams )",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-2",
+            "name": "Beef For Burrito",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-3",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 3.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-4",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-5",
+            "name": "Brownies 1 KG",
+            "orderedQty": 5.4,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-6",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 5.3,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-7",
+            "name": "Chich Barak",
+            "orderedQty": 84,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-8",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 2.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-9",
+            "name": "Chicken Burger Patty 1 KG",
+            "orderedQty": 1.6,
+            "unit": "1.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-10",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 1.2,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-11",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-12",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-13",
+            "name": "Chicken Kiev Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-14",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 5.4,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-15",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-16",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 1.9,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-17",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.2,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-18",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 2.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-19",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 16,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-20",
+            "name": "Dough Manakish 120 Gr",
+            "orderedQty": 35,
+            "unit": "10.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-21",
+            "name": "Dough Pizza 23cm",
+            "orderedQty": 16,
+            "unit": "17.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-22",
+            "name": "Dredge For Chicken",
+            "orderedQty": 1.8,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-23",
+            "name": "Fish Fried Strips 1 Kg",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-24",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 1.5,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-25",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-26",
+            "name": "Hummus Bi Tahini 1 KG",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-27",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 2.5,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-28",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-29",
+            "name": "Mexican Rice 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-30",
+            "name": "Mixed Cheese",
+            "orderedQty": 4.1,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-31",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 0.9,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-32",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 1.7,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-33",
+            "name": "Potato Wedges 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-34",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-35",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-36",
+            "name": "Sauce Burger 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-37",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1.2,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-38",
+            "name": "Sauce Cheddar Cheese",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-39",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 2.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-40",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-41",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-42",
+            "name": "Sauce Creamy Spinach SR",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-43",
+            "name": "Sauce Guacamole Mik",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-44",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 2.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-45",
+            "name": "Sauce Lemon",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-46",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 2.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-47",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 3.1,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-48",
+            "name": "Sour Cream",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-49",
+            "name": "Spinach Stuffed Chicken 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-50",
+            "name": "Steamed Vegetables 1 KG",
+            "orderedQty": 2.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-51",
+            "name": "SW Dough Cookies",
+            "orderedQty": 1.8,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-52",
+            "name": "Sweet and Sour Sauce 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-53",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 120,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-54",
+            "name": "Waffle",
+            "orderedQty": 16,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-rak-item-55",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "sabis-yas",
+        "branchName": "Sabis YAS",
+        "status": "pending",
+        "items": [
+          {
+            "id": "sabis-yas-item-0",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 5.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-1",
+            "name": "Brownies 1 KG",
+            "orderedQty": 1.1,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-2",
+            "name": "Chich Barak",
+            "orderedQty": 177,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-3",
+            "name": "Chicken Burger Patty 1 KG",
+            "orderedQty": 1.6,
+            "unit": "1.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-4",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 1.2,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-5",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 13.7,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-6",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-7",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 11.2,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-8",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-9",
+            "name": "Dredge For Chicken",
+            "orderedQty": 5.7,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-10",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 8.8,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-11",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 1.5,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-12",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 4.5,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-13",
+            "name": "Mixed Cheese",
+            "orderedQty": 26.2,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-14",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 1.2,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-15",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 2,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-16",
+            "name": "Oven Baked Broasted Chicken by Pc",
+            "orderedQty": 20,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-17",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-18",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-19",
+            "name": "Sauce Burger 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-20",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1.8,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-21",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 7.9,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "sabis-yas-item-22",
+            "name": "SW Dough Cookies",
+            "orderedQty": 3.4,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "ck",
+        "branchName": "CK",
+        "status": "pending",
+        "items": [
+          {
+            "id": "ck-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-1",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-2",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-3",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 6.2,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-4",
+            "name": "Chich Barak",
+            "orderedQty": 111,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-5",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-6",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-7",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-8",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 9.1,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-9",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-10",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 5,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-11",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-12",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-13",
+            "name": "Dough Basic",
+            "orderedQty": 12,
+            "unit": "3.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-14",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-15",
+            "name": "Dredge For Chicken",
+            "orderedQty": 2.9,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-16",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 4.1,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-17",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.7,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-18",
+            "name": "Lemon Juice Fresh",
+            "orderedQty": 2.1,
+            "unit": "1.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-19",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-20",
+            "name": "Mixed Cheese",
+            "orderedQty": 7.4,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-21",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 1.6,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-22",
+            "name": "Pizza Marguerita, 23Cm",
+            "orderedQty": 9.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-23",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-24",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-25",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1.3,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-26",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-27",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-28",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-29",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-30",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-31",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-32",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 0.8,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-33",
+            "name": "Sub Banana",
+            "orderedQty": 37,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-34",
+            "name": "Sub Brk Cheese Calzone with Side Veggies",
+            "orderedQty": 9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-35",
+            "name": "SW Dough Cookies",
+            "orderedQty": 2.2,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-36",
+            "name": "Thyme w Oil Kg",
+            "orderedQty": 0.5,
+            "unit": "0.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-37",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 60,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-38",
+            "name": "Waffle Batter",
+            "orderedQty": 1.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "ck-item-39",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 4.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-ain",
+        "branchName": "ISC Ain",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-ain-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-1",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-2",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-3",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 6.2,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-4",
+            "name": "Chich Barak",
+            "orderedQty": 111,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-5",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-6",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 0.5,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-7",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-8",
+            "name": "Chicken Marinade ( Strips ) 1 Kg",
+            "orderedQty": 9.1,
+            "unit": "3.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-9",
+            "name": "Chicken Marinade Breast 1 Kg",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-10",
+            "name": "Chicken Shawarma Marinated Cooked Schools",
+            "orderedQty": 5,
+            "unit": "5.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-11",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.3,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-12",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-13",
+            "name": "Dough Basic",
+            "orderedQty": 12,
+            "unit": "3.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-14",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-15",
+            "name": "Dredge For Chicken",
+            "orderedQty": 2.9,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-16",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 4.1,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-17",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 0.7,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-18",
+            "name": "Lemon Juice Fresh",
+            "orderedQty": 2.1,
+            "unit": "1.6",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-19",
+            "name": "Mashed Potato 1 KG",
+            "orderedQty": 6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-20",
+            "name": "Mixed Cheese",
+            "orderedQty": 7.4,
+            "unit": "7.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-21",
+            "name": "Muffin Batter White 1 KG",
+            "orderedQty": 1.6,
+            "unit": "1.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-22",
+            "name": "Pizza Marguerita, 23Cm",
+            "orderedQty": 9.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-23",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-24",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-25",
+            "name": "Sauce Caesar 1 KG",
+            "orderedQty": 1.3,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-26",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 3.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-27",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-28",
+            "name": "Sauce Creamy Pesto 1 KG",
+            "orderedQty": 2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-29",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-30",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-31",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-32",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 0.8,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-33",
+            "name": "Sub Banana",
+            "orderedQty": 37,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-34",
+            "name": "Sub Brk Cheese Calzone with Side Veggies",
+            "orderedQty": 9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-35",
+            "name": "SW Dough Cookies",
+            "orderedQty": 2.2,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-36",
+            "name": "Thyme w Oil Kg",
+            "orderedQty": 0.5,
+            "unit": "0.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-37",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 60,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-38",
+            "name": "Waffle Batter",
+            "orderedQty": 1.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-ain-item-39",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 4.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      },
+      {
+        "branchSlug": "isc-khalifa",
+        "branchName": "ISC Khalifa",
+        "status": "pending",
+        "items": [
+          {
+            "id": "isc-khalifa-item-0",
+            "name": "Apple Sauce 1 Kg",
+            "orderedQty": 0.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-1",
+            "name": "Beef Hachwe 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-2",
+            "name": "Beef Mongolian 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-3",
+            "name": "Beef Stroganoff 1 KG",
+            "orderedQty": 4.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-4",
+            "name": "Beef Teriyaki 1 KG",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-5",
+            "name": "Brownies 1 KG",
+            "orderedQty": 3.3,
+            "unit": "2.7",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-6",
+            "name": "Butter Chicken 1 KG",
+            "orderedQty": 4.8,
+            "unit": "7.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-7",
+            "name": "Chicken and Potato Croquettes 1 Kg",
+            "orderedQty": 3.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-8",
+            "name": "Chicken Burger Patty 1 KG",
+            "orderedQty": 7.2,
+            "unit": "1.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-9",
+            "name": "Chicken Fajitas 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.2",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-10",
+            "name": "Chicken Fried Cubes 1 Kg",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-11",
+            "name": "Chicken Honey SR",
+            "orderedQty": 1.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-12",
+            "name": "Chicken Kiev Kg",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-13",
+            "name": "Chicken Quarter Leg  Marinade Sous Vide",
+            "orderedQty": 40,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-14",
+            "name": "Croutons 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.1",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-15",
+            "name": "Date & Biscuit Lazy Cake 1 Kg",
+            "orderedQty": 2.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-16",
+            "name": "Date Sable 1 Kg",
+            "orderedQty": 4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-17",
+            "name": "Dough Basic 70Gr",
+            "orderedQty": 11,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-18",
+            "name": "Dredge For Chicken",
+            "orderedQty": 9.6,
+            "unit": "1.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-19",
+            "name": "Fish Fillet with Cilantro & Garlic Kg",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-20",
+            "name": "Fish Fried Strips 1 Kg",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-21",
+            "name": "Garlic Paste 1 Kg",
+            "orderedQty": 14.7,
+            "unit": "8.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-22",
+            "name": "Honey Mustard Sauce 1 KG",
+            "orderedQty": 4,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-23",
+            "name": "Lazy Cake Kg",
+            "orderedQty": 2.5,
+            "unit": "5.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-24",
+            "name": "Loaf English Banana Cake",
+            "orderedQty": 3.7,
+            "unit": "0.5",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-25",
+            "name": "Loaf English Cake White",
+            "orderedQty": 2.8,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-26",
+            "name": "Muffin Chocolate 1 KG",
+            "orderedQty": 5.6,
+            "unit": "2.8",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-27",
+            "name": "Potato Coriander 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-28",
+            "name": "Potato Wedges 1 KG",
+            "orderedQty": 3.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-29",
+            "name": "Sauce Arrabbiata 1 KG",
+            "orderedQty": 1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-30",
+            "name": "Sauce Bolognese 1 KG",
+            "orderedQty": 1.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-31",
+            "name": "Sauce Burger 1 KG",
+            "orderedQty": 2.7,
+            "unit": "0.4",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-32",
+            "name": "Sauce Chicken Alfredo 1 KG",
+            "orderedQty": 3.1,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-33",
+            "name": "Sauce Chicken Cashew Nuts 1 KG",
+            "orderedQty": 0.6,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-34",
+            "name": "Sauce Chicken King 1 KG",
+            "orderedQty": 0.9,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-35",
+            "name": "Sauce Creamy Cheese",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-36",
+            "name": "Sauce Creamy Salmon 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-37",
+            "name": "Sauce Creamy Spinach SR",
+            "orderedQty": 0.5,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-38",
+            "name": "Sauce Guacamole Mik",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-39",
+            "name": "Sauce Labnieh 1 KG",
+            "orderedQty": 5.3,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-40",
+            "name": "Sauce Pesto 1 KG",
+            "orderedQty": 0.7,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-41",
+            "name": "Sauce Primavera 1 KG",
+            "orderedQty": 2.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-42",
+            "name": "Sauce Tajin 1 KG",
+            "orderedQty": 0.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-43",
+            "name": "Sauce Tomato 1 KG",
+            "orderedQty": 25.6,
+            "unit": "8.3",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-44",
+            "name": "Sour Cream",
+            "orderedQty": 0.2,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-45",
+            "name": "Spinach Stuffed Chicken 1 KG",
+            "orderedQty": 0.8,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-46",
+            "name": "Sub Brk Cheese Calzone with Side Veggies",
+            "orderedQty": 11,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-47",
+            "name": "SW Dough Cookies",
+            "orderedQty": 4.9,
+            "unit": "1.9",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-48",
+            "name": "Vine Leaves in oil By Unit",
+            "orderedQty": 270,
+            "unit": "120.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          },
+          {
+            "id": "isc-khalifa-item-49",
+            "name": "White Sauce 1 KG",
+            "orderedQty": 3.4,
+            "unit": "0.0",
+            "receivedQty": null,
+            "checked": false,
+            "notes": "",
+            "issue": null
+          }
+        ],
+        "receivedBy": null,
+        "receivedAt": null,
+        "completedAt": null,
+        "overallNotes": ""
+      }
+    ],
+    "deletedAt": "2025-11-14T11:15:04.007Z",
+    "deletedBy": "Admin"
   }
 ]

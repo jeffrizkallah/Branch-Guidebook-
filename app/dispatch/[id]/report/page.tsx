@@ -20,7 +20,10 @@ import {
   Printer,
   Download,
   TrendingDown,
-  TrendingUp
+  TrendingUp,
+  ChevronDown,
+  ChevronUp,
+  FileSpreadsheet
 } from 'lucide-react'
 import type { Dispatch, BranchDispatch, DispatchItem } from '@/lib/data'
 
@@ -37,6 +40,8 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const [dispatch, setDispatch] = useState<Dispatch | null>(null)
   const [loading, setLoading] = useState(true)
   const [filterIssueType, setFilterIssueType] = useState<'all' | 'missing' | 'damaged' | 'partial'>('all')
+  const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
+  const [completeDetailsFilter, setCompleteDetailsFilter] = useState<'all' | 'issues'>('all')
   const router = useRouter()
   const isPrintMode = searchParams.print === '1'
 
@@ -65,7 +70,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     if (!dispatch) return
     
     // Create CSV export
-    let csv = 'Branch Name,Item Name,Ordered Qty,Received Qty,Unit,Issue Type,Notes,Status,Received By\n'
+    let csv = 'Branch Name,Item Name,Ordered Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Status,Received By\n'
     
     dispatch.branchDispatches.forEach(bd => {
       bd.items.forEach(item => {
@@ -74,7 +79,8 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           : item.issue === filterIssueType
         
         if (shouldInclude) {
-          csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${item.receivedQty || 0},"${item.unit}","${item.issue || 'none'}","${item.notes}","${bd.status}","${bd.receivedBy || ''}"\n`
+          const stillToSend = item.orderedQty - (item.receivedQty || 0)
+          csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${item.receivedQty || 0},${stillToSend},"${item.unit}","${item.issue || 'none'}","${item.notes}","${bd.status}","${bd.receivedBy || ''}"\n`
         }
       })
     })
@@ -85,6 +91,48 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     a.href = url
     a.download = `dispatch-report-${dispatch.deliveryDate}.csv`
     a.click()
+  }
+
+  const handleExportComplete = () => {
+    if (!dispatch) return
+    
+    // Create CSV export with ALL items
+    let csv = 'Branch Name,Item Name,Ordered Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Checked,Status,Received By,Received At\n'
+    
+    dispatch.branchDispatches.forEach(bd => {
+      bd.items.forEach(item => {
+        const stillToSend = item.orderedQty - (item.receivedQty || 0)
+        csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${item.receivedQty || 0},${stillToSend},"${item.unit}","${item.issue || 'none'}","${item.notes || ''}",${item.checked},"${bd.status}","${bd.receivedBy || ''}","${bd.receivedAt || ''}"\n`
+      })
+    })
+    
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `dispatch-complete-details-${dispatch.deliveryDate}.csv`
+    a.click()
+  }
+
+  const toggleBranch = (branchSlug: string) => {
+    setExpandedBranches(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(branchSlug)) {
+        newSet.delete(branchSlug)
+      } else {
+        newSet.add(branchSlug)
+      }
+      return newSet
+    })
+  }
+
+  const expandAllBranches = () => {
+    const allSlugs = dispatch?.branchDispatches.map(bd => bd.branchSlug) || []
+    setExpandedBranches(new Set(allSlugs))
+  }
+
+  const collapseAllBranches = () => {
+    setExpandedBranches(new Set())
   }
 
   if (loading) {
@@ -416,30 +464,39 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                               <th className="text-left p-3 font-medium">Item Name</th>
                               <th className="text-center p-3 font-medium">Ordered</th>
                               <th className="text-center p-3 font-medium">Received</th>
+                              <th className="text-center p-3 font-medium">Still to Send</th>
                               <th className="text-center p-3 font-medium">Unit</th>
                               <th className="text-center p-3 font-medium">Issue Type</th>
                               <th className="text-left p-3 font-medium">Notes</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {bd.items.map(item => (
-                              <tr key={item.id} className="border-t hover:bg-muted/50">
-                                <td className="p-3 font-medium">{item.name}</td>
-                                <td className="p-3 text-center">{item.orderedQty}</td>
-                                <td className="p-3 text-center">
-                                  <span className={item.receivedQty !== item.orderedQty ? 'text-red-600 font-semibold' : ''}>
-                                    {item.receivedQty || 0}
-                                  </span>
-                                </td>
-                                <td className="p-3 text-center text-sm text-muted-foreground">{item.unit}</td>
-                                <td className="p-3 text-center">
-                                  {item.issue && getIssueTypeBadge(item.issue)}
-                                </td>
-                                <td className="p-3 text-sm">
-                                  {item.notes || <span className="text-muted-foreground italic">No notes</span>}
-                                </td>
-                              </tr>
-                            ))}
+                            {bd.items.map(item => {
+                              const stillToSend = item.orderedQty - (item.receivedQty || 0)
+                              return (
+                                <tr key={item.id} className="border-t hover:bg-muted/50">
+                                  <td className="p-3 font-medium">{item.name}</td>
+                                  <td className="p-3 text-center">{item.orderedQty}</td>
+                                  <td className="p-3 text-center">
+                                    <span className={item.receivedQty !== item.orderedQty ? 'text-red-600 font-semibold' : ''}>
+                                      {item.receivedQty || 0}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-center">
+                                    <span className={stillToSend > 0 ? 'text-orange-600 font-semibold' : 'text-green-600'}>
+                                      {stillToSend.toFixed(1)}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-center text-sm text-muted-foreground">{item.unit}</td>
+                                  <td className="p-3 text-center">
+                                    {item.issue && getIssueTypeBadge(item.issue)}
+                                  </td>
+                                  <td className="p-3 text-sm">
+                                    {item.notes || <span className="text-muted-foreground italic">No notes</span>}
+                                  </td>
+                                </tr>
+                              )
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -516,6 +573,205 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
               </CardContent>
             </Card>
           </div>
+
+          {/* Complete Branch Dispatch Details - Hidden in print mode */}
+          {!isPrintMode && (
+            <div className="space-y-6 mt-8 no-print">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Complete Branch Dispatch Details</h2>
+              </div>
+              
+              {/* Controls */}
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-wrap items-center gap-4 justify-between">
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-medium">Show:</span>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={completeDetailsFilter === 'all' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setCompleteDetailsFilter('all')}
+                        >
+                          All Items
+                        </Button>
+                        <Button
+                          variant={completeDetailsFilter === 'issues' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setCompleteDetailsFilter('issues')}
+                        >
+                          Issues Only
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={expandAllBranches}
+                      >
+                        Expand All
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={collapseAllBranches}
+                      >
+                        Collapse All
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={handleExportComplete}
+                        className="flex items-center gap-2"
+                      >
+                        <FileSpreadsheet className="h-4 w-4" />
+                        Export Complete Details
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Expandable Branch Cards */}
+              <div className="space-y-4">
+                {dispatch.branchDispatches.map(bd => {
+                  const isExpanded = expandedBranches.has(bd.branchSlug)
+                  const issueCount = bd.items.filter(item => item.issue !== null).length
+                  
+                  // Filter items based on completeDetailsFilter
+                  const displayItems = completeDetailsFilter === 'issues' 
+                    ? bd.items.filter(item => item.issue !== null)
+                    : bd.items
+
+                  // Skip branch if no items to display
+                  if (displayItems.length === 0) return null
+
+                  return (
+                    <Card key={bd.branchSlug} className="border-2">
+                      <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => toggleBranch(bd.branchSlug)}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? (
+                              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                            )}
+                            <div>
+                              <CardTitle className="text-xl flex items-center gap-2">
+                                {bd.branchName}
+                                {getStatusBadge(bd.status)}
+                              </CardTitle>
+                              <div className="text-sm text-muted-foreground mt-1">
+                                {displayItems.length} item{displayItems.length !== 1 ? 's' : ''}
+                                {issueCount > 0 && (
+                                  <span className="text-red-600 font-medium ml-2">
+                                    • {issueCount} issue{issueCount !== 1 ? 's' : ''}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right text-sm">
+                            {bd.receivedBy && (
+                              <>
+                                <div className="font-medium">{bd.receivedBy}</div>
+                                {bd.receivedAt && (
+                                  <div className="text-muted-foreground">{formatTime(bd.receivedAt)}</div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+
+                      {isExpanded && (
+                        <CardContent>
+                          {/* Items Table */}
+                          <div className="border rounded-lg overflow-hidden">
+                            <div className="overflow-x-auto">
+                              <table className="w-full">
+                                <thead className="bg-muted">
+                                  <tr>
+                                    <th className="text-left p-3 font-medium">Item Name</th>
+                                    <th className="text-center p-3 font-medium">Ordered</th>
+                                    <th className="text-center p-3 font-medium">Received</th>
+                                    <th className="text-center p-3 font-medium">Still to Send</th>
+                                    <th className="text-center p-3 font-medium">Unit</th>
+                                    <th className="text-center p-3 font-medium">Status</th>
+                                    <th className="text-left p-3 font-medium">Notes</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {displayItems.map(item => {
+                                    const stillToSend = item.orderedQty - (item.receivedQty || 0)
+                                    const hasIssue = item.issue !== null
+                                    const isPerfect = item.receivedQty === item.orderedQty && !hasIssue
+                                    
+                                    return (
+                                      <tr 
+                                        key={item.id} 
+                                        className={`border-t hover:bg-muted/30 ${
+                                          hasIssue ? 'bg-red-50' : isPerfect ? 'bg-green-50' : ''
+                                        }`}
+                                      >
+                                        <td className="p-3 font-medium">{item.name}</td>
+                                        <td className="p-3 text-center">{item.orderedQty}</td>
+                                        <td className="p-3 text-center">
+                                          <span className={item.receivedQty !== item.orderedQty ? 'text-orange-600 font-semibold' : ''}>
+                                            {item.receivedQty ?? 'N/A'}
+                                          </span>
+                                        </td>
+                                        <td className="p-3 text-center">
+                                          <span className={stillToSend > 0 ? 'text-orange-600 font-semibold' : 'text-green-600'}>
+                                            {item.receivedQty !== null ? stillToSend.toFixed(1) : 'N/A'}
+                                          </span>
+                                        </td>
+                                        <td className="p-3 text-center text-sm text-muted-foreground">{item.unit}</td>
+                                        <td className="p-3 text-center">
+                                          {hasIssue ? (
+                                            getIssueTypeBadge(item.issue!)
+                                          ) : isPerfect ? (
+                                            <Badge className="bg-green-500 text-white flex items-center gap-1 w-fit mx-auto">
+                                              <CheckCircle2 className="h-3 w-3" />
+                                              Perfect
+                                            </Badge>
+                                          ) : item.receivedQty === null ? (
+                                            <Badge variant="outline" className="text-muted-foreground">
+                                              Pending
+                                            </Badge>
+                                          ) : (
+                                            <Badge className="bg-blue-500 text-white">
+                                              OK
+                                            </Badge>
+                                          )}
+                                        </td>
+                                        <td className="p-3 text-sm">
+                                          {item.notes || <span className="text-muted-foreground italic">No notes</span>}
+                                        </td>
+                                      </tr>
+                                    )
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          {/* Overall Branch Notes */}
+                          {bd.overallNotes && (
+                            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <div className="font-medium text-sm mb-1">Overall Branch Notes:</div>
+                              <div className="text-sm">{bd.overallNotes}</div>
+                            </div>
+                          )}
+                        </CardContent>
+                      )}
+                    </Card>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </main>
 
         {!isPrintMode && <Footer />}

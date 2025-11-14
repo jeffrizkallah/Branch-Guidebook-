@@ -71,7 +71,7 @@ export function PinProtection({ children }: PinProtectionProps) {
                   maxLength={6}
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Enter 4-6 digit PIN"
+                  placeholder="Enter 4 digit PIN"
                   className="text-center text-2xl tracking-widest"
                   autoFocus
                 />
