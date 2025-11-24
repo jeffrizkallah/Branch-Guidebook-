@@ -103,7 +103,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     })
   }
 
-  const handleIssue = (itemId: string, issue: 'missing' | 'damaged' | 'partial' | null) => {
+  const handleIssue = (itemId: string, issue: 'missing' | 'damaged' | 'partial' | 'shortage' | null) => {
     if (!branchDispatch) return
 
     const updatedItems = branchDispatch.items.map(item => {
@@ -493,6 +493,13 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                               onClick={() => handleIssue(item.id, item.issue === 'partial' ? null : 'partial')}
                             >
                               Partial
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={item.issue === 'shortage' ? "destructive" : "outline"}
+                              onClick={() => handleIssue(item.id, item.issue === 'shortage' ? null : 'shortage')}
+                            >
+                              Shortage
                             </Button>
                           </div>
 

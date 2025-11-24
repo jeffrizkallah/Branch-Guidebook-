@@ -39,7 +39,7 @@ interface ReportPageProps {
 export default function DispatchReportPage({ params, searchParams }: ReportPageProps) {
   const [dispatch, setDispatch] = useState<Dispatch | null>(null)
   const [loading, setLoading] = useState(true)
-  const [filterIssueType, setFilterIssueType] = useState<'all' | 'missing' | 'damaged' | 'partial'>('all')
+  const [filterIssueType, setFilterIssueType] = useState<'all' | 'missing' | 'damaged' | 'partial' | 'shortage'>('all')
   const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
   const [completeDetailsFilter, setCompleteDetailsFilter] = useState<'all' | 'issues'>('all')
   const router = useRouter()
@@ -197,6 +197,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const missingItems = itemsWithIssues.filter(item => item.issue === 'missing')
   const damagedItems = itemsWithIssues.filter(item => item.issue === 'damaged')
   const partialItems = itemsWithIssues.filter(item => item.issue === 'partial')
+  const shortageItems = itemsWithIssues.filter(item => item.issue === 'shortage')
   const branchesWithIssues = dispatch.branchDispatches.filter(bd => 
     bd.items.some(item => item.issue !== null)
   )
@@ -231,11 +232,12 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     })
   }
 
-  const getIssueTypeBadge = (issueType: 'missing' | 'damaged' | 'partial') => {
+  const getIssueTypeBadge = (issueType: 'missing' | 'damaged' | 'partial' | 'shortage') => {
     const config = {
       missing: { color: 'bg-red-500', label: 'Missing', icon: XCircle },
       damaged: { color: 'bg-orange-500', label: 'Damaged', icon: AlertTriangle },
-      partial: { color: 'bg-yellow-500', label: 'Partial', icon: TrendingDown }
+      partial: { color: 'bg-yellow-500', label: 'Partial', icon: TrendingDown },
+      shortage: { color: 'bg-purple-500', label: 'Shortage', icon: TrendingDown }
     }
     const { color, label, icon: Icon } = config[issueType]
     return (
@@ -419,6 +421,13 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                       onClick={() => setFilterIssueType('partial')}
                     >
                       Partial ({partialItems.length})
+                    </Button>
+                    <Button
+                      variant={filterIssueType === 'shortage' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilterIssueType('shortage')}
+                    >
+                      Shortage ({shortageItems.length})
                     </Button>
                   </div>
                 </div>
