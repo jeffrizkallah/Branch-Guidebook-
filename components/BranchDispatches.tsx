@@ -101,39 +101,42 @@ export function BranchDispatches({ branchSlug }: BranchDispatchesProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Package className="h-5 w-5" />
-          Dispatches & Deliveries
+    <Card className="overflow-hidden">
+      <CardHeader className="px-4 py-3 md:px-6 md:py-4">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl">
+          <Package className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+          <span className="break-words">Dispatches & Deliveries</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 py-3 md:px-6 md:py-4">
         {/* Tabs */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-1.5 sm:gap-2 mb-4 overflow-x-auto pb-1">
           <Button
             variant={activeTab === 'pending' ? "default" : "outline"}
             onClick={() => setActiveTab('pending')}
-            className="flex-1"
+            size="sm"
+            className="flex-1 min-w-[85px] text-xs sm:text-sm px-2 sm:px-3"
           >
-            <Clock className="h-4 w-4 mr-2" />
-            Pending ({pendingDispatches.length})
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 shrink-0" />
+            <span className="whitespace-nowrap">Pending ({pendingDispatches.length})</span>
           </Button>
           <Button
             variant={activeTab === 'dispatched' ? "default" : "outline"}
             onClick={() => setActiveTab('dispatched')}
-            className="flex-1"
+            size="sm"
+            className="flex-1 min-w-[100px] text-xs sm:text-sm px-2 sm:px-3"
           >
-            <Package className="h-4 w-4 mr-2" />
-            Dispatched ({dispatchedDispatches.length})
+            <Package className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 shrink-0" />
+            <span className="whitespace-nowrap">Dispatched ({dispatchedDispatches.length})</span>
           </Button>
           <Button
             variant={activeTab === 'completed' ? "default" : "outline"}
             onClick={() => setActiveTab('completed')}
-            className="flex-1"
+            size="sm"
+            className="flex-1 min-w-[80px] text-xs sm:text-sm px-2 sm:px-3"
           >
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Done ({completedDispatches.length})
+            <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2 shrink-0" />
+            <span className="whitespace-nowrap">Done ({completedDispatches.length})</span>
           </Button>
         </div>
 
@@ -185,41 +188,41 @@ export function BranchDispatches({ branchSlug }: BranchDispatchesProps) {
               return (
                 <div 
                   key={dispatch.id} 
-                  className={`border rounded-lg p-4 ${
+                  className={`border rounded-lg p-3 sm:p-4 min-w-0 ${
                     isCompleted ? 'border-l-4 border-l-green-500' :
                     isDispatched || isReceiving ? 'border-l-4 border-l-orange-500' :
                     'border-l-4 border-l-blue-500'
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
+                  <div className="flex flex-col gap-2 mb-3 min-w-0">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-2">
                         {bd.status === 'pending' && (
-                          <Badge variant="secondary" className="flex items-center gap-1">
+                          <Badge variant="secondary" className="flex items-center gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                             📋 Ready to Pack
                           </Badge>
                         )}
                         {isPacking && (
-                          <Badge variant="default" className="flex items-center gap-1 bg-blue-600">
+                          <Badge variant="default" className="flex items-center gap-1 bg-blue-600 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                             🔄 Packing
                           </Badge>
                         )}
                         {(isDispatched || isReceiving) && (
-                          <Badge variant="secondary" className="flex items-center gap-1 bg-orange-600 text-white">
+                          <Badge variant="secondary" className="flex items-center gap-1 bg-orange-600 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
                             📦 Ready to Receive
                           </Badge>
                         )}
                         {issuesCount > 0 && (
-                          <Badge variant="destructive" className="flex items-center gap-1">
-                            <AlertTriangle className="h-3 w-3" />
+                          <Badge variant="destructive" className="flex items-center gap-1 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5">
+                            <AlertTriangle className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                             {issuesCount} Issue{issuesCount > 1 ? 's' : ''}
                           </Badge>
                         )}
                       </div>
-                      <div className="font-semibold text-lg">
+                      <div className="font-semibold text-sm sm:text-base md:text-lg break-words">
                         Delivery: {formatDate(dispatch.deliveryDate)}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">
                         {bd.items.length} items
                         {bd.packedBy && ` • Packed by ${bd.packedBy}`}
                         {bd.receivedBy && ` • Received by ${bd.receivedBy}`}
@@ -229,17 +232,17 @@ export function BranchDispatches({ branchSlug }: BranchDispatchesProps) {
 
                   {/* Progress for packing/receiving */}
                   {!isCompleted && (
-                    <div className="mb-3">
-                      <div className="text-xs text-muted-foreground mb-1">
+                    <div className="mb-3 min-w-0">
+                      <div className="text-[10px] sm:text-xs text-muted-foreground mb-1">
                         {isPacking || bd.status === 'pending' ? (
                           <>{bd.items.filter(item => item.packedChecked).length}/{bd.items.length} items packed</>
                         ) : (
                           <>{bd.items.filter(item => item.receivedChecked).length}/{bd.items.length} items received</>
                         )}
                       </div>
-                      <div className="w-full bg-muted rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-1.5 sm:h-2">
                         <div 
-                          className="bg-primary rounded-full h-2 transition-all"
+                          className="bg-primary rounded-full h-1.5 sm:h-2 transition-all"
                           style={{ 
                             width: `${isPacking || bd.status === 'pending' 
                               ? (bd.items.filter(item => item.packedChecked).length / bd.items.length) * 100
@@ -252,13 +255,14 @@ export function BranchDispatches({ branchSlug }: BranchDispatchesProps) {
                   )}
 
                   {/* Action Button */}
-                  <Link href={`/dispatch/${dispatch.id}/branch/${branchSlug}`}>
+                  <Link href={`/dispatch/${dispatch.id}/branch/${branchSlug}`} className="block">
                     <Button 
-                      className="w-full"
+                      className="w-full text-xs sm:text-sm"
                       variant={isCompleted ? "outline" : "default"}
+                      size="sm"
                     >
-                      <ButtonIcon className="h-4 w-4 mr-2" />
-                      {buttonText}
+                      <ButtonIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 shrink-0" />
+                      <span className="truncate">{buttonText}</span>
                     </Button>
                   </Link>
                 </div>

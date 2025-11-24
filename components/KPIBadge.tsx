@@ -27,8 +27,8 @@ export function KPIBadge({ label, value, type = 'default' }: KPIBadgeProps) {
   }
 
   return (
-    <Badge variant="outline" className={cn('font-medium', getVariantClass())}>
-      {label}: {value}
+    <Badge variant="outline" className={cn('font-medium text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 w-full justify-center break-words', getVariantClass())}>
+      <span className="truncate">{label}: {value}</span>
     </Badge>
   )
 }

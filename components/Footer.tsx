@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Lock } from 'lucide-react'
 
 export function Footer() {
-  const version = '1.0.0'
+  const version = '2.0.0'
   const currentYear = new Date().getFullYear()
 
   return (

@@ -26,14 +26,20 @@ export function RoleTabs({ roles, branchSlug, defaultRole }: RoleTabsProps) {
   }
 
   return (
-    <Tabs value={activeRole} onValueChange={setActiveRole} className="w-full">
-      <TabsList className="w-full inline-flex md:grid md:grid-cols-5 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start h-10">
-        {roles.map(role => (
-          <TabsTrigger key={role.roleId} value={role.roleId} className="flex-shrink-0">
-            {role.name}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+    <Tabs value={activeRole} onValueChange={setActiveRole} className="w-full overflow-hidden">
+      <div className="w-full overflow-x-auto overflow-y-hidden pb-2 -mb-2">
+        <TabsList className="w-full inline-flex md:grid md:grid-cols-5 justify-start h-auto min-h-[36px]">
+          {roles.map(role => (
+            <TabsTrigger 
+              key={role.roleId} 
+              value={role.roleId} 
+              className="flex-shrink-0 whitespace-nowrap text-xs sm:text-sm px-3 py-2"
+            >
+              {role.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </div>
 
       {roles.map(role => {
         const roleData = getRole(role.roleId)
@@ -49,33 +55,34 @@ export function RoleTabs({ roles, branchSlug, defaultRole }: RoleTabsProps) {
         }
 
         return (
-          <TabsContent key={role.roleId} value={role.roleId} className="mt-6">
-            <div className="rounded-lg border bg-card p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold">{role.name}</h3>
-                <Link href={`/branch/${branchSlug}/role/${role.roleId}`}>
-                  <Button variant="default" size="sm">
-                    View Full Details
-                    <ChevronRight className="ml-2 h-4 w-4" />
+          <TabsContent key={role.roleId} value={role.roleId} className="mt-4 md:mt-6">
+            <div className="rounded-lg border bg-card p-3 sm:p-4 md:p-6 space-y-3 md:space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 sm:justify-between min-w-0">
+                <h3 className="text-base sm:text-lg md:text-xl font-semibold break-words">{role.name}</h3>
+                <Link href={`/branch/${branchSlug}/role/${role.roleId}`} className="w-full sm:w-auto shrink-0">
+                  <Button variant="default" size="sm" className="w-full sm:w-auto text-xs sm:text-sm">
+                    <span className="hidden sm:inline">View Full Details</span>
+                    <span className="sm:hidden">View Details</span>
+                    <ChevronRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </Link>
               </div>
               
               {/* Role Description */}
-              <p className="text-sm text-muted-foreground">{roleData.description}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground break-words">{roleData.description}</p>
               
               {/* Quick Preview of Key Responsibilities */}
-              <div>
-                <h4 className="font-semibold mb-2 text-sm">Key Responsibilities:</h4>
-                <ul className="space-y-1 text-sm">
+              <div className="min-w-0">
+                <h4 className="font-semibold mb-2 text-xs sm:text-sm">Key Responsibilities:</h4>
+                <ul className="space-y-1.5 text-xs sm:text-sm">
                   {roleData.responsibilities.slice(0, 3).map((resp, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span>{resp}</span>
+                    <li key={i} className="flex items-start gap-2 min-w-0">
+                      <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="break-words min-w-0">{resp}</span>
                     </li>
                   ))}
                   {roleData.responsibilities.length > 3 && (
-                    <li className="text-muted-foreground ml-6">
+                    <li className="text-muted-foreground ml-5 sm:ml-6">
                       +{roleData.responsibilities.length - 3} more...
                     </li>
                   )}
@@ -83,16 +90,16 @@ export function RoleTabs({ roles, branchSlug, defaultRole }: RoleTabsProps) {
               </div>
               
               {/* Quick Action Buttons */}
-              <div className="flex gap-2 pt-2 flex-wrap">
-                <Link href={`/branch/${branchSlug}/role/${role.roleId}#timeline`}>
-                  <Button variant="outline" size="sm">
-                    <Clock className="mr-2 h-4 w-4" />
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Link href={`/branch/${branchSlug}/role/${role.roleId}#timeline`} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+                    <Clock className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     Daily Timeline
                   </Button>
                 </Link>
-                <Link href={`/branch/${branchSlug}/role/${role.roleId}#checklists`}>
-                  <Button variant="outline" size="sm">
-                    <ListChecks className="mr-2 h-4 w-4" />
+                <Link href={`/branch/${branchSlug}/role/${role.roleId}#checklists`} className="flex-1">
+                  <Button variant="outline" size="sm" className="w-full text-xs sm:text-sm">
+                    <ListChecks className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     Checklists
                   </Button>
                 </Link>

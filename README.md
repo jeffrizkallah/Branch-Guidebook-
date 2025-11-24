@@ -34,13 +34,20 @@ pnpm install
 ### Development
 
 ```bash
-# Run development server
+# Run development server (default port 3000)
 npm run dev
 # or
 pnpm dev
+
+# Run on specific port (e.g., 3001)
+npm run dev:3001
+# or
+next dev -p 3001
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser (or the port you specified).
+
+**Note**: If port 3000 is already in use, Next.js will automatically use the next available port (usually 3001). Check the terminal output to see which port the server is running on.
 
 ### Build for Production
 
@@ -294,6 +301,7 @@ For issues or questions:
 
 ## Version History
 
+- **2.0.0** (Current) - Latest version
 - **1.0.0** (November 2025) - Initial release
   - 12 branches
   - 5 roles

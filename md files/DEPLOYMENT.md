@@ -184,6 +184,6 @@ For issues or questions:
 
 ## Version
 
-Current Version: 1.0.0  
+Current Version: 2.0.0  
 Last Updated: November 12, 2025
 
