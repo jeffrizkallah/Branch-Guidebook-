@@ -108,11 +108,20 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
     const updatedItems = branchDispatch.items.map(item => {
       if (item.id === itemId) {
-        return {
-          ...item,
-          issue,
-          checked: issue === null,
-          receivedQty: issue === null ? item.orderedQty : (issue === 'missing' ? 0 : null)
+        if (mode === 'packing') {
+          return {
+            ...item,
+            issue,
+            packedChecked: issue === null,
+            packedQty: issue === null ? item.orderedQty : (issue === 'missing' ? 0 : null)
+          }
+        } else {
+          return {
+            ...item,
+            issue,
+            receivedChecked: issue === null,
+            receivedQty: issue === null ? item.orderedQty : (issue === 'missing' ? 0 : null)
+          }
         }
       }
       return item
@@ -405,7 +414,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                 <div 
                   key={item.id} 
                   className={`border rounded-lg p-4 ${
-                    item.checked ? 'bg-green-50 border-green-200' : 
+                    (mode === 'packing' ? item.packedChecked : item.receivedChecked) ? 'bg-green-50 border-green-200' : 
                     item.issue ? 'bg-red-50 border-red-200' : 
                     'bg-white'
                   }`}
