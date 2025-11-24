@@ -500,14 +500,6 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                             >
                               Partial
                             </Button>
-                            <Button
-                              size="sm"
-                              variant={item.issue === 'shortage' ? "destructive" : "outline"}
-                              onClick={() => handleIssue(item.id, item.issue === 'shortage' ? null : 'shortage')}
-                              className="text-xs md:text-sm h-8 md:h-9"
-                            >
-                              Shortage
-                            </Button>
                           </div>
 
                           {/* Partial Quantity Input */}
