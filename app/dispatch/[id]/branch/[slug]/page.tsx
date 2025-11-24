@@ -337,7 +337,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
       <Sidebar />
       
       <main className="flex-1 flex flex-col pt-16 md:pt-0">
-        <div className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+        <div className="flex-1 container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl">
           <Breadcrumbs
           items={[
             { label: 'Home', href: '/' },
@@ -347,54 +347,55 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
         />
 
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-4 md:mb-6">
           <Link href={`/branch/${params.slug}`}>
-            <Button variant="ghost" size="sm" className="mb-4">
+            <Button variant="ghost" size="sm" className="mb-3 md:mb-4 -ml-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Branch
             </Button>
           </Link>
           
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
+          <div className="flex items-start justify-between gap-3 mb-3 md:mb-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">
                 {mode === 'packing' ? '📋 Packing Checklist' : '📦 Receiving Checklist'}
               </h1>
-              <p className="text-lg text-muted-foreground">{branch.name}</p>
+              <p className="text-sm md:text-lg text-muted-foreground truncate">{branch.name}</p>
               {mode === 'receiving' && branchDispatch.packedBy && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs md:text-sm text-muted-foreground mt-0.5 md:mt-1">
                   Packed by: {branchDispatch.packedBy}
                 </p>
               )}
             </div>
             {isCompleted && (
-              <Badge className="flex items-center gap-2 text-lg px-4 py-2">
-                <CheckCircle2 className="h-5 w-5" />
-                Completed
+              <Badge className="flex items-center gap-1 md:gap-2 text-xs md:text-base px-2 py-1 md:px-4 md:py-2 shrink-0">
+                <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
+                <span className="hidden md:inline">Completed</span>
+                <span className="md:hidden">✓</span>
               </Badge>
             )}
           </div>
 
           {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-sm mb-2">
+          <div className="mb-3 md:mb-4">
+            <div className="flex items-center justify-between text-xs md:text-sm mb-1.5 md:mb-2">
               <span className="font-medium">
                 Progress: {checkedCount}/{totalCount} items
               </span>
               <span className="text-muted-foreground">{progressPercent}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-3">
+            <div className="w-full bg-muted rounded-full h-2 md:h-3">
               <div 
-                className="bg-primary rounded-full h-3 transition-all duration-300"
+                className="bg-primary rounded-full h-2 md:h-3 transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
 
           {issuesCount > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-red-700">
-              <AlertTriangle className="h-5 w-5" />
-              <span className="font-medium">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-2 md:p-3 flex items-center gap-2 text-red-700">
+              <AlertTriangle className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+              <span className="text-xs md:text-sm font-medium">
                 {issuesCount} item{issuesCount > 1 ? 's have' : ' has'} issues
               </span>
             </div>
@@ -403,39 +404,40 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
         {/* Items Checklist */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base md:text-xl">
               {mode === 'packing' ? 'Items to Pack' : 'Items to Receive'}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-2 md:space-y-4">
               {branchDispatch.items.map((item, index) => (
                 <div 
                   key={item.id} 
-                  className={`border rounded-lg p-4 ${
+                  className={`border rounded-lg p-2 md:p-4 ${
                     (mode === 'packing' ? item.packedChecked : item.receivedChecked) ? 'bg-green-50 border-green-200' : 
                     item.issue ? 'bg-red-50 border-red-200' : 
                     'bg-white'
                   }`}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-sm font-semibold">
+                  <div className="flex items-start gap-2 md:gap-4">
+                    <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-full bg-muted text-xs md:text-sm font-semibold shrink-0">
                       {index + 1}
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="font-semibold text-lg mb-1">{item.name}</div>
+                    <div className="flex-1 min-w-0">
+                      {/* Item Header - Mobile Optimized */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm md:text-lg mb-0.5">{item.name}</div>
                           
                           {mode === 'packing' ? (
-                            <div className="text-muted-foreground">
+                            <div className="text-xs md:text-sm text-muted-foreground">
                               Ordered: {item.orderedQty} {item.orderedQty > 150 ? 'unit' : 'KG'}
                             </div>
                           ) : (
-                            <div className="text-sm">
-                              <div className="flex items-center gap-2 text-muted-foreground">
+                            <div className="text-xs md:text-sm">
+                              <div className="flex items-center gap-1 md:gap-2 text-muted-foreground flex-wrap">
                                 <span>Ordered: {item.orderedQty}</span>
                                 <span>→</span>
                                 <span className={item.packedQty !== item.orderedQty ? 'text-orange-600 font-semibold' : ''}>
@@ -453,30 +455,32 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                         </div>
                         
                         {!isCompleted && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 md:gap-2 shrink-0">
                             <Checkbox
                               checked={mode === 'packing' ? item.packedChecked : item.receivedChecked}
                               onCheckedChange={(checked) => handleItemCheck(item.id, checked as boolean)}
+                              className="md:h-5 md:w-5"
                             />
-                            <label className="text-sm font-medium cursor-pointer">
+                            <label className="text-xs md:text-sm font-medium cursor-pointer whitespace-nowrap">
                               {mode === 'packing' ? 'Packed' : 'Received'}
                             </label>
                           </div>
                         )}
                         
                         {((mode === 'packing' && item.packedChecked) || (mode === 'receiving' && item.receivedChecked)) && (
-                          <CheckCircle2 className="h-6 w-6 text-green-600" />
+                          <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6 text-green-600 shrink-0" />
                         )}
                       </div>
 
                       {!isCompleted && (
                         <>
-                          {/* Issue Buttons */}
-                          <div className="flex flex-wrap gap-2 mb-3">
+                          {/* Issue Buttons - Compact on Mobile */}
+                          <div className="grid grid-cols-2 md:flex md:flex-wrap gap-1.5 md:gap-2 mb-2">
                             <Button
                               size="sm"
                               variant={item.issue === 'missing' ? "destructive" : "outline"}
                               onClick={() => handleIssue(item.id, item.issue === 'missing' ? null : 'missing')}
+                              className="text-xs md:text-sm h-8 md:h-9"
                             >
                               Missing
                             </Button>
@@ -484,6 +488,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                               size="sm"
                               variant={item.issue === 'damaged' ? "destructive" : "outline"}
                               onClick={() => handleIssue(item.id, item.issue === 'damaged' ? null : 'damaged')}
+                              className="text-xs md:text-sm h-8 md:h-9"
                             >
                               Damaged
                             </Button>
@@ -491,6 +496,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                               size="sm"
                               variant={item.issue === 'partial' ? "destructive" : "outline"}
                               onClick={() => handleIssue(item.id, item.issue === 'partial' ? null : 'partial')}
+                              className="text-xs md:text-sm h-8 md:h-9"
                             >
                               Partial
                             </Button>
@@ -498,6 +504,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                               size="sm"
                               variant={item.issue === 'shortage' ? "destructive" : "outline"}
                               onClick={() => handleIssue(item.id, item.issue === 'shortage' ? null : 'shortage')}
+                              className="text-xs md:text-sm h-8 md:h-9"
                             >
                               Shortage
                             </Button>
@@ -505,8 +512,8 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
                           {/* Partial Quantity Input */}
                           {item.issue === 'partial' && (
-                            <div className="mb-3">
-                              <label className="text-sm font-medium mb-1 block">
+                            <div className="mb-2">
+                              <label className="text-xs md:text-sm font-medium mb-1 block">
                                 {mode === 'packing' ? 'Packed' : 'Received'} Quantity:
                               </label>
                               <div className="flex items-center gap-2">
@@ -515,24 +522,51 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                                   step="0.1"
                                   value={(mode === 'packing' ? item.packedQty : item.receivedQty) || ''}
                                   onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                                  className="w-32"
+                                  className="w-24 md:w-32 h-9 text-sm"
                                 />
-                                <span className="text-sm text-muted-foreground">{item.orderedQty > 150 ? 'unit' : 'KG'}</span>
+                                <span className="text-xs md:text-sm text-muted-foreground">{item.orderedQty > 150 ? 'unit' : 'KG'}</span>
                               </div>
                             </div>
                           )}
 
-                          {/* Notes */}
-                          <div>
-                            <label className="text-sm font-medium mb-1 block">
-                              Notes:
-                            </label>
+                          {/* Notes - Collapsible on Mobile */}
+                          {(item.notes || item.issue) && (
+                            <div>
+                              <label className="text-xs md:text-sm font-medium mb-1 block">
+                                Notes:
+                              </label>
+                              <Input
+                                placeholder="Add notes..."
+                                value={item.notes}
+                                onChange={(e) => handleNotes(item.id, e.target.value)}
+                                className="text-xs md:text-sm h-9"
+                              />
+                            </div>
+                          )}
+                          {!item.notes && !item.issue && (
+                            <button 
+                              onClick={(e) => {
+                                const input = e.currentTarget.nextElementSibling as HTMLInputElement;
+                                input?.focus();
+                              }}
+                              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              + Add note
+                            </button>
+                          )}
+                          {(!item.notes && !item.issue) && (
                             <Input
-                              placeholder="Add any notes about this item..."
+                              placeholder="Add notes..."
                               value={item.notes}
                               onChange={(e) => handleNotes(item.id, e.target.value)}
+                              className="text-xs md:text-sm h-9 mt-1 hidden focus:block"
+                              onBlur={(e) => {
+                                if (!e.target.value) {
+                                  e.target.classList.add('hidden');
+                                }
+                              }}
                             />
-                          </div>
+                          )}
                         </>
                       )}
 
@@ -561,21 +595,21 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
         </Card>
 
         {/* Overall Notes & Completion */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Overall Notes & Sign-off</CardTitle>
+        <Card className="mb-4 md:mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base md:text-xl">Overall Notes & Sign-off</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className="text-xs md:text-sm font-medium mb-1.5 md:mb-2 block">
                   {mode === 'packing' ? 'Packing Notes:' : 'Delivery Notes:'}
                 </label>
                 <textarea
-                  className="w-full h-24 p-3 border rounded-lg"
+                  className="w-full h-20 md:h-24 p-2 md:p-3 border rounded-lg text-sm"
                   placeholder={mode === 'packing' 
-                    ? "Any notes about packing (box numbers, substitutions, shortages, etc.)" 
-                    : "Any notes about delivery (timing, condition, driver info, etc.)"}
+                    ? "Any notes about packing..." 
+                    : "Any notes about delivery..."}
                   value={overallNotes}
                   onChange={(e) => setOverallNotes(e.target.value)}
                   disabled={isCompleted}
@@ -584,22 +618,23 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
               {!isCompleted && (
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label className="text-xs md:text-sm font-medium mb-1.5 md:mb-2 block">
                     {mode === 'packing' ? 'Packed By: *' : 'Received By: *'}
                   </label>
                   <Input
                     placeholder="Enter your name"
                     value={mode === 'packing' ? packedBy : receivedBy}
                     onChange={(e) => mode === 'packing' ? setPackedBy(e.target.value) : setReceivedBy(e.target.value)}
+                    className="h-9 md:h-10 text-sm"
                   />
                 </div>
               )}
 
               {isCompleted && (
-                <div className="bg-muted p-4 rounded-lg space-y-2">
+                <div className="bg-muted p-3 md:p-4 rounded-lg space-y-2 text-sm">
                   {branchDispatch.packedBy && (
                     <div>
-                      <div className="text-sm text-muted-foreground">Packed by:</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">Packed by:</div>
                       <div className="font-semibold">{branchDispatch.packedBy}</div>
                       {branchDispatch.packingCompletedAt && (
                         <div className="text-xs text-muted-foreground">
@@ -610,7 +645,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                   )}
                   {branchDispatch.receivedBy && (
                     <div className="mt-2">
-                      <div className="text-sm text-muted-foreground">Received by:</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">Received by:</div>
                       <div className="font-semibold">{branchDispatch.receivedBy}</div>
                       {branchDispatch.completedAt && (
                         <div className="text-xs text-muted-foreground">
@@ -627,12 +662,12 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
         {/* Action Buttons */}
         {!isCompleted && (
-          <div className="flex gap-3">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-3">
             <Button 
               onClick={saveProgress} 
               variant="outline"
               disabled={saving}
-              className="flex-1"
+              className="flex-1 h-10 md:h-auto text-sm"
             >
               <Save className="h-4 w-4 mr-2" />
               {saving ? 'Saving...' : 'Save Progress'}
@@ -640,7 +675,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
             <Button 
               onClick={completeDispatch}
               disabled={saving}
-              className="flex-1"
+              className="flex-1 h-10 md:h-auto text-sm"
             >
               <CheckCircle2 className="h-4 w-4 mr-2" />
               {saving 
