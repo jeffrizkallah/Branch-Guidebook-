@@ -1,38 +1,27 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { sql } from '@vercel/postgres'
 import { Recipe } from '@/lib/data'
 
-const dataFilePath = path.join(process.cwd(), 'data', 'recipes.json')
-
-async function getRecipes(): Promise<Recipe[]> {
-  try {
-    const fileContent = await fs.readFile(dataFilePath, 'utf-8')
-    return JSON.parse(fileContent)
-  } catch (error) {
-    console.error('Error reading recipes file:', error)
-    return []
-  }
-}
-
-async function saveRecipes(recipes: Recipe[]) {
-  try {
-    await fs.writeFile(dataFilePath, JSON.stringify(recipes, null, 2), 'utf-8')
-    return true
-  } catch (error) {
-    console.error('Error writing recipes file:', error)
-    return false
-  }
-}
-
 export async function GET() {
-  const recipes = await getRecipes()
-  return NextResponse.json(recipes)
+  try {
+    const result = await sql`
+      SELECT recipe_data as data
+      FROM recipes
+      ORDER BY (recipe_data->>'name')
+    `
+    
+    const recipes = result.rows.map(row => row.data)
+    return NextResponse.json(recipes)
+  } catch (error) {
+    console.error('Error fetching recipes:', error)
+    // Fallback to empty array on error
+    return NextResponse.json([])
+  }
 }
 
 export async function POST(request: Request) {
   try {
-    const newRecipe = await request.json()
+    const newRecipe: Recipe = await request.json()
     
     // Basic validation
     if (!newRecipe.recipeId || !newRecipe.name) {
@@ -42,23 +31,12 @@ export async function POST(request: Request) {
       )
     }
 
-    const recipes = await getRecipes()
+    // Insert new recipe into database
+    await sql`
+      INSERT INTO recipes (recipe_id, recipe_data)
+      VALUES (${newRecipe.recipeId}, ${JSON.stringify(newRecipe)}::jsonb)
+    `
     
-    // Check if ID exists
-    if (recipes.some(r => r.recipeId === newRecipe.recipeId)) {
-      return NextResponse.json(
-        { error: 'Recipe ID already exists' },
-        { status: 409 }
-      )
-    }
-
-    recipes.push(newRecipe)
-    const success = await saveRecipes(recipes)
-
-    if (!success) {
-      throw new Error('Failed to save file')
-    }
-
     return NextResponse.json(newRecipe, { status: 201 })
   } catch (error) {
     console.error('Error creating recipe:', error)
@@ -68,4 +46,3 @@ export async function POST(request: Request) {
     )
   }
 }
-

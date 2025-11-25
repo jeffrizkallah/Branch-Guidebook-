@@ -1,22 +1,6 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import { sql } from '@vercel/postgres'
 import { Recipe } from '@/lib/data'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'recipes.json')
-
-async function getRecipes(): Promise<Recipe[]> {
-  try {
-    const fileContent = await fs.readFile(dataFilePath, 'utf-8')
-    return JSON.parse(fileContent)
-  } catch (error) {
-    return []
-  }
-}
-
-async function saveRecipes(recipes: Recipe[]) {
-  await fs.writeFile(dataFilePath, JSON.stringify(recipes, null, 2), 'utf-8')
-}
 
 export async function PUT(
   request: Request,
@@ -24,21 +8,21 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const updates = await request.json()
-    const recipes = await getRecipes()
+    const updates: Recipe = await request.json()
     
-    const index = recipes.findIndex(r => r.recipeId === id)
-    if (index === -1) {
+    // Update recipe in database
+    const result = await sql`
+      UPDATE recipes
+      SET recipe_data = ${JSON.stringify(updates)}::jsonb
+      WHERE recipe_id = ${id}
+      RETURNING recipe_data as data
+    `
+    
+    if (result.rowCount === 0) {
       return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
     }
 
-    // Update recipe - ensure ID matches path
-    const updatedRecipe = { ...recipes[index], ...updates, recipeId: id }
-    recipes[index] = updatedRecipe
-    
-    await saveRecipes(recipes)
-
-    return NextResponse.json(updatedRecipe)
+    return NextResponse.json(result.rows[0].data)
   } catch (error) {
     console.error('Error updating recipe:', error)
     return NextResponse.json(
@@ -54,15 +38,17 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const recipes = await getRecipes()
     
-    const filteredRecipes = recipes.filter(r => r.recipeId !== id)
+    // Delete recipe from database
+    const result = await sql`
+      DELETE FROM recipes
+      WHERE recipe_id = ${id}
+      RETURNING recipe_id
+    `
     
-    if (filteredRecipes.length === recipes.length) {
+    if (result.rowCount === 0) {
       return NextResponse.json({ error: 'Recipe not found' }, { status: 404 })
     }
-
-    await saveRecipes(filteredRecipes)
 
     return NextResponse.json({ success: true })
   } catch (error) {
@@ -73,4 +59,3 @@ export async function DELETE(
     )
   }
 }
-
