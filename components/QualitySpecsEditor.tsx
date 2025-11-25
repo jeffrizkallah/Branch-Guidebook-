@@ -1,11 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
-import { Plus, Trash2 } from 'lucide-react'
+import { Eye, Cookie, Utensils, Wind } from 'lucide-react'
 import type { QualitySpecification } from '@/lib/data'
 
 interface QualitySpecsEditorProps {
@@ -13,139 +10,156 @@ interface QualitySpecsEditorProps {
   onChange: (qualitySpecs: QualitySpecification[]) => void
 }
 
-export function QualitySpecsEditor({ qualitySpecs, onChange }: QualitySpecsEditorProps) {
-  const addQualitySpec = () => {
-    onChange([
-      ...qualitySpecs,
-      {
-        aspect: '',
-        specification: '',
-        checkMethod: '',
-        parameter: '',
-        texture: '',
-        tasteFlavorProfile: '',
-        aroma: ''
+interface CategoryConfig {
+  key: 'appearance' | 'texture' | 'tasteFlavorProfile' | 'aroma'
+  label: string
+  icon: React.ReactNode
+  placeholder: string
+  colorClass: string
+  borderColor: string
+}
+
+const categories: CategoryConfig[] = [
+  {
+    key: 'appearance',
+    label: 'Appearance',
+    icon: <Eye className="h-4 w-4" />,
+    placeholder: 'e.g. Golden brown crust; Even coating; Consistent size and shape',
+    colorClass: 'bg-emerald-50 dark:bg-emerald-950/30',
+    borderColor: 'border-emerald-400'
+  },
+  {
+    key: 'texture',
+    label: 'Texture',
+    icon: <Cookie className="h-4 w-4" />,
+    placeholder: 'e.g. Crispy exterior; Soft and moist inside; Not soggy',
+    colorClass: 'bg-amber-50 dark:bg-amber-950/30',
+    borderColor: 'border-amber-400'
+  },
+  {
+    key: 'tasteFlavorProfile',
+    label: 'Taste / Flavor',
+    icon: <Utensils className="h-4 w-4" />,
+    placeholder: 'e.g. Well-seasoned; Balanced herbs; Not too salty or bland',
+    colorClass: 'bg-rose-50 dark:bg-rose-950/30',
+    borderColor: 'border-rose-400'
+  },
+  {
+    key: 'aroma',
+    label: 'Aroma',
+    icon: <Wind className="h-4 w-4" />,
+    placeholder: 'e.g. Fresh herb scent; Pleasant roasted smell; No burnt odor',
+    colorClass: 'bg-violet-50 dark:bg-violet-950/30',
+    borderColor: 'border-violet-400'
+  }
+]
+
+/**
+ * Extracts values from existing quality specs data (handles legacy formats)
+ */
+function extractValues(specs: QualitySpecification[]): Record<string, string> {
+  const result: Record<string, string> = {
+    appearance: '',
+    texture: '',
+    tasteFlavorProfile: '',
+    aroma: ''
+  }
+
+  if (!specs || specs.length === 0) return result
+
+  // Check for new simplified format first (single object with direct fields)
+  const firstSpec = specs[0]
+  if (firstSpec.appearance || firstSpec.texture || firstSpec.tasteFlavorProfile || firstSpec.aroma) {
+    result.appearance = firstSpec.appearance || firstSpec.parameter || ''
+    result.texture = firstSpec.texture || ''
+    result.tasteFlavorProfile = firstSpec.tasteFlavorProfile || ''
+    result.aroma = firstSpec.aroma || ''
+    return result
+  }
+
+  // Handle legacy format - aggregate from multiple specs
+  const appearance: string[] = []
+  const texture: string[] = []
+  const taste: string[] = []
+  const aroma: string[] = []
+
+  specs.forEach(spec => {
+    // Legacy format with parameter/texture/tasteFlavorProfile/aroma fields
+    if (spec.parameter) appearance.push(spec.parameter)
+    if (spec.texture) texture.push(spec.texture)
+    if (spec.tasteFlavorProfile) taste.push(spec.tasteFlavorProfile)
+    if (spec.aroma) aroma.push(spec.aroma)
+
+    // Legacy format with aspect/specification
+    if (spec.aspect && spec.specification) {
+      const aspectLower = spec.aspect.toLowerCase()
+      const text = spec.specification
+      
+      if (aspectLower.includes('appearance') || aspectLower.includes('color') || aspectLower.includes('size')) {
+        appearance.push(text)
+      } else if (aspectLower.includes('texture')) {
+        texture.push(text)
+      } else if (aspectLower.includes('taste') || aspectLower.includes('flavor')) {
+        taste.push(text)
+      } else if (aspectLower.includes('aroma') || aspectLower.includes('smell')) {
+        aroma.push(text)
+      } else {
+        appearance.push(text) // Default to appearance
       }
-    ])
-  }
+    }
+  })
 
-  const updateQualitySpec = (index: number, field: keyof QualitySpecification, value: string) => {
-    const updated = [...qualitySpecs]
-    updated[index] = { ...updated[index], [field]: value }
-    onChange(updated)
-  }
+  result.appearance = appearance.join('; ')
+  result.texture = texture.join('; ')
+  result.tasteFlavorProfile = taste.join('; ')
+  result.aroma = aroma.join('; ')
 
-  const removeQualitySpec = (index: number) => {
-    onChange(qualitySpecs.filter((_, i) => i !== index))
+  return result
+}
+
+export function QualitySpecsEditor({ qualitySpecs, onChange }: QualitySpecsEditorProps) {
+  const values = extractValues(qualitySpecs)
+
+  const handleChange = (key: string, value: string) => {
+    // Store as a single object with all 4 fields
+    onChange([{
+      appearance: key === 'appearance' ? value : values.appearance,
+      texture: key === 'texture' ? value : values.texture,
+      tasteFlavorProfile: key === 'tasteFlavorProfile' ? value : values.tasteFlavorProfile,
+      aroma: key === 'aroma' ? value : values.aroma
+    }])
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-muted-foreground">
-          Define quality standards for appearance, texture, taste, and aroma
-        </p>
-        <Button onClick={addQualitySpec} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Quality Spec
-        </Button>
+      <p className="text-sm text-muted-foreground">
+        Define quality standards for your recipe. Use semicolons (;) to separate multiple points.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {categories.map((category) => (
+          <Card 
+            key={category.key} 
+            className={`${category.colorClass} border-l-4 ${category.borderColor}`}
+          >
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-current opacity-70">{category.icon}</span>
+                <label className="font-semibold text-sm uppercase tracking-wide">
+                  {category.label}
+                </label>
+              </div>
+              <Textarea
+                placeholder={category.placeholder}
+                value={values[category.key] || ''}
+                onChange={(e) => handleChange(category.key, e.target.value)}
+                rows={3}
+                className="bg-white dark:bg-gray-900 resize-none"
+              />
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {qualitySpecs.length === 0 && (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            No quality specifications added yet
-          </CardContent>
-        </Card>
-      )}
-
-      {qualitySpecs.map((spec, index) => (
-        <Card key={index} className="border-l-4 border-l-green-500">
-          <CardContent className="pt-6">
-            <div className="space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <h3 className="font-semibold">Quality Specification {index + 1}</h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => removeQualitySpec(index)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Aspect *</Label>
-                <Input
-                  placeholder="e.g. Appearance, Texture, Taste, Aroma"
-                  value={spec.aspect || ''}
-                  onChange={(e) => updateQualitySpec(index, 'aspect', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Specification *</Label>
-                <Textarea
-                  placeholder="e.g. Fish golden, clean grill marks; Vegetables bright, not dull"
-                  value={spec.specification || ''}
-                  onChange={(e) => updateQualitySpec(index, 'specification', e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Check Method *</Label>
-                <Input
-                  placeholder="e.g. Visual inspection, Taste test, Texture test"
-                  value={spec.checkMethod || ''}
-                  onChange={(e) => updateQualitySpec(index, 'checkMethod', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Parameter</Label>
-                <Textarea
-                  placeholder="e.g. Fish golden, clean grill marks; Vegetables bright, not dull"
-                  value={spec.parameter || ''}
-                  onChange={(e) => updateQualitySpec(index, 'parameter', e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Texture</Label>
-                <Textarea
-                  placeholder="e.g. Fish moist, flakes easily; Vegetables tender but firm"
-                  value={spec.texture || ''}
-                  onChange={(e) => updateQualitySpec(index, 'texture', e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Taste / Flavor Profile</Label>
-                <Textarea
-                  placeholder="e.g. Creamy herb sauce, balanced dill; Seasoned lightly"
-                  value={spec.tasteFlavorProfile || ''}
-                  onChange={(e) => updateQualitySpec(index, 'tasteFlavorProfile', e.target.value)}
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Aroma</Label>
-                <Input
-                  placeholder="e.g. Fresh dill + lemon; Roasted potatoes smell"
-                  value={spec.aroma || ''}
-                  onChange={(e) => updateQualitySpec(index, 'aroma', e.target.value)}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
     </div>
   )
 }
-

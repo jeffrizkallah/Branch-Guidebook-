@@ -2,9 +2,10 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Package, Wrench, CheckCircle2, Link as LinkIcon } from 'lucide-react'
+import { Package, Wrench, Link as LinkIcon, Tag, Thermometer, Clock, ListChecks } from 'lucide-react'
 import type { Recipe, SubRecipe } from '@/lib/data'
 import { SubRecipeAccordion } from './SubRecipeAccordion'
+import { QualitySpecsDisplay } from './QualitySpecsDisplay'
 
 interface RecipeEnhancedViewProps {
   recipe: Recipe
@@ -140,100 +141,80 @@ export function RecipeEnhancedView({ recipe }: RecipeEnhancedViewProps) {
 
       {/* Quality Specifications */}
       {recipe.qualitySpecifications && recipe.qualitySpecifications.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5" />
-              Quality Specifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recipe.qualitySpecifications.map((spec, idx) => (
-                <div key={idx} className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <p className="text-xs font-semibold text-green-800 uppercase tracking-wide mb-1">
-                        Appearance
-                      </p>
-                      <p className="text-sm">{spec.parameter}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-green-800 uppercase tracking-wide mb-1">
-                        Texture
-                      </p>
-                      <p className="text-sm">{spec.texture}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-green-800 uppercase tracking-wide mb-1">
-                        Taste / Flavor
-                      </p>
-                      <p className="text-sm">{spec.tasteFlavorProfile}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-green-800 uppercase tracking-wide mb-1">
-                        Aroma
-                      </p>
-                      <p className="text-sm">{spec.aroma}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <QualitySpecsDisplay qualitySpecifications={recipe.qualitySpecifications} />
       )}
 
       {/* Packing & Labeling */}
       {recipe.packingLabeling && recipe.packingLabeling.packingType && (
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
               Packing & Labeling
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground mb-1">Packing Type</p>
-                  <p className="font-semibold">{recipe.packingLabeling.packingType}</p>
-                </div>
-                {recipe.packingLabeling.serviceItems.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground mb-1">Service Items</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      {recipe.packingLabeling.serviceItems.map((item, idx) => (
-                        <li key={idx} className="text-sm">{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+          <CardContent className="space-y-3">
+            {/* Packing Type */}
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-2 mb-1">
+                <Package className="h-4 w-4 text-blue-600" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Packing Type</span>
               </div>
-              
-              {recipe.packingLabeling.labelRequirements && (
-                <div>
-                  <p className="text-sm font-semibold text-muted-foreground mb-1">Label Requirements</p>
-                  <p className="text-sm">{recipe.packingLabeling.labelRequirements}</p>
+              <p className="text-sm font-medium">{recipe.packingLabeling.packingType}</p>
+            </div>
+
+            {/* Label Requirements */}
+            {recipe.packingLabeling.labelRequirements && (
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 mb-1">
+                  <Tag className="h-4 w-4 text-amber-600" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Label Requirements</span>
                 </div>
-              )}
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p className="text-sm">{recipe.packingLabeling.labelRequirements}</p>
+              </div>
+            )}
+
+            {/* Storage & Shelf Life */}
+            {(recipe.packingLabeling.storageCondition || recipe.packingLabeling.shelfLife) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {recipe.packingLabeling.storageCondition && (
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground mb-1">Storage Condition</p>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Thermometer className="h-4 w-4 text-cyan-600" />
+                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Storage</span>
+                    </div>
                     <p className="text-sm">{recipe.packingLabeling.storageCondition}</p>
                   </div>
                 )}
                 {recipe.packingLabeling.shelfLife && (
-                  <div>
-                    <p className="text-sm font-semibold text-muted-foreground mb-1">Shelf Life</p>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Clock className="h-4 w-4 text-violet-600" />
+                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Shelf Life</span>
+                    </div>
                     <p className="text-sm">{recipe.packingLabeling.shelfLife}</p>
                   </div>
                 )}
               </div>
-            </div>
+            )}
+
+            {/* Service Items */}
+            {recipe.packingLabeling.serviceItems.length > 0 && (
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2 mb-1">
+                  <ListChecks className="h-4 w-4 text-emerald-600" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Service Items</span>
+                </div>
+                <ul className="text-sm space-y-0.5">
+                  {recipe.packingLabeling.serviceItems.map((item, idx) => (
+                    <li key={idx} className="flex items-baseline gap-2">
+                      <span className="text-muted-foreground">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

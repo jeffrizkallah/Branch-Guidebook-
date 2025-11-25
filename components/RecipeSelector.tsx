@@ -1,24 +1,71 @@
 'use client'
 
-import { useState } from 'react'
-import { Calendar, ChefHat } from 'lucide-react'
+import { useState, useEffect, useMemo } from 'react'
+import { Calendar, ChefHat, Loader2 } from 'lucide-react'
 import { RecipeCard } from './RecipeCard'
 import { Button } from './ui/button'
-import { getRecipesForDay, getUniqueDays } from '@/lib/data'
 import type { Recipe } from '@/lib/data'
+
+const DAY_ORDER = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 interface RecipeSelectorProps {
   branchSlug: string
 }
 
 export function RecipeSelector({ branchSlug }: RecipeSelectorProps) {
-  const days = getUniqueDays()
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long' })
-  const [selectedDay, setSelectedDay] = useState<string>(
-    days.includes(today) ? today : days[0]
-  )
+  const [selectedDay, setSelectedDay] = useState<string>(today)
 
-  const recipesForDay = getRecipesForDay(selectedDay)
+  // Fetch recipes from API
+  useEffect(() => {
+    async function fetchRecipes() {
+      try {
+        const res = await fetch('/api/recipes')
+        const data = await res.json()
+        setRecipes(data)
+      } catch (error) {
+        console.error('Failed to fetch recipes:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchRecipes()
+  }, [])
+
+  // Get unique days from recipes, sorted
+  const days = useMemo(() => {
+    const daysSet = new Set<string>()
+    recipes.forEach(recipe => {
+      recipe.daysAvailable?.forEach(day => daysSet.add(day))
+    })
+    return Array.from(daysSet).sort((a, b) => 
+      DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b)
+    )
+  }, [recipes])
+
+  // Update selected day if current selection isn't in available days
+  useEffect(() => {
+    if (!isLoading && days.length > 0 && !days.includes(selectedDay)) {
+      setSelectedDay(days.includes(today) ? today : days[0])
+    }
+  }, [days, isLoading, selectedDay, today])
+
+  // Filter recipes for selected day
+  const recipesForDay = useMemo(() => {
+    return recipes.filter(recipe => 
+      recipe.daysAvailable?.includes(selectedDay)
+    )
+  }, [recipes, selectedDay])
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3 md:space-y-4 min-w-0">

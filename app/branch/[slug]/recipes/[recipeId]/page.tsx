@@ -1,17 +1,22 @@
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { notFound, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
   Clock, 
   Users, 
   ChefHat, 
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react'
 import { TopNav } from '@/components/TopNav'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { PrintHeader } from '@/components/PrintHeader'
 import { RecipeTabs } from '@/components/RecipeTabs'
-import { loadBranch, getRecipe, loadRecipes, loadBranches } from '@/lib/data'
+import { loadBranch } from '@/lib/data'
+import type { Recipe, Branch } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -21,20 +26,57 @@ interface RecipePageProps {
     slug: string
     recipeId: string
   }
-  searchParams: {
-    print?: string
-  }
 }
 
-export default function RecipePage({ params, searchParams }: RecipePageProps) {
-  const branch = loadBranch(params.slug)
-  const recipe = getRecipe(params.recipeId)
+export default function RecipePage({ params }: RecipePageProps) {
+  const searchParams = useSearchParams()
+  const [branch, setBranch] = useState<Branch | null | undefined>(undefined)
+  const [recipe, setRecipe] = useState<Recipe | null | undefined>(undefined)
+  const [isLoading, setIsLoading] = useState(true)
 
+  const isPrintMode = searchParams.get('print') === '1'
+
+  // Load branch data
+  useEffect(() => {
+    const branchData = loadBranch(params.slug)
+    setBranch(branchData ?? null)
+  }, [params.slug])
+
+  // Fetch recipe from API
+  useEffect(() => {
+    async function fetchRecipe() {
+      try {
+        const res = await fetch('/api/recipes')
+        const data: Recipe[] = await res.json()
+        const foundRecipe = data.find(r => r.recipeId === params.recipeId)
+        setRecipe(foundRecipe ?? null)
+      } catch (error) {
+        console.error('Failed to fetch recipe:', error)
+        setRecipe(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchRecipe()
+  }, [params.recipeId])
+
+  // Show loading state
+  if (branch === undefined || recipe === undefined || isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        {!isPrintMode && <TopNav />}
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  // Handle not found
   if (!branch || !recipe) {
     notFound()
   }
-
-  const isPrintMode = searchParams.print === '1'
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -158,20 +200,4 @@ export default function RecipePage({ params, searchParams }: RecipePageProps) {
   )
 }
 
-export async function generateStaticParams() {
-  const branches = loadBranches()
-  const recipes = loadRecipes()
-  
-  const params = []
-  for (const branch of branches) {
-    for (const recipe of recipes) {
-      params.push({
-        slug: branch.slug,
-        recipeId: recipe.recipeId,
-      })
-    }
-  }
-  
-  return params
-}
 

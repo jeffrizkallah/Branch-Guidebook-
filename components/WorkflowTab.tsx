@@ -12,13 +12,17 @@ import {
   CheckSquare,
   Clock,
   Lightbulb,
-  AlertTriangle
+  AlertTriangle,
+  Tag,
+  Thermometer,
+  ListChecks
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import type { Recipe, SubRecipe, MachineToolRequirement, QualitySpecification, PreparationStep } from '@/lib/data'
+import type { Recipe, SubRecipe, MachineToolRequirement, PreparationStep } from '@/lib/data'
+import { QualitySpecsDisplay } from './QualitySpecsDisplay'
 
 interface WorkflowTabProps {
   recipe: Recipe
@@ -244,13 +248,13 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                           className={`flex gap-3 p-3 rounded-lg ${
                             step.critical 
                               ? 'bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800' 
-                              : 'bg-secondary'
+                              : 'bg-secondary border border-orange-200/60'
                           }`}
                         >
                           <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
                             step.critical 
                               ? 'bg-orange-600 text-white' 
-                              : 'bg-primary text-primary-foreground'
+                              : 'bg-primary/20 text-primary border border-primary/30'
                           }`}>
                             {idx + 1}
                           </div>
@@ -317,45 +321,68 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                       <Package className="h-4 w-4 text-purple-600" />
                       Packing & Labeling
                     </h4>
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="p-3 bg-secondary rounded-lg">
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Packing Type</p>
-                          <p className="text-sm font-semibold">{subRecipe.packingLabeling.packingType}</p>
+                    <div className="space-y-2">
+                      {/* Packing Type */}
+                      <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <Package className="h-3.5 w-3.5 text-blue-600" />
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Packing Type</span>
                         </div>
-                        {subRecipe.packingLabeling.serviceItems && subRecipe.packingLabeling.serviceItems.length > 0 && (
-                          <div className="p-3 bg-secondary rounded-lg">
-                            <p className="text-xs font-semibold text-muted-foreground mb-1">Service Items</p>
-                            <ul className="list-disc list-inside space-y-1 text-sm">
-                              {subRecipe.packingLabeling.serviceItems.map((item, idx) => (
-                                <li key={idx}>{item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                        <p className="text-sm font-medium">{subRecipe.packingLabeling.packingType}</p>
                       </div>
-                      
+
+                      {/* Label Requirements */}
                       {subRecipe.packingLabeling.labelRequirements && (
-                        <div className="p-3 bg-secondary rounded-lg">
-                          <p className="text-xs font-semibold text-muted-foreground mb-1">Label Requirements</p>
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <Tag className="h-3.5 w-3.5 text-amber-600" />
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Label Requirements</span>
+                          </div>
                           <p className="text-sm">{subRecipe.packingLabeling.labelRequirements}</p>
                         </div>
                       )}
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {subRecipe.packingLabeling.storageCondition && (
-                          <div className="p-3 bg-secondary rounded-lg">
-                            <p className="text-xs font-semibold text-muted-foreground mb-1">Storage Condition</p>
-                            <p className="text-sm">{subRecipe.packingLabeling.storageCondition}</p>
+
+                      {/* Storage & Shelf Life */}
+                      {(subRecipe.packingLabeling.storageCondition || subRecipe.packingLabeling.shelfLife) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {subRecipe.packingLabeling.storageCondition && (
+                            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <Thermometer className="h-3.5 w-3.5 text-cyan-600" />
+                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Storage</span>
+                              </div>
+                              <p className="text-sm">{subRecipe.packingLabeling.storageCondition}</p>
+                            </div>
+                          )}
+                          {subRecipe.packingLabeling.shelfLife && (
+                            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <Clock className="h-3.5 w-3.5 text-violet-600" />
+                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Shelf Life</span>
+                              </div>
+                              <p className="text-sm">{subRecipe.packingLabeling.shelfLife}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Service Items */}
+                      {subRecipe.packingLabeling.serviceItems && subRecipe.packingLabeling.serviceItems.length > 0 && (
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <ListChecks className="h-3.5 w-3.5 text-emerald-600" />
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Service Items</span>
                           </div>
-                        )}
-                        {subRecipe.packingLabeling.shelfLife && (
-                          <div className="p-3 bg-secondary rounded-lg">
-                            <p className="text-xs font-semibold text-muted-foreground mb-1">Shelf Life</p>
-                            <p className="text-sm">{subRecipe.packingLabeling.shelfLife}</p>
-                          </div>
-                        )}
-                      </div>
+                          <ul className="text-sm space-y-0.5">
+                            {subRecipe.packingLabeling.serviceItems.map((item, idx) => (
+                              <li key={idx} className="flex items-baseline gap-2">
+                                <span className="text-muted-foreground">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -476,13 +503,13 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                       className={`flex gap-3 p-3 rounded-lg ${
                         step.critical 
                           ? 'bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800' 
-                          : 'bg-secondary'
+                          : 'bg-secondary border border-orange-200/60'
                       }`}
                     >
                       <div className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
                         step.critical 
                           ? 'bg-orange-600 text-white' 
-                          : 'bg-primary text-primary-foreground'
+                          : 'bg-primary/20 text-primary border border-primary/30'
                       }`}>
                         {idx + 1}
                       </div>
@@ -514,75 +541,11 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
 
             {/* Quality Specifications - Always shown in final step */}
             {recipe.qualitySpecifications && recipe.qualitySpecifications.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Quality Specifications
-                </h4>
-                <div className="space-y-3">
-                  {recipe.qualitySpecifications.map((quality, qIdx) => (
-                    <div key={qIdx} className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-                      {/* Check if this is a detailed quality spec (Format 2: parameter/texture/taste/aroma) */}
-                      {(quality.parameter || quality.texture || quality.tasteFlavorProfile || quality.aroma) ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                          {quality.parameter && (
-                            <div>
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                Appearance
-                              </p>
-                              <p>{quality.parameter}</p>
-                            </div>
-                          )}
-                          {quality.texture && (
-                            <div>
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                Texture
-                              </p>
-                              <p>{quality.texture}</p>
-                            </div>
-                          )}
-                          {quality.tasteFlavorProfile && (
-                            <div>
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                Taste / Flavor
-                              </p>
-                              <p>{quality.tasteFlavorProfile}</p>
-                            </div>
-                          )}
-                          {quality.aroma && (
-                            <div>
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                Aroma
-                              </p>
-                              <p>{quality.aroma}</p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        /* Format 1: aspect/specification/checkMethod */
-                        <div className="space-y-2 text-sm">
-                          {quality.aspect && (
-                            <div>
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                {quality.aspect}
-                              </p>
-                              <p>{quality.specification}</p>
-                            </div>
-                          )}
-                          {quality.checkMethod && (
-                            <div className="mt-2">
-                              <p className="text-xs font-semibold text-green-800 dark:text-green-300 uppercase tracking-wide mb-1">
-                                Check Method
-                              </p>
-                              <p>{quality.checkMethod}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <QualitySpecsDisplay 
+                qualitySpecifications={recipe.qualitySpecifications} 
+                showHeader={true}
+                compact={true}
+              />
             )}
 
             {/* Packing & Labeling */}
@@ -592,45 +555,68 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                   <Package className="h-4 w-4 text-purple-600" />
                   Packing & Labeling
                 </h4>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="p-3 bg-secondary rounded-lg">
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Packing Type</p>
-                      <p className="text-sm font-semibold">{recipe.packingLabeling.packingType}</p>
+                <div className="space-y-2">
+                  {/* Packing Type */}
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <Package className="h-3.5 w-3.5 text-blue-600" />
+                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Packing Type</span>
                     </div>
-                    {recipe.packingLabeling.serviceItems && recipe.packingLabeling.serviceItems.length > 0 && (
-                      <div className="p-3 bg-secondary rounded-lg">
-                        <p className="text-xs font-semibold text-muted-foreground mb-1">Service Items</p>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          {recipe.packingLabeling.serviceItems.map((item, idx) => (
-                            <li key={idx}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    <p className="text-sm font-medium">{recipe.packingLabeling.packingType}</p>
                   </div>
-                  
+
+                  {/* Label Requirements */}
                   {recipe.packingLabeling.labelRequirements && (
-                    <div className="p-3 bg-secondary rounded-lg">
-                      <p className="text-xs font-semibold text-muted-foreground mb-1">Label Requirements</p>
+                    <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <Tag className="h-3.5 w-3.5 text-amber-600" />
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Label Requirements</span>
+                      </div>
                       <p className="text-sm">{recipe.packingLabeling.labelRequirements}</p>
                     </div>
                   )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {recipe.packingLabeling.storageCondition && (
-                      <div className="p-3 bg-secondary rounded-lg">
-                        <p className="text-xs font-semibold text-muted-foreground mb-1">Storage Condition</p>
-                        <p className="text-sm">{recipe.packingLabeling.storageCondition}</p>
+
+                  {/* Storage & Shelf Life */}
+                  {(recipe.packingLabeling.storageCondition || recipe.packingLabeling.shelfLife) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {recipe.packingLabeling.storageCondition && (
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <Thermometer className="h-3.5 w-3.5 text-cyan-600" />
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Storage</span>
+                          </div>
+                          <p className="text-sm">{recipe.packingLabeling.storageCondition}</p>
+                        </div>
+                      )}
+                      {recipe.packingLabeling.shelfLife && (
+                        <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <Clock className="h-3.5 w-3.5 text-violet-600" />
+                            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Shelf Life</span>
+                          </div>
+                          <p className="text-sm">{recipe.packingLabeling.shelfLife}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Service Items */}
+                  {recipe.packingLabeling.serviceItems && recipe.packingLabeling.serviceItems.length > 0 && (
+                    <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <ListChecks className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Service Items</span>
                       </div>
-                    )}
-                    {recipe.packingLabeling.shelfLife && (
-                      <div className="p-3 bg-secondary rounded-lg">
-                        <p className="text-xs font-semibold text-muted-foreground mb-1">Shelf Life</p>
-                        <p className="text-sm">{recipe.packingLabeling.shelfLife}</p>
-                      </div>
-                    )}
-                  </div>
+                      <ul className="text-sm space-y-0.5">
+                        {recipe.packingLabeling.serviceItems.map((item, idx) => (
+                          <li key={idx} className="flex items-baseline gap-2">
+                            <span className="text-muted-foreground">•</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

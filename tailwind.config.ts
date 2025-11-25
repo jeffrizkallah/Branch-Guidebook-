@@ -20,7 +20,7 @@ const config: Config = {
           foreground: '#ffffff',
         },
         secondary: {
-          DEFAULT: '#d6ab81',
+          DEFAULT: '#FEF7EF',
           foreground: '#1a1a31',
         },
         neutral: {

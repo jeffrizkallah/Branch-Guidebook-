@@ -96,14 +96,15 @@ export default function RecipeImportPage() {
 
       // Helper function to extract step number from text
       const extractStepNumber = (text: string): { stepNum: number | null, instruction: string } => {
-        const stepMatch = text.match(/Step\s+(\d+)\s*[-–—]\s*(.+)/i)
+        // More flexible dash matching - use [\s\S] instead of . to match across newlines
+        const stepMatch = text.match(/Step\s+(\d+)\s*[-–—‐−\s]+([\s\S]+)/i)
         if (stepMatch) {
           return {
             stepNum: parseInt(stepMatch[1]),
-            instruction: stepMatch[2].trim()
+            instruction: stepMatch[2].trim().replace(/\s+/g, ' ')  // Normalize whitespace
           }
         }
-        return { stepNum: null, instruction: text }
+        return { stepNum: null, instruction: text.trim() }
       }
 
       for (let i = 0; i < lines.length; i++) {
@@ -222,23 +223,30 @@ export default function RecipeImportPage() {
           stepCounter = 1
           currentSubRecipe = null
           isFinalRecipeSection = false
-        } else if (currentSection === 'preparation' && cellA && cellA !== 'Step Number' && !cellA.match(/^[5-6]\./)) {
-          if (cellA.match(/^[5-6]\./)) {
-            currentSection = ''
-            currentSubRecipe = null
-            isFinalRecipeSection = false
-          } else if (cellB || cellA.length > 50) {
-            // Handle sections like "A. Sub-Recipe:", "B. Sub-Preparation:", "C. Main Recipe:", "Final Recipe:"
-            const sectionMatch = cellA.match(/^([A-Z])\.\s*(.+?):/i)
+        } else if (cellA.match(/^5\.\s*Quality/i) || cellA.match(/^6\.\s*Packing/i)) {
+          // End preparation section when we hit Quality or Packing sections
+          currentSection = cellA.match(/^5\./) ? 'quality' : 'packing'
+          currentSubRecipe = null
+          isFinalRecipeSection = false
+        } else if (currentSection === 'preparation' && cellA !== 'Step Number') {
+          // Check if this row has step content in either cellA or cellB
+          const hasStepContent = cellA.match(/^Step\s+\d+/i) || cellB.match(/^Step\s+\d+/i)
+          const hasSectionHeader = cellA.match(/^([A-Z])\.\s*.+/i)
+          const hasContent = cellA.length > 10 || cellB.length > 10 || hasStepContent
+          
+          if (hasContent || hasSectionHeader) {
+            // Handle sections like "A. Sub-Recipe: Apple Pie Filling", "D. Main Recipe: Pizza Apple Cinnamon"
+            // OR standalone step lines from Excel multi-line cells that got split into separate rows
+            const sectionMatch = cellA.match(/^([A-Z])\.\s*(.+)/i)
             
-            if (sectionMatch && cellB) {
+            if (sectionMatch) {
               // This is a section header with multi-line steps in cellB
               const sectionLetter = sectionMatch[1].trim()  // A, B, C, etc.
               const sectionTitle = sectionMatch[2].trim()
               
-              // Check if this is a sub-recipe section (e.g., "Sub-Recipe: Sauce Tomato 1 KG")
-              const subRecipeMatch = sectionTitle.match(/Sub[-\s]Recipe:?\s*(.+)?/i)
-              const isFinalRecipe = sectionTitle.match(/Final[-\s]Recipe|Main[-\s]Recipe|Assembly/i)
+              // Check if this is a sub-recipe section (e.g., "Sub-Recipe: Apple Pie Filling")
+              const subRecipeMatch = sectionTitle.match(/Sub[-\s]Recipe:\s*(.+)/i)  // Now captures name after "Sub-Recipe:"
+              const isFinalRecipe = sectionTitle.match(/Main[-\s]Recipe|Final[-\s]Recipe|Assembly/i)
               
               let targetSubRecipe = null
               
@@ -273,14 +281,24 @@ export default function RecipeImportPage() {
                       .toLowerCase()
                       .replace(/\s*1\s*kg/gi, '')
                       .replace(/\s*\(sub[-\s]recipe\)/gi, '')
+                      .replace(/\s*\(\)/g, '')  // Remove empty parentheses
                       .trim()
                     const searchNameClean = subRecipeName.toLowerCase().trim()
                     
                     console.log(`  🔍 Comparing: "${srNameClean}" with "${searchNameClean}"`)
                     
-                    // Check if names match (either contains or exact match)
-                    const matches = srNameClean.includes(searchNameClean) || searchNameClean.includes(srNameClean)
-                    console.log(`  ${matches ? '✅' : '❌'} Match result: ${matches}`)
+                    // Split into words and check if all words from one exist in the other
+                    // This handles word order differences like "Caramel Sauce" vs "Sauce Caramel"
+                    const srWords = srNameClean.split(/\s+/).filter(w => w.length > 2)
+                    const searchWords = searchNameClean.split(/\s+/).filter(w => w.length > 2)
+                    
+                    // Check if names match (contains, exact match, OR same words in different order)
+                    const containsMatch = srNameClean.includes(searchNameClean) || searchNameClean.includes(srNameClean)
+                    const wordMatch = srWords.length > 0 && searchWords.length > 0 && 
+                      searchWords.every(word => srWords.some(srWord => srWord.includes(word) || word.includes(srWord)))
+                    
+                    const matches = containsMatch || wordMatch
+                    console.log(`  ${matches ? '✅' : '❌'} Match result: ${matches} (contains: ${containsMatch}, words: ${wordMatch})`)
                     return matches
                   }) || null
                 }
@@ -315,17 +333,27 @@ export default function RecipeImportPage() {
               }
               
               // Parse the multi-line description which contains multiple steps
-              let description = cellB.replace(/^[""]|[""]$/g, '').trim()
-              
-              // Split by Step 1, Step 2, etc.
-              const stepMatches = description.split(/(?=Step\s+\d+\s*[-–—])/i)
-              
+              let description = cellB
+                .replace(/^[""\u201C\u201D]|[""\u201C\u201D]$/g, '')  // Remove any quote characters
+                .replace(/\r\n/g, '\n')  // Normalize Windows line endings
+                .replace(/\r/g, '\n')    // Normalize old Mac line endings
+                .trim()
+
+              console.log('�� Raw description:', description.substring(0, 200))
+
+              // Split by Step patterns - more flexible matching
+              const stepMatches = description.split(/(?=Step\s+\d+\s*[-–—‐−])/gi)
+
+              console.log(`📊 Split into ${stepMatches.length} parts:`, stepMatches.map(s => s.substring(0, 50)))
+
               if (stepMatches.length > 1) {
                 // Multiple steps found in description
-                stepMatches.forEach((stepText) => {
+                stepMatches.forEach((stepText, idx) => {
                   const trimmed = stepText.trim()
-                  if (trimmed) {
+                  console.log(`  🔸 Part ${idx}: "${trimmed.substring(0, 60)}..."`)
+                  if (trimmed && trimmed.match(/Step\s+\d+/i)) {  // Only process if it looks like a step
                     const { stepNum, instruction } = extractStepNumber(trimmed)
+                    console.log(`    → stepNum: ${stepNum}, instruction: "${instruction.substring(0, 40)}..."`)
                     
                     if (targetSubRecipe) {
                       // ✅ Add ONLY to SUB-RECIPE preparation
@@ -395,75 +423,83 @@ export default function RecipeImportPage() {
                 }
               }
             } else {
-              // Regular step format (no section header)
-              const instruction = cellB || cellA
-              const { stepNum, instruction: cleanInstruction } = extractStepNumber(instruction)
+              // Regular step format (no section header) - continuation steps
+              // Check both cellA and cellB for step content
+              const rawInstruction = cellB || cellA
               
-              // Only add to current context (sub-recipe or main recipe)
-              if (currentSubRecipe) {
-                // We're in a sub-recipe context
-                // Ensure preparation array exists
-                if (!currentSubRecipe.preparation) {
-                  currentSubRecipe.preparation = []
-                }
-                const subStepNum = stepNum || currentSubRecipe.preparation.length + 1
-                currentSubRecipe.preparation.push({
-                  step: subStepNum,
-                  instruction: cleanInstruction,
-                  time: cellC || '',
-                  critical: false,
-                  hint: cellD || ''
-                })
-                console.log(`  ➕ Added continuation step ${subStepNum} to SUB-RECIPE: ${currentSubRecipe.name}`)
-              } else if (isFinalRecipeSection) {
-                // We're in main recipe context
-                recipe.preparation.push({
-                  step: stepNum || stepCounter++,
-                  instruction: cleanInstruction,
-                  time: cellC || '',
-                  critical: false,
-                  hint: cellD || ''
-                })
-                console.log(`  ➕ Added continuation step to MAIN RECIPE`)
+              // Skip empty or very short content
+              if (!rawInstruction || rawInstruction.length < 5) {
+                console.log(`  ⏭️ Skipping empty/short row: cellA="${cellA.substring(0, 30)}" cellB="${cellB.substring(0, 30)}"`)
               } else {
-                // First standalone step - assume it's main recipe
-                isFinalRecipeSection = true
-                recipe.preparation.push({
-                  step: stepNum || stepCounter++,
-                  instruction: cleanInstruction,
-                  time: cellC || '',
-                  critical: false,
-                  hint: cellD || ''
-                })
-                console.log(`  ➕ Added first step to MAIN RECIPE (auto-detected)`)
+                // Clean up any quotes from the instruction
+                const cleanedInstruction = rawInstruction
+                  .replace(/^[""\u201C\u201D]|[""\u201C\u201D]$/g, '')
+                  .trim()
+                
+                const { stepNum, instruction: extractedInstruction } = extractStepNumber(cleanedInstruction)
+                
+                console.log(`  📝 Processing continuation: "${cleanedInstruction.substring(0, 50)}..." -> step ${stepNum}`)
+                
+                // Only add to current context (sub-recipe or main recipe)
+                if (currentSubRecipe) {
+                  // We're in a sub-recipe context
+                  if (!currentSubRecipe.preparation) {
+                    currentSubRecipe.preparation = []
+                  }
+                  const subStepNum = stepNum || currentSubRecipe.preparation.length + 1
+                  currentSubRecipe.preparation.push({
+                    step: subStepNum,
+                    instruction: extractedInstruction,
+                    time: cellC || '',
+                    critical: false,
+                    hint: cellD || ''
+                  })
+                  console.log(`  ➕ Added continuation step ${subStepNum} to SUB-RECIPE: ${currentSubRecipe.name}`)
+                } else if (isFinalRecipeSection) {
+                  // We're in main recipe context
+                  const mainStepNum = stepNum || stepCounter++
+                  recipe.preparation.push({
+                    step: mainStepNum,
+                    instruction: extractedInstruction,
+                    time: cellC || '',
+                    critical: false,
+                    hint: cellD || ''
+                  })
+                  console.log(`  ➕ Added continuation step ${mainStepNum} to MAIN RECIPE`)
+                } else {
+                  // First standalone step - assume it's main recipe
+                  console.log(`  🎯 Auto-detecting as main recipe step`)
+                  isFinalRecipeSection = true
+                  const mainStepNum = stepNum || stepCounter++
+                  recipe.preparation.push({
+                    step: mainStepNum,
+                    instruction: extractedInstruction,
+                    time: cellC || '',
+                    critical: false,
+                    hint: cellD || ''
+                  })
+                  console.log(`  ➕ Added first step ${mainStepNum} to MAIN RECIPE (auto-detected)`)
+                }
               }
             }
           }
         }
 
-        // Quality Specifications Section
-        else if (cellA.match(/^5\.\s*Quality/i)) {
-          currentSection = 'quality'
-        } else if (currentSection === 'quality' && cellA && cellA !== 'Appearance / Parameter' && !cellA.match(/^6\./)) {
-          if (cellA.match(/^6\./)) {
-            currentSection = ''
-          } else {
-            recipe.qualitySpecifications?.push({
-              aspect: cellA,
-              specification: cellB || '',
-              checkMethod: cellC || '',
-              parameter: cellA,
-              texture: cellB || '',
-              tasteFlavorProfile: cellC || '',
-              aroma: cellD || ''
-            })
-          }
+        // Quality Specifications Section (header is caught above to end preparation section)
+        else if (currentSection === 'quality' && cellA && cellA !== 'Appearance / Parameter' && !cellA.match(/^6\./)) {
+          recipe.qualitySpecifications?.push({
+            aspect: cellA,
+            specification: cellB || '',
+            checkMethod: cellC || '',
+            parameter: cellA,
+            texture: cellB || '',
+            tasteFlavorProfile: cellC || '',
+            aroma: cellD || ''
+          })
         }
 
-        // Packing & Labeling Section
-        else if (cellA.match(/^6\.\s*Packing/i)) {
-          currentSection = 'packing'
-        } else if (currentSection === 'packing') {
+        // Packing & Labeling Section (header is caught above to end preparation section)
+        else if (currentSection === 'packing') {
           if (cellA === 'Packing Type') {
             recipe.packingLabeling!.packingType = cellB || cellC || ''
           } else if (cellA === 'Label Requirements') {

@@ -148,10 +148,13 @@ export interface MachineToolRequirement {
 }
 
 export interface QualitySpecification {
-  aspect: string
-  specification: string
-  checkMethod: string
-  parameter?: string
+  // Legacy fields (kept for backwards compatibility)
+  aspect?: string
+  specification?: string
+  checkMethod?: string
+  parameter?: string  // Maps to appearance in display
+  // Simplified fields for new editor
+  appearance?: string
   texture?: string
   tasteFlavorProfile?: string
   aroma?: string
