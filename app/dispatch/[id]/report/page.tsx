@@ -237,7 +237,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
       missing: { color: 'bg-red-500', label: 'Missing', icon: XCircle },
       damaged: { color: 'bg-orange-500', label: 'Damaged', icon: AlertTriangle },
       partial: { color: 'bg-yellow-500', label: 'Partial', icon: TrendingDown },
-      shortage: { color: 'bg-purple-500', label: 'Shortage', icon: TrendingDown }
+      shortage: { color: 'bg-primary', label: 'Shortage', icon: TrendingDown }
     }
     const { color, label, icon: Icon } = config[issueType]
     return (

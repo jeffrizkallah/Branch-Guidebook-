@@ -11,7 +11,8 @@ import {
   Truck, 
   Settings, 
   ArrowRight,
-  Lock
+  Lock,
+  Bell
 } from 'lucide-react'
 
 interface FeatureCard {
@@ -39,6 +40,14 @@ export default function AdminDashboardPage() {
       description: 'Edit branch information, contacts, and operating hours',
       icon: <Building2 className="h-5 w-5" />,
       href: '/admin/branches',
+      available: true,
+    },
+    {
+      id: 'notifications',
+      title: 'Notifications',
+      description: 'Create announcements, patch notes, and alerts for employees',
+      icon: <Bell className="h-5 w-5" />,
+      href: '/admin/notifications',
       available: true,
     },
     {

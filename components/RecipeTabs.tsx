@@ -66,7 +66,7 @@ export function RecipeTabs({ recipe }: RecipeTabsProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
-              Ingredients
+              Ingredients For Main Recipe
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               {recipe.mainIngredients && recipe.mainIngredients.length > 0 
@@ -83,7 +83,7 @@ export function RecipeTabs({ recipe }: RecipeTabsProps) {
                   <div
                     key={idx}
                     className={`p-3 rounded-lg border ${
-                      ing.subRecipeId ? 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800' : 'bg-muted/50'
+                      ing.subRecipeId ? 'bg-primary/10 dark:bg-primary/20 border-primary/30 dark:border-primary/40' : 'bg-muted/50'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -280,7 +280,7 @@ export function RecipeTabs({ recipe }: RecipeTabsProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ChefHat className="h-5 w-5" />
-              Preparation Steps
+              Preparation Steps For Main Recipe
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               Follow these steps in order. Critical steps are marked with a warning icon.
@@ -383,7 +383,7 @@ export function RecipeTabs({ recipe }: RecipeTabsProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-purple-600" />
+                <AlertCircle className="h-5 w-5 text-primary" />
                 Storage & Holding
               </CardTitle>
             </CardHeader>
@@ -391,14 +391,14 @@ export function RecipeTabs({ recipe }: RecipeTabsProps) {
               <ul className="space-y-2">
                 {recipe.sops.storageAndHolding.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
               
               {recipe.storageInstructions && (
-                <div className="mt-4 p-3 bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-md">
+                <div className="mt-4 p-3 bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/40 rounded-md">
                   <p className="font-semibold text-sm mb-1">Storage Instructions:</p>
                   <p className="text-sm">{recipe.storageInstructions}</p>
                 </div>

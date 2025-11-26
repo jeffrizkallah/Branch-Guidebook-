@@ -28,9 +28,9 @@ export default function HomePage() {
         <div className="flex-1 container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 text-primary">Branch Guidebook</h1>
+            <h1 className="text-4xl font-bold mb-2 text-primary">Branch Control Panel</h1>
             <p className="text-lg text-muted-foreground">
-              Comprehensive operational guides for all Mikana branches
+              Select your branch to see all tasks, guides, and daily actions
             </p>
           </div>
 

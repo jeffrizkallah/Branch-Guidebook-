@@ -72,7 +72,7 @@ export function RecipeEnhancedView({ recipe }: RecipeEnhancedViewProps) {
               <div
                 key={idx}
                 className={`p-3 rounded-lg border ${
-                  ing.subRecipeId ? 'bg-purple-50 border-purple-200' : 'bg-muted/50'
+                  ing.subRecipeId ? 'bg-primary/10 border-primary/30' : 'bg-muted/50'
                 }`}
               >
                 <div className="flex items-start justify-between">

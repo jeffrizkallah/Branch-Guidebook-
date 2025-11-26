@@ -77,7 +77,7 @@ export function MainIngredientsEditor({
         <Card
           key={index}
           className={`border-l-4 ${
-            ingredient.subRecipeId ? 'border-l-purple-500' : 'border-l-gray-300'
+            ingredient.subRecipeId ? 'border-l-primary' : 'border-l-gray-300'
           }`}
         >
           <CardContent className="pt-6">
@@ -163,7 +163,7 @@ export function MainIngredientsEditor({
                   </div>
 
                   {ingredient.subRecipeId && (
-                    <div className="flex items-center gap-2 text-sm text-purple-600 bg-purple-50 p-2 rounded">
+                    <div className="flex items-center gap-2 text-sm text-primary bg-primary/10 p-2 rounded">
                       <LinkIcon className="h-4 w-4" />
                       <span>
                         Linked to sub-recipe:{' '}

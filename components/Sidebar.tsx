@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { NotificationDropdown } from '@/components/NotificationDropdown'
 import { Home, Package, Settings, ChevronLeft, ChevronRight, Search, Menu, X } from 'lucide-react'
 
 interface SidebarProps {
@@ -52,18 +52,21 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-lg font-bold text-primary">Mikana</span>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            <NotificationDropdown />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -93,34 +96,25 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
               <span className="text-lg font-bold text-primary">Mikana</span>
             </Link>
           )}
-          {isCollapsed && (
-            <Link href="/" className="flex items-center">
-              <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                <Image 
-                  src="/Untitled design (1).png" 
-                  alt="Mikana Logo" 
-                  width={40} 
-                  height={40}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </Link>
-          )}
           
-          {/* Desktop Collapse Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleCollapse}
-            className="hidden md:flex"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="h-5 w-5" />
-            ) : (
-              <ChevronLeft className="h-5 w-5" />
-            )}
-          </Button>
+          <div className="hidden md:flex items-center gap-1">
+            {/* Notification Bell (Desktop) */}
+            {!isCollapsed && <NotificationDropdown />}
+            
+            {/* Desktop Collapse Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleCollapse}
+              aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="h-5 w-5" />
+              ) : (
+                <ChevronLeft className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Search Section (if provided) */}

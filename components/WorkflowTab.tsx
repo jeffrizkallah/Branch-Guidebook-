@@ -152,14 +152,14 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
             className={`border-l-4 ${
               isCompleted 
                 ? 'border-l-green-500 bg-green-50/50 dark:bg-green-950/20' 
-                : 'border-l-purple-500'
+                : 'border-l-primary'
             }`}
           >
             <CardHeader className="cursor-pointer" onClick={() => toggleCard(subRecipe.subRecipeId)}>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1">
                   <div 
-                    className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold"
+                    className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold"
                     onClick={(e) => {
                       e.stopPropagation()
                       toggleComplete(subRecipe.subRecipeId)
@@ -207,7 +207,7 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                 {/* Ingredients */}
                 <div>
                   <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                    <Package className="h-4 w-4 text-purple-600" />
+                    <Package className="h-4 w-4 text-primary" />
                     Ingredients
                   </h4>
                   <div className="rounded-md border">
@@ -318,7 +318,7 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
                 {subRecipe.packingLabeling && subRecipe.packingLabeling.packingType && (
                   <div>
                     <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                      <Package className="h-4 w-4 text-purple-600" />
+                      <Package className="h-4 w-4 text-primary" />
                       Packing & Labeling
                     </h4>
                     <div className="space-y-2">
@@ -461,7 +461,7 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
             {recipe.mainIngredients && recipe.mainIngredients.length > 0 && (
               <div>
                 <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                  <Package className="h-4 w-4 text-purple-600" />
+                  <Package className="h-4 w-4 text-primary" />
                   Main Ingredients
                 </h4>
                 <div className="rounded-md border">
@@ -552,7 +552,7 @@ export function WorkflowTab({ recipe }: WorkflowTabProps) {
             {recipe.packingLabeling && recipe.packingLabeling.packingType && (
               <div>
                 <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
-                  <Package className="h-4 w-4 text-purple-600" />
+                  <Package className="h-4 w-4 text-primary" />
                   Packing & Labeling
                 </h4>
                 <div className="space-y-2">

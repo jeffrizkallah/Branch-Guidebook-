@@ -31,7 +31,7 @@ export function BranchCard({ branch }: BranchCardProps) {
         {/* Action Button */}
         <Link href={`/branch/${branch.slug}`} className="block">
           <Button className="w-full" size="sm">
-            Open Guide
+            Open Branch
           </Button>
         </Link>
       </CardContent>

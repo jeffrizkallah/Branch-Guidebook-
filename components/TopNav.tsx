@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { NotificationDropdown } from '@/components/NotificationDropdown'
 
 interface TopNavProps {
   onSearch?: (query: string) => void
@@ -84,6 +85,8 @@ export function TopNav({ onSearch, searchQuery }: TopNavProps) {
               </Button>
             )}
 
+            {/* Notification Bell */}
+            <NotificationDropdown />
 
             {/* Mobile Menu Button */}
             <Button
@@ -158,4 +161,3 @@ export function TopNav({ onSearch, searchQuery }: TopNavProps) {
     </nav>
   )
 }
-

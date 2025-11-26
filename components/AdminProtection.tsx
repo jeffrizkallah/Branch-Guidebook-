@@ -10,7 +10,7 @@ interface AdminProtectionProps {
   children: React.ReactNode
 }
 
-const CORRECT_PIN = '1234' // Same PIN for simplicity
+const CORRECT_PIN = '85632' // Same PIN for simplicity
 
 export function AdminProtection({ children }: AdminProtectionProps) {
   const [isUnlocked, setIsUnlocked] = useState(false)

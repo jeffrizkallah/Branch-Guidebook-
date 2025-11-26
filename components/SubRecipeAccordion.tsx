@@ -14,7 +14,7 @@ export function SubRecipeAccordion({ subRecipe }: SubRecipeAccordionProps) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   return (
-    <Card className="border-l-4 border-l-purple-500">
+    <Card className="border-l-4 border-l-primary">
       <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex items-center justify-between">
           <div>
