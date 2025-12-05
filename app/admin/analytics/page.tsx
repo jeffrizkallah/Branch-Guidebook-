@@ -70,6 +70,11 @@ interface SummaryData {
       aov: number
     }
   }
+  lastMonth: {
+    revenue: number
+    units: number
+    orders: number
+  }
 }
 
 interface TrendData {
