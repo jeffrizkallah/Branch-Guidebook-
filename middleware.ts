@@ -15,7 +15,7 @@ const roleLandingPages: Record<string, string> = {
 const publicRoutes = [
   '/login',
   '/signup',
-  '/api/auth',
+  '/pending',
 ]
 
 // Routes that require specific roles
@@ -168,9 +168,9 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, etc)
-     * - api routes (except auth which is handled)
+     * - ALL api routes (let them handle their own auth)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|api/(?!auth)).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.svg$|api/).*)',
   ],
 }
 
