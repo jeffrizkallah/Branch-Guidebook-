@@ -78,13 +78,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
-        token.email = user.email
-        token.firstName = user.firstName
-        token.lastName = user.lastName
-        token.role = user.role
-        token.status = user.status
-        token.branches = user.branches || []
+        token.id = user.id as number
+        token.email = user.email as string
+        token.firstName = user.firstName as string
+        token.lastName = user.lastName as string
+        token.role = user.role as UserRole | null
+        token.status = user.status as string
+        token.branches = (user.branches as string[]) || []
       }
       return token
     },
