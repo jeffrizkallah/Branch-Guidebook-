@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, Suspense } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -11,10 +11,20 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label'
 import { Mail, Lock, AlertCircle, Loader2, LogIn } from 'lucide-react'
 
+// Role-based landing pages (must match middleware.ts)
+const roleLandingPages: Record<string, string> = {
+  admin: '/admin',
+  operations_lead: '/operations',
+  dispatcher: '/dispatch',
+  central_kitchen: '/kitchen',
+  branch_manager: '/dashboard',
+  branch_staff: '/branch', // Will be replaced with specific branch
+}
+
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/'
+  const callbackUrl = searchParams.get('callbackUrl')
   const errorParam = searchParams.get('error')
   
   const [email, setEmail] = useState('')
@@ -40,8 +50,31 @@ function LoginForm() {
         return
       }
 
-      // Redirect based on user role - the middleware will handle the actual routing
-      router.push(callbackUrl)
+      // Fetch the session to get user role and determine redirect
+      const session = await getSession()
+      
+      let redirectUrl = '/'
+      
+      if (session?.user) {
+        const { role, status, branches } = session.user
+        
+        // If there's a specific callback URL (not just /), use it
+        if (callbackUrl && callbackUrl !== '/') {
+          redirectUrl = callbackUrl
+        } else if (status === 'pending' || status === 'rejected') {
+          redirectUrl = '/pending'
+        } else if (role) {
+          // Get the role-specific landing page
+          if (role === 'branch_staff' && branches && branches.length > 0) {
+            // Branch staff goes to their first assigned branch
+            redirectUrl = `/branch/${branches[0]}`
+          } else {
+            redirectUrl = roleLandingPages[role] || '/'
+          }
+        }
+      }
+
+      router.push(redirectUrl)
       router.refresh()
     } catch (error) {
       setError('An error occurred. Please try again.')
