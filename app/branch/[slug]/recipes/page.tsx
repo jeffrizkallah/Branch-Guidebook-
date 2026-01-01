@@ -78,8 +78,7 @@ export default function RecipesPage({ params }: RecipesPageProps) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(recipe => 
         recipe.name.toLowerCase().includes(query) ||
-        recipe.category?.toLowerCase().includes(query) ||
-        recipe.description?.toLowerCase().includes(query)
+        recipe.category?.toLowerCase().includes(query)
       )
     }
 
