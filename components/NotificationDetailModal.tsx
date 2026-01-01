@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { X, Sparkles, CheckCircle, AlertTriangle, Info, AlertCircle } from 'lucide-react'
+import { X, Sparkles, CheckCircle, AlertTriangle, Info, AlertCircle, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Notification, formatRelativeTime, getNotificationTypeConfig } from '@/lib/notifications'
@@ -18,6 +18,7 @@ const typeIcons = {
   alert: AlertTriangle,
   announcement: Info,
   urgent: AlertCircle,
+  user_signup: UserPlus,
 }
 
 // Simple markdown-like renderer for notification content
