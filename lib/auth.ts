@@ -47,7 +47,7 @@ export const roleDescriptions: Record<UserRole, string> = {
   dispatcher: 'Dispatch management and view all branches',
   central_kitchen: 'CK dashboard and recipe viewing',
   branch_manager: 'Branch dashboard for assigned branches',
-  branch_staff: 'Single branch access only',
+  branch_staff: 'Access to assigned branches only',
 }
 
 // Role landing pages
@@ -326,11 +326,9 @@ export async function approveUser(
     `
 
     // If branch_manager or branch_staff, assign branches
+    // Both roles can now have multiple branches assigned
     if ((role === 'branch_manager' || role === 'branch_staff') && branches && branches.length > 0) {
-      // For branch_staff, only take the first branch
-      const branchesToAssign = role === 'branch_staff' ? [branches[0]] : branches
-      
-      for (const branchSlug of branchesToAssign) {
+      for (const branchSlug of branches) {
         await sql`
           INSERT INTO user_branch_access (user_id, branch_slug, assigned_by)
           VALUES (${userId}, ${branchSlug}, ${approvedBy})
@@ -444,8 +442,8 @@ export async function userHasBranchAccess(userId: number, branchSlug: string): P
     // Central kitchen has access to central-kitchen only
     if (user.role === 'central_kitchen') return branchSlug === 'central-kitchen'
     
-    // Branch managers only have access to assigned branches
-    if (user.role === 'branch_manager') {
+    // Branch managers and branch staff have access to assigned branches
+    if (user.role === 'branch_manager' || user.role === 'branch_staff') {
       const result = await sql`
         SELECT 1 FROM user_branch_access 
         WHERE user_id = ${userId} AND branch_slug = ${branchSlug}

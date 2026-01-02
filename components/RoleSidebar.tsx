@@ -99,11 +99,29 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
       ]
 
     case 'branch_staff':
-      // Branch staff gets a simple Home button to their assigned branch
-      // If no branch is assigned (e.g., during admin preview), use first non-CK branch as fallback
-      const branchSlug = userBranches?.[0] || 'isc-soufouh'
+      // Branch staff gets a Home button to their main branch
+      // If they have multiple branches, also show "My Branches" expandable menu
+      const mainBranchSlug = userBranches?.[0] || 'isc-soufouh'
+      
+      if (userBranches && userBranches.length > 1) {
+        // Multiple branches: show Home + My Branches
+        return [
+          { href: `/branch/${mainBranchSlug}`, label: 'Home', icon: Home },
+          { 
+            href: '#', 
+            label: 'My Branches', 
+            icon: Building2,
+            subItems: userBranches.map(slug => ({
+              href: `/branch/${slug}`,
+              label: slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+            }))
+          }
+        ]
+      }
+      
+      // Single branch: just show Home
       return [
-        { href: `/branch/${branchSlug}`, label: 'Home', icon: Home }
+        { href: `/branch/${mainBranchSlug}`, label: 'Home', icon: Home }
       ]
 
     default:

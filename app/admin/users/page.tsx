@@ -54,7 +54,7 @@ const roleOptions: { value: UserRole; label: string; description: string }[] = [
   { value: 'dispatcher', label: 'Dispatcher', description: 'Dispatch management' },
   { value: 'central_kitchen', label: 'Central Kitchen', description: 'CK operations' },
   { value: 'branch_manager', label: 'Branch Manager', description: 'Multi-branch dashboard access' },
-  { value: 'branch_staff', label: 'Branch Staff', description: 'Single branch access only' },
+  { value: 'branch_staff', label: 'Branch Staff', description: 'Access to assigned branches' },
 ]
 
 interface ModalProps {
@@ -589,20 +589,50 @@ export default function UserManagementPage() {
           
           {formRole === 'branch_staff' && (
             <div className="space-y-2">
-              <Label>Assign Branch (Single)</Label>
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={formBranches[0] || ''}
-                onChange={(e) => setFormBranches(e.target.value ? [e.target.value] : [])}
-              >
-                <option value="">Select a branch...</option>
-                {branchOptions.map(branch => (
-                  <option key={branch.slug} value={branch.slug}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">Branch staff can only access one branch</p>
+              <Label>Assign Branches</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select one or more branches. The first selected branch will be the main/home branch.
+              </p>
+              <div className="max-h-48 overflow-y-auto border rounded-md p-2 space-y-1">
+                {branchOptions.map(branch => {
+                  const isChecked = formBranches.includes(branch.slug)
+                  const isMain = formBranches[0] === branch.slug
+                  return (
+                    <label key={branch.slug} className={`flex items-center gap-2 p-1.5 hover:bg-muted rounded cursor-pointer ${isMain ? 'bg-primary/10 border border-primary/30' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormBranches([...formBranches, branch.slug])
+                          } else {
+                            setFormBranches(formBranches.filter(b => b !== branch.slug))
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm flex-1">{branch.name}</span>
+                      {isMain && <Badge className="bg-primary/20 text-primary text-xs">Main</Badge>}
+                      {isChecked && !isMain && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            // Move this branch to the front (make it main)
+                            const newBranches = [branch.slug, ...formBranches.filter(b => b !== branch.slug)]
+                            setFormBranches(newBranches)
+                          }}
+                        >
+                          Set as Main
+                        </Button>
+                      )}
+                    </label>
+                  )
+                })}
+              </div>
             </div>
           )}
           
@@ -685,20 +715,50 @@ export default function UserManagementPage() {
           
           {formRole === 'branch_staff' && (
             <div className="space-y-2">
-              <Label>Assigned Branch (Single)</Label>
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={formBranches[0] || ''}
-                onChange={(e) => setFormBranches(e.target.value ? [e.target.value] : [])}
-              >
-                <option value="">Select a branch...</option>
-                {branchOptions.map(branch => (
-                  <option key={branch.slug} value={branch.slug}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">Branch staff can only access one branch</p>
+              <Label>Assigned Branches</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select one or more branches. The first selected branch will be the main/home branch.
+              </p>
+              <div className="max-h-48 overflow-y-auto border rounded-md p-2 space-y-1">
+                {branchOptions.map(branch => {
+                  const isChecked = formBranches.includes(branch.slug)
+                  const isMain = formBranches[0] === branch.slug
+                  return (
+                    <label key={branch.slug} className={`flex items-center gap-2 p-1.5 hover:bg-muted rounded cursor-pointer ${isMain ? 'bg-primary/10 border border-primary/30' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormBranches([...formBranches, branch.slug])
+                          } else {
+                            setFormBranches(formBranches.filter(b => b !== branch.slug))
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm flex-1">{branch.name}</span>
+                      {isMain && <Badge className="bg-primary/20 text-primary text-xs">Main</Badge>}
+                      {isChecked && !isMain && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            // Move this branch to the front (make it main)
+                            const newBranches = [branch.slug, ...formBranches.filter(b => b !== branch.slug)]
+                            setFormBranches(newBranches)
+                          }}
+                        >
+                          Set as Main
+                        </Button>
+                      )}
+                    </label>
+                  )
+                })}
+              </div>
             </div>
           )}
           
@@ -848,20 +908,50 @@ export default function UserManagementPage() {
           
           {newUserData.role === 'branch_staff' && (
             <div className="space-y-2">
-              <Label>Assign Branch (Single)</Label>
-              <select
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={newUserData.branches[0] || ''}
-                onChange={(e) => setNewUserData({...newUserData, branches: e.target.value ? [e.target.value] : []})}
-              >
-                <option value="">Select a branch...</option>
-                {branchOptions.map(branch => (
-                  <option key={branch.slug} value={branch.slug}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-muted-foreground">Branch staff can only access one branch</p>
+              <Label>Assign Branches</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select one or more branches. The first selected branch will be the main/home branch.
+              </p>
+              <div className="max-h-36 overflow-y-auto border rounded-md p-2 space-y-1">
+                {branchOptions.map(branch => {
+                  const isChecked = newUserData.branches.includes(branch.slug)
+                  const isMain = newUserData.branches[0] === branch.slug
+                  return (
+                    <label key={branch.slug} className={`flex items-center gap-2 p-1.5 hover:bg-muted rounded cursor-pointer ${isMain ? 'bg-primary/10 border border-primary/30' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setNewUserData({...newUserData, branches: [...newUserData.branches, branch.slug]})
+                          } else {
+                            setNewUserData({...newUserData, branches: newUserData.branches.filter(b => b !== branch.slug)})
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm flex-1">{branch.name}</span>
+                      {isMain && <Badge className="bg-primary/20 text-primary text-xs">Main</Badge>}
+                      {isChecked && !isMain && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 text-xs"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            // Move this branch to the front (make it main)
+                            const newBranches = [branch.slug, ...newUserData.branches.filter(b => b !== branch.slug)]
+                            setNewUserData({...newUserData, branches: newBranches})
+                          }}
+                        >
+                          Set as Main
+                        </Button>
+                      )}
+                    </label>
+                  )
+                })}
+              </div>
             </div>
           )}
           
