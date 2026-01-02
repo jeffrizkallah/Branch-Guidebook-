@@ -7,7 +7,6 @@ import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Upload, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { loadBranches } from '@/lib/data'
 
@@ -27,6 +26,8 @@ interface ParsedData {
   totalItems: number
 }
 
+type TemplateFormat = 'old' | 'new' | null
+
 export default function DispatchUploadPage() {
   const [pastedData, setPastedData] = useState('')
   const [parsedData, setParsedData] = useState<ParsedData | null>(null)
@@ -35,11 +36,12 @@ export default function DispatchUploadPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [detectedFormat, setDetectedFormat] = useState<TemplateFormat>(null)
   const router = useRouter()
 
   const branches = loadBranches()
 
-  // Map Excel branch names to slugs
+  // Map Excel branch names to slugs (case-insensitive matching)
   const branchNameToSlug: Record<string, string> = {
     'Soufouh': 'isc-soufouh',
     'DIP': 'isc-dip',
@@ -51,12 +53,131 @@ export default function DispatchUploadPage() {
     'YAS': 'sabis-yas',
     'Ruwais': 'sis-ruwais',
     'Ain': 'isc-ain',
+    'AIN': 'isc-ain',
     'Khalifa': 'isc-khalifa',
+  }
+
+  // Normalize branch name for lookup (handles case variations)
+  const normalizeBranchName = (name: string): string => {
+    const trimmed = name.trim()
+    // Check exact match first
+    if (branchNameToSlug[trimmed]) return trimmed
+    // Check case-insensitive match
+    const lowerName = trimmed.toLowerCase()
+    for (const key of Object.keys(branchNameToSlug)) {
+      if (key.toLowerCase() === lowerName) return key
+    }
+    return trimmed
+  }
+
+  // Detect which template format is being used
+  const detectTemplateFormat = (lines: string[]): TemplateFormat => {
+    if (lines.length < 2) return null
+    
+    const firstLine = lines[0].split('\t')
+    const secondLine = lines[1].split('\t')
+    
+    // New format detection: 
+    // - First row has "Sub-Recipes" or recipe count in first cell
+    // - Second/third column has "Total" and "Unit" headers
+    // - Branch names are in the header row directly
+    const firstCell = firstLine[0]?.toLowerCase() || ''
+    const hasSubRecipesHeader = firstCell.includes('sub-recipes') || /^\d+\s*sub-recipes/i.test(firstCell)
+    const secondCell = (firstLine[1] || '').trim().toLowerCase()
+    const thirdCell = (firstLine[2] || '').trim().toLowerCase()
+    
+    // Check if we have "Total" and "Unit" in positions 1 and 2 (new format header)
+    if ((secondCell === 'total' && thirdCell === 'unit') || hasSubRecipesHeader) {
+      console.log('Detected NEW template format')
+      return 'new'
+    }
+    
+    // Old format detection: second row has "Total" labels
+    const hasSecondRowTotals = secondLine.some(cell => cell.trim().toLowerCase() === 'total')
+    if (hasSecondRowTotals) {
+      console.log('Detected OLD template format')
+      return 'old'
+    }
+    
+    // Try to detect by checking if branch names are directly in row 1 after first few columns
+    const branchNamesLower = Object.keys(branchNameToSlug).map(n => n.toLowerCase())
+    let branchesInFirstRow = 0
+    for (let i = 3; i < firstLine.length; i++) {
+      if (branchNamesLower.includes(firstLine[i]?.trim().toLowerCase())) {
+        branchesInFirstRow++
+      }
+    }
+    if (branchesInFirstRow >= 3) {
+      console.log('Detected NEW template format (by branch names in row 1)')
+      return 'new'
+    }
+    
+    return null
+  }
+
+  // Parse the NEW template format
+  const parseNewFormat = (lines: string[]): { branchColumns: Record<string, number>, dataStartRow: number } | null => {
+    const headerLine = lines[0].split('\t')
+    
+    console.log('New format header:', headerLine)
+    
+    // Find branch column positions (branches are in row 1, after "Name", "Total", "Unit")
+    const branchColumns: Record<string, number> = {}
+    
+    headerLine.forEach((cell, index) => {
+      const trimmed = cell.trim()
+      const normalizedName = normalizeBranchName(trimmed)
+      if (branchNameToSlug[normalizedName]) {
+        branchColumns[normalizedName] = index
+        console.log(`Found branch ${normalizedName} at column ${index}`)
+      }
+    })
+    
+    if (Object.keys(branchColumns).length === 0) {
+      return null
+    }
+    
+    // Data starts from row 1 (index 1) since row 0 is headers
+    return { branchColumns, dataStartRow: 1 }
+  }
+
+  // Parse the OLD template format
+  const parseOldFormat = (lines: string[]): { branchTotalColumns: Record<string, number>, dataStartRow: number } | null => {
+    const branchHeaderLine = lines[0]
+    const secondHeaderLine = lines[1]
+    const branchHeaders = branchHeaderLine.split('\t')
+    const secondHeaders = secondHeaderLine.split('\t')
+    
+    const branchTotalColumns: Record<string, number> = {}
+    
+    branchHeaders.forEach((header, index) => {
+      const trimmed = header.trim()
+      const normalizedName = normalizeBranchName(trimmed)
+      if (branchNameToSlug[normalizedName]) {
+        // Found a branch, now find its Total column
+        for (let i = index; i < Math.min(index + 15, secondHeaders.length); i++) {
+          const cell = secondHeaders[i]?.trim() || ''
+          if (cell.toLowerCase() === 'total') {
+            branchTotalColumns[normalizedName] = i
+            console.log(`Found Total column for ${normalizedName} at index ${i}`)
+            break
+          }
+        }
+      }
+    })
+    
+    if (Object.keys(branchTotalColumns).length === 0) {
+      return null
+    }
+    
+    // Data starts from row 2 (index 2) in old format
+    return { branchTotalColumns, dataStartRow: 2 }
   }
 
   const parseExcelData = () => {
     setError('')
     setParsedData(null)
+    setDetectedFormat(null)
     
     try {
       const lines = pastedData.trim().split('\n')
@@ -65,46 +186,38 @@ export default function DispatchUploadPage() {
         return
       }
 
-      // First row has branch names, second row may have dates or "Total" labels
-      const branchHeaderLine = lines[0]
-      const secondHeaderLine = lines[1]
-      const branchHeaders = branchHeaderLine.split('\t')
-      const secondHeaders = secondHeaderLine.split('\t')
+      // Detect which format we're dealing with
+      const format = detectTemplateFormat(lines)
+      console.log('Detected format:', format)
       
-      console.log('Branch headers:', branchHeaders.slice(0, 20))
-      console.log('Second row headers:', secondHeaders.slice(0, 20))
-      
-      // Branch names to look for
-      const branchNames = Object.keys(branchNameToSlug)
-      
-      // Find where each branch starts and its Total column
-      const branchTotalColumns: Record<string, number> = {}
-      
-      branchHeaders.forEach((header, index) => {
-        const trimmed = header.trim()
-        if (branchNames.includes(trimmed)) {
-          // Found a branch, now find its Total column
-          // Check same column first, then look ahead for "Total" column
-          for (let i = index; i < Math.min(index + 15, secondHeaders.length); i++) {
-            const cell = secondHeaders[i]?.trim() || ''
-            if (cell.toLowerCase() === 'total') {
-              branchTotalColumns[trimmed] = i
-              console.log(`Found Total column for ${trimmed} at index ${i}`)
-              break
-            }
-          }
+      if (format === 'new') {
+        // Parse NEW template format
+        const result = parseNewFormat(lines)
+        if (!result || Object.keys(result.branchColumns).length === 0) {
+          setError('Could not find branch columns in the new template format. Expected headers like: Soufouh, DIP, Sharja, etc.')
+          return
         }
-      })
-      
-      console.log('Branch Total columns:', branchTotalColumns)
-      
-      if (Object.keys(branchTotalColumns).length === 0) {
-        setError('No branches with Total columns found. Make sure branch names like Soufouh, DIP, Sharja are in the header and each has a "Total" column.')
+        
+        setDetectedFormat('new')
+        setError('')
+        alert(`✓ Data parsed successfully!\n\nDetected: NEW Template Format\nFound ${Object.keys(result.branchColumns).length} branches: ${Object.keys(result.branchColumns).join(', ')}\n\nClick "Generate Dispatch Preview" to continue.`)
+        
+      } else if (format === 'old') {
+        // Parse OLD template format
+        const result = parseOldFormat(lines)
+        if (!result || Object.keys(result.branchTotalColumns).length === 0) {
+          setError('No branches with Total columns found in old template format.')
+          return
+        }
+        
+        setDetectedFormat('old')
+        setError('')
+        alert(`✓ Data parsed successfully!\n\nDetected: OLD Template Format\nFound ${Object.keys(result.branchTotalColumns).length} branches with Total columns.\n\nClick "Generate Dispatch Preview" to continue.`)
+        
+      } else {
+        setError('Could not detect template format. Please make sure you copied the correct Excel data with branch headers.')
         return
       }
-
-      setError('')
-      alert(`✓ Data parsed successfully!\n\nFound ${Object.keys(branchTotalColumns).length} branches with Total columns.\n\nClick "Generate Dispatch Preview" to continue.`)
       
       // Set a dummy date since we're using totals
       setAvailableDates(['Weekly Total'])
@@ -127,79 +240,139 @@ export default function DispatchUploadPage() {
 
     try {
       const lines = pastedData.trim().split('\n')
-      const branchHeaderLine = lines[0]
-      const secondHeaderLine = lines[1]
-      const branchHeaders = branchHeaderLine.split('\t')
-      const secondHeaders = secondHeaderLine.split('\t')
       
-      // Branch names to look for
-      const branchNames = Object.keys(branchNameToSlug)
-      
-      // Find Total column for each branch
-      const branchTotalColumns: Record<string, number> = {}
-      
-      branchHeaders.forEach((header, index) => {
-        const trimmed = header.trim()
-        if (branchNames.includes(trimmed)) {
-          // Found a branch, now find its Total column
-          // Check same column first, then look ahead for "Total" column
-          for (let i = index; i < Math.min(index + 15, secondHeaders.length); i++) {
-            const cell = secondHeaders[i]?.trim() || ''
-            if (cell.toLowerCase() === 'total') {
-              branchTotalColumns[trimmed] = i
-              break
-            }
-          }
-        }
-      })
-
-      // Parse items using Total columns
+      // Parse items based on detected format
       const branchData: Record<string, Array<{ name: string, quantity: number, unit: string }>> = {}
       
-      // Initialize branches
-      Object.keys(branchTotalColumns).forEach(branchName => {
-        branchData[branchName] = []
-      })
-
-      // Parse each item line (start from line 2, skip header rows)
-      for (let i = 2; i < lines.length; i++) {
-        const cells = lines[i].split('\t')
+      if (detectedFormat === 'new') {
+        // NEW TEMPLATE FORMAT
+        const result = parseNewFormat(lines)
+        if (!result) {
+          setError('Failed to parse new template format')
+          setLoading(false)
+          return
+        }
         
-        // Skip empty lines
-        if (cells.length < 2 || !cells[1] || !cells[1].trim()) continue
+        const { branchColumns, dataStartRow } = result
         
-        // Column B (index 1) = Recipe name
-        const itemName = cells[1].trim()
-        
-        // Skip if item name is invalid
-        if (!itemName || itemName === 'Recipe') continue
-        
-        // For each branch, get the total quantity from the Total column
-        Object.entries(branchTotalColumns).forEach(([branchName, totalColumnIndex]) => {
-          const quantityStr = cells[totalColumnIndex]?.trim() || '0'
-          
-          // Parse quantity - handle numbers, commas, and multiple space-separated values
-          let quantity = 0
-          try {
-            // Remove commas and get only the first number if there are multiple space-separated values
-            const cleaned = quantityStr.replace(/,/g, '').split(/\s+/)[0] || '0'
-            quantity = parseFloat(cleaned) || 0
-          } catch {
-            quantity = 0
-          }
-          
-          // Determine unit: "KG" by default, "unit" if quantity > 150
-          const unit = quantity > 150 ? 'unit' : 'KG'
-          
-          // Only add if quantity > 0
-          if (quantity > 0) {
-            branchData[branchName].push({
-              name: itemName,
-              quantity: quantity,
-              unit: unit
-            })
-          }
+        // Initialize branches
+        Object.keys(branchColumns).forEach(branchName => {
+          branchData[branchName] = []
         })
+        
+        // Find unit column index (should be column C, index 2)
+        const headerLine = lines[0].split('\t')
+        let unitColumnIndex = 2 // Default position
+        for (let i = 0; i < Math.min(5, headerLine.length); i++) {
+          if (headerLine[i]?.trim().toLowerCase() === 'unit') {
+            unitColumnIndex = i
+            break
+          }
+        }
+        
+        // Parse each data row
+        for (let i = dataStartRow; i < lines.length; i++) {
+          const cells = lines[i].split('\t')
+          
+          // Skip empty lines
+          if (cells.length < 3 || !cells[0] || !cells[0].trim()) continue
+          
+          // Column A (index 0) = Recipe name in new format
+          const itemName = cells[0].trim()
+          
+          // Skip if item name is a header or invalid
+          if (!itemName || 
+              itemName.toLowerCase().includes('sub-recipes') || 
+              itemName.toLowerCase() === 'total' ||
+              /^\d+\s*sub-recipes/i.test(itemName)) continue
+          
+          // Get unit from column C (index 2) - or use the unit column we found
+          const rawUnit = cells[unitColumnIndex]?.trim() || 'Kg'
+          const unit = rawUnit.toLowerCase() === 'unit' ? 'unit' : 
+                       rawUnit.toLowerCase() === 'liter' || rawUnit.toLowerCase() === 'litre' ? 'Liter' :
+                       rawUnit // Keep original unit (Kg, etc.)
+          
+          // For each branch, get quantity from its column
+          Object.entries(branchColumns).forEach(([branchName, columnIndex]) => {
+            const quantityStr = cells[columnIndex]?.trim() || '0'
+            
+            // Parse quantity - handle numbers, commas, decimals
+            let quantity = 0
+            try {
+              // Remove commas and parse as float
+              const cleaned = quantityStr.replace(/,/g, '').split(/\s+/)[0] || '0'
+              quantity = parseFloat(cleaned) || 0
+            } catch {
+              quantity = 0
+            }
+            
+            // Only add if quantity > 0
+            if (quantity > 0) {
+              branchData[branchName].push({
+                name: itemName,
+                quantity: quantity,
+                unit: unit
+              })
+            }
+          })
+        }
+        
+      } else {
+        // OLD TEMPLATE FORMAT
+        const result = parseOldFormat(lines)
+        if (!result) {
+          setError('Failed to parse old template format')
+          setLoading(false)
+          return
+        }
+        
+        const { branchTotalColumns, dataStartRow } = result
+        
+        // Initialize branches
+        Object.keys(branchTotalColumns).forEach(branchName => {
+          branchData[branchName] = []
+        })
+
+        // Parse each item line
+        for (let i = dataStartRow; i < lines.length; i++) {
+          const cells = lines[i].split('\t')
+          
+          // Skip empty lines
+          if (cells.length < 2 || !cells[1] || !cells[1].trim()) continue
+          
+          // Column B (index 1) = Recipe name in old format
+          const itemName = cells[1].trim()
+          
+          // Skip if item name is invalid
+          if (!itemName || itemName === 'Recipe') continue
+          
+          // For each branch, get the total quantity from the Total column
+          Object.entries(branchTotalColumns).forEach(([branchName, totalColumnIndex]) => {
+            const quantityStr = cells[totalColumnIndex]?.trim() || '0'
+            
+            // Parse quantity - handle numbers, commas, and multiple space-separated values
+            let quantity = 0
+            try {
+              // Remove commas and get only the first number if there are multiple space-separated values
+              const cleaned = quantityStr.replace(/,/g, '').split(/\s+/)[0] || '0'
+              quantity = parseFloat(cleaned) || 0
+            } catch {
+              quantity = 0
+            }
+            
+            // Determine unit: "KG" by default, "unit" if quantity > 150
+            const unit = quantity > 150 ? 'unit' : 'KG'
+            
+            // Only add if quantity > 0
+            if (quantity > 0) {
+              branchData[branchName].push({
+                name: itemName,
+                quantity: quantity,
+                unit: unit
+              })
+            }
+          })
+        }
       }
 
       // Convert to final structure
@@ -358,7 +531,7 @@ export default function DispatchUploadPage() {
                     </label>
                     <textarea
                       className="w-full h-64 p-3 border rounded-lg font-mono text-sm"
-                      placeholder="Paste Excel data here (Ctrl+C from Excel, then Ctrl+V here)...&#10;&#10;Include the header row with branch names and dates.&#10;Then paste all item rows with quantities."
+                      placeholder="Paste Excel data here (Ctrl+C from Excel, then Ctrl+V here)...&#10;&#10;Supports both formats:&#10;• NEW: Recipe Name | Total | Unit | Soufouh | DIP | Sharja | ...&#10;• OLD: Branch headers with Total sub-columns&#10;&#10;Include the header row and all item rows."
                       value={pastedData}
                       onChange={(e) => setPastedData(e.target.value)}
                     />
@@ -382,12 +555,26 @@ export default function DispatchUploadPage() {
                   <CardTitle>Step 2: Generate Dispatch from Total Quantities</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    This will create a dispatch using the total weekly quantities for each branch.
-                  </p>
-                  <Button onClick={generateDispatch} size="lg" disabled={loading}>
-                    {loading ? 'Generating...' : 'Generate Dispatch Preview'}
-                  </Button>
+                  <div className="space-y-4">
+                    {detectedFormat && (
+                      <div className={`p-3 rounded-lg ${detectedFormat === 'new' ? 'bg-blue-50 border border-blue-200' : 'bg-amber-50 border border-amber-200'}`}>
+                        <div className="font-medium text-sm">
+                          {detectedFormat === 'new' ? '📋 New Template Format Detected' : '📄 Old Template Format Detected'}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {detectedFormat === 'new' 
+                            ? 'Format: Recipe Name | Total | Unit | Branch quantities in columns...'
+                            : 'Format: Branch headers with "Total" sub-columns...'}
+                        </div>
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      This will create a dispatch using the total quantities for each branch.
+                    </p>
+                    <Button onClick={generateDispatch} size="lg" disabled={loading}>
+                      {loading ? 'Generating...' : 'Generate Dispatch Preview'}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )}
