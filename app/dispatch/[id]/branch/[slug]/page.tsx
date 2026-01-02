@@ -83,14 +83,16 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
             ...item,
             packedChecked: checked,
             packedQty: checked ? item.orderedQty : null,
-            issue: checked ? null : item.issue
+            // Don't clear issue - allow packing with issues (e.g., partial pack but still packed)
+            issue: item.issue
           }
         } else {
           return {
             ...item,
             receivedChecked: checked,
             receivedQty: checked ? (item.packedQty || item.orderedQty) : null,
-            issue: checked ? null : item.issue
+            // Don't clear issue - allow receiving with issues (e.g., received but damaged)
+            issue: item.issue
           }
         }
       }
@@ -112,15 +114,19 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
           return {
             ...item,
             issue,
-            packedChecked: issue === null,
-            packedQty: issue === null ? item.orderedQty : (issue === 'missing' ? 0 : null)
+            // Keep packedChecked state independent - don't auto-uncheck when issue is set
+            packedChecked: item.packedChecked,
+            // Only auto-set quantity for missing (0) or when clearing issue (full qty)
+            packedQty: issue === 'missing' ? 0 : (issue === null ? item.orderedQty : item.packedQty)
           }
         } else {
           return {
             ...item,
             issue,
-            receivedChecked: issue === null,
-            receivedQty: issue === null ? item.orderedQty : (issue === 'missing' ? 0 : null)
+            // Keep receivedChecked state independent - don't auto-uncheck when issue is set
+            receivedChecked: item.receivedChecked,
+            // Only auto-set quantity for missing (0) or when clearing issue (full qty)
+            receivedQty: issue === 'missing' ? 0 : (issue === null ? (item.packedQty || item.orderedQty) : item.receivedQty)
           }
         }
       }
