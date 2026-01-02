@@ -82,7 +82,8 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
           return {
             ...item,
             packedChecked: checked,
-            packedQty: checked ? item.orderedQty : null,
+            // Keep existing packedQty if set (e.g., partial), otherwise use orderedQty when checked
+            packedQty: checked ? (item.packedQty ?? item.orderedQty) : null,
             // Don't clear issue - allow packing with issues (e.g., partial pack but still packed)
             issue: item.issue
           }
@@ -90,7 +91,8 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
           return {
             ...item,
             receivedChecked: checked,
-            receivedQty: checked ? (item.packedQty || item.orderedQty) : null,
+            // Keep existing receivedQty if set (e.g., partial), otherwise use packedQty/orderedQty when checked
+            receivedQty: checked ? (item.receivedQty ?? item.packedQty ?? item.orderedQty) : null,
             // Don't clear issue - allow receiving with issues (e.g., received but damaged)
             issue: item.issue
           }
