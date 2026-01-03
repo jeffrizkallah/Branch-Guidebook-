@@ -308,8 +308,8 @@ export function getRole(roleId: string): Role | undefined {
 /**
  * Get unique locations from all branches
  */
-export function getUniqueLocations(): string[] {
-  const branches = loadBranches()
+export async function getUniqueLocations(): Promise<string[]> {
+  const branches = await loadBranches()
   const locations = branches.map(b => b.location)
   return Array.from(new Set(locations)).sort()
 }
@@ -317,8 +317,8 @@ export function getUniqueLocations(): string[] {
 /**
  * Get unique managers from all branches
  */
-export function getUniqueManagers(): string[] {
-  const branches = loadBranches()
+export async function getUniqueManagers(): Promise<string[]> {
+  const branches = await loadBranches()
   const managers = branches.map(b => b.manager)
   return Array.from(new Set(managers)).sort()
 }
@@ -426,8 +426,8 @@ export function getAllOverrides(): Record<string, any> {
 /**
  * Export merged data as JSON (for edit mode copy function)
  */
-export function exportMergedData(): string {
-  const branches = loadBranches()
+export async function exportMergedData(): Promise<string> {
+  const branches = await loadBranches()
   const roles = loadRoles()
   
   const mergedBranches = branches.map(branch => 
@@ -770,8 +770,8 @@ export function isCentralKitchen(branch: Branch): boolean {
 /**
  * Get all service branches (excluding Central Kitchen)
  */
-export function getServiceBranches(): Branch[] {
-  const branches = loadBranches()
+export async function getServiceBranches(): Promise<Branch[]> {
+  const branches = await loadBranches()
   return branches.filter(b => !isCentralKitchen(b))
 }
 

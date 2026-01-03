@@ -15,8 +15,8 @@ import {
 export function EditMode() {
   const [copied, setCopied] = useState(false)
 
-  const handleCopyJSON = () => {
-    const jsonData = exportMergedData()
+  const handleCopyJSON = async () => {
+    const jsonData = await exportMergedData()
     navigator.clipboard.writeText(jsonData)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
