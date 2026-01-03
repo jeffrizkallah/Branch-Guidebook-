@@ -50,6 +50,7 @@ export default function ImportRecipeInstructionsPage() {
   const [successCount, setSuccessCount] = useState(0)
   const [parsingNotes, setParsingNotes] = useState<string>('')
   const [isAIConfigured, setIsAIConfigured] = useState<boolean | null>(null)
+  const [duplicateHandling, setDuplicateHandling] = useState<'skip' | 'update' | 'error'>('update')
 
   // Check if AI is configured on mount
   useEffect(() => {
@@ -255,6 +256,8 @@ export default function ImportRecipeInstructionsPage() {
     })
 
     let savedCount = 0
+    let updatedCount = 0
+    let skippedCount = 0
     const failedInstructions: string[] = []
 
     for (const { idx, instruction } of instructionsToSave) {
@@ -262,7 +265,11 @@ export default function ImportRecipeInstructionsPage() {
         const res = await fetch('/api/recipe-instructions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(instruction)
+          body: JSON.stringify({
+            instruction,
+            updateIfExists: duplicateHandling === 'update',
+            skipIfExists: duplicateHandling === 'skip'
+          })
         })
 
         if (!res.ok) {
@@ -270,8 +277,15 @@ export default function ImportRecipeInstructionsPage() {
           throw new Error(data.error || 'Failed to save')
         }
 
-        savedCount++
-        setSuccessCount(savedCount)
+        const result = await res.json()
+        if (result.updated) {
+          updatedCount++
+        } else if (result.skipped) {
+          skippedCount++
+        } else {
+          savedCount++
+        }
+        setSuccessCount(savedCount + updatedCount)
       } catch (err: any) {
         failedInstructions.push(`${parsedInstructions[idx].dishName}: ${err.message}`)
       }
@@ -279,8 +293,16 @@ export default function ImportRecipeInstructionsPage() {
 
     setIsSaving(false)
 
+    // Build summary message
+    const summaryParts: string[] = []
+    if (savedCount > 0) summaryParts.push(`${savedCount} created`)
+    if (updatedCount > 0) summaryParts.push(`${updatedCount} updated`)
+    if (skippedCount > 0) summaryParts.push(`${skippedCount} skipped (duplicates)`)
+    
     if (failedInstructions.length > 0) {
-      setError(`Failed to save ${failedInstructions.length} instruction(s):\n${failedInstructions.join('\n')}`)
+      setError(`${summaryParts.length > 0 ? summaryParts.join(', ') + '. ' : ''}Failed: ${failedInstructions.length}\n${failedInstructions.join('\n')}`)
+    } else if (summaryParts.length > 0) {
+      setParsingNotes(`✅ ${summaryParts.join(', ')}`)
     }
 
     if (savedCount > 0) {
@@ -576,39 +598,55 @@ Hm Oriental Chicken with Rice\tChicken Stuffed For Oriental Chicken 1 KG\t120\tG
               ))}
             </div>
 
-            {/* Save Button */}
-            <div className="flex items-center gap-4 pt-4 border-t">
-              <Button 
-                onClick={saveSelectedInstructions}
-                disabled={isSaving || selectedInstructions.size === 0}
-                className="gap-2 bg-orange-500 hover:bg-orange-600"
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving... ({successCount}/{selectedInstructions.size})
-                  </>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Save {selectedInstructions.size} Instruction{selectedInstructions.size !== 1 ? 's' : ''}
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setParsedInstructions([])
-                  setSelectedInstructions(new Set())
-                  setRawData('')
-                  setError(null)
-                }}
-                className="gap-2"
+            {/* Duplicate Handling & Save */}
+            <div className="flex flex-col gap-4 pt-4 border-t">
+              {/* Duplicate handling option */}
+              <div className="flex items-center gap-3">
+                <Label className="text-sm font-medium">If instruction already exists:</Label>
+                <select
+                  value={duplicateHandling}
+                  onChange={(e) => setDuplicateHandling(e.target.value as 'skip' | 'update' | 'error')}
+                  className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm"
+                >
+                  <option value="update">Update existing</option>
+                  <option value="skip">Skip (keep existing)</option>
+                  <option value="error">Show error</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <Button 
+                  onClick={saveSelectedInstructions}
+                  disabled={isSaving || selectedInstructions.size === 0}
+                  className="gap-2 bg-orange-500 hover:bg-orange-600"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving... ({successCount}/{selectedInstructions.size})
+                    </>
+                  ) : (
+                    <>
+                      <Check className="h-4 w-4" />
+                      Save {selectedInstructions.size} Instruction{selectedInstructions.size !== 1 ? 's' : ''}
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setParsedInstructions([])
+                    setSelectedInstructions(new Set())
+                    setRawData('')
+                    setError(null)
+                  }}
+                  className="gap-2"
               >
                 <Trash2 className="h-4 w-4" />
                 Clear All
               </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

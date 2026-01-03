@@ -25,7 +25,15 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const newInstruction = await request.json()
+    const body = await request.json()
+    
+    // Support both direct instruction and wrapped with options
+    const newInstruction = body.instruction || body
+    const options = {
+      updateIfExists: body.updateIfExists || false,
+      skipIfExists: body.skipIfExists || false
+    }
+    
     const instructions = readInstructions()
     
     // Check if instruction with same ID already exists
@@ -34,16 +42,26 @@ export async function POST(request: Request) {
     )
     
     if (existingIndex !== -1) {
-      return NextResponse.json(
-        { error: 'Instruction with this ID already exists' },
-        { status: 400 }
-      )
+      if (options.updateIfExists) {
+        // Update existing instruction
+        instructions[existingIndex] = newInstruction
+        writeInstructions(instructions)
+        return NextResponse.json({ ...newInstruction, updated: true }, { status: 200 })
+      } else if (options.skipIfExists) {
+        // Skip silently
+        return NextResponse.json({ ...newInstruction, skipped: true }, { status: 200 })
+      } else {
+        return NextResponse.json(
+          { error: 'Instruction with this ID already exists' },
+          { status: 400 }
+        )
+      }
     }
     
     instructions.push(newInstruction)
     writeInstructions(instructions)
     
-    return NextResponse.json(newInstruction, { status: 201 })
+    return NextResponse.json({ ...newInstruction, created: true }, { status: 201 })
   } catch (error) {
     console.error('Error creating recipe instruction:', error)
     return NextResponse.json({ error: 'Failed to create recipe instruction' }, { status: 500 })
