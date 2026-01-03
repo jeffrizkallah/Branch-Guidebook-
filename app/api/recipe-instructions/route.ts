@@ -1,25 +1,20 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'recipe-instructions.json')
-
-function readInstructions() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeInstructions(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
+import { sql } from '@vercel/postgres'
 
 export async function GET() {
   try {
-    const instructions = readInstructions()
+    const result = await sql`
+      SELECT instruction_data as data
+      FROM recipe_instructions
+      ORDER BY (instruction_data->>'dishName')
+    `
+    
+    const instructions = result.rows.map(row => row.data)
     return NextResponse.json(instructions)
   } catch (error) {
-    console.error('Error reading recipe instructions:', error)
-    return NextResponse.json({ error: 'Failed to read recipe instructions' }, { status: 500 })
+    console.error('Error fetching recipe instructions:', error)
+    // Return empty array on error (table might not exist yet)
+    return NextResponse.json([])
   }
 }
 
@@ -33,19 +28,30 @@ export async function POST(request: Request) {
       updateIfExists: body.updateIfExists || false,
       skipIfExists: body.skipIfExists || false
     }
-    
-    const instructions = readInstructions()
-    
-    // Check if instruction with same ID already exists
-    const existingIndex = instructions.findIndex(
-      (i: any) => i.instructionId === newInstruction.instructionId
-    )
-    
-    if (existingIndex !== -1) {
+
+    // Basic validation
+    if (!newInstruction.instructionId || !newInstruction.dishName) {
+      return NextResponse.json(
+        { error: 'Missing required fields: instructionId, dishName' },
+        { status: 400 }
+      )
+    }
+
+    // Check if instruction already exists
+    const existing = await sql`
+      SELECT instruction_id FROM recipe_instructions 
+      WHERE instruction_id = ${newInstruction.instructionId}
+    `
+
+    if (existing.rows.length > 0) {
       if (options.updateIfExists) {
         // Update existing instruction
-        instructions[existingIndex] = newInstruction
-        writeInstructions(instructions)
+        await sql`
+          UPDATE recipe_instructions 
+          SET instruction_data = ${JSON.stringify(newInstruction)}::jsonb,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE instruction_id = ${newInstruction.instructionId}
+        `
         return NextResponse.json({ ...newInstruction, updated: true }, { status: 200 })
       } else if (options.skipIfExists) {
         // Skip silently
@@ -57,14 +63,19 @@ export async function POST(request: Request) {
         )
       }
     }
-    
-    instructions.push(newInstruction)
-    writeInstructions(instructions)
+
+    // Insert new instruction
+    await sql`
+      INSERT INTO recipe_instructions (instruction_id, instruction_data)
+      VALUES (${newInstruction.instructionId}, ${JSON.stringify(newInstruction)}::jsonb)
+    `
     
     return NextResponse.json({ ...newInstruction, created: true }, { status: 201 })
   } catch (error) {
     console.error('Error creating recipe instruction:', error)
-    return NextResponse.json({ error: 'Failed to create recipe instruction' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to create recipe instruction' },
+      { status: 500 }
+    )
   }
 }
-

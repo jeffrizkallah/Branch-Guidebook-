@@ -1,31 +1,22 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'recipe-instructions.json')
-
-function readInstructions() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeInstructions(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
+import { sql } from '@vercel/postgres'
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const instructions = readInstructions()
-    const instruction = instructions.find((i: any) => i.instructionId === params.id)
+    const result = await sql`
+      SELECT instruction_data as data
+      FROM recipe_instructions
+      WHERE instruction_id = ${params.id}
+    `
     
-    if (!instruction) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Instruction not found' }, { status: 404 })
     }
     
-    return NextResponse.json(instruction)
+    return NextResponse.json(result.rows[0].data)
   } catch (error) {
     console.error('Error reading recipe instruction:', error)
     return NextResponse.json({ error: 'Failed to read recipe instruction' }, { status: 500 })
@@ -37,19 +28,32 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const updatedInstruction = await request.json()
-    const instructions = readInstructions()
+    const updatedData = await request.json()
     
-    const index = instructions.findIndex((i: any) => i.instructionId === params.id)
+    // First check if it exists
+    const existing = await sql`
+      SELECT instruction_data as data
+      FROM recipe_instructions
+      WHERE instruction_id = ${params.id}
+    `
     
-    if (index === -1) {
+    if (existing.rows.length === 0) {
       return NextResponse.json({ error: 'Instruction not found' }, { status: 404 })
     }
     
-    instructions[index] = { ...instructions[index], ...updatedInstruction }
-    writeInstructions(instructions)
+    // Merge existing data with updates
+    const existingData = existing.rows[0].data
+    const mergedData = { ...existingData, ...updatedData }
     
-    return NextResponse.json(instructions[index])
+    // Update in database
+    await sql`
+      UPDATE recipe_instructions 
+      SET instruction_data = ${JSON.stringify(mergedData)}::jsonb,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE instruction_id = ${params.id}
+    `
+    
+    return NextResponse.json(mergedData)
   } catch (error) {
     console.error('Error updating recipe instruction:', error)
     return NextResponse.json({ error: 'Failed to update recipe instruction' }, { status: 500 })
@@ -61,20 +65,26 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const instructions = readInstructions()
-    const index = instructions.findIndex((i: any) => i.instructionId === params.id)
+    // First get the instruction to return it
+    const existing = await sql`
+      SELECT instruction_data as data
+      FROM recipe_instructions
+      WHERE instruction_id = ${params.id}
+    `
     
-    if (index === -1) {
+    if (existing.rows.length === 0) {
       return NextResponse.json({ error: 'Instruction not found' }, { status: 404 })
     }
     
-    const deleted = instructions.splice(index, 1)[0]
-    writeInstructions(instructions)
+    // Delete from database
+    await sql`
+      DELETE FROM recipe_instructions
+      WHERE instruction_id = ${params.id}
+    `
     
-    return NextResponse.json(deleted)
+    return NextResponse.json(existing.rows[0].data)
   } catch (error) {
     console.error('Error deleting recipe instruction:', error)
     return NextResponse.json({ error: 'Failed to delete recipe instruction' }, { status: 500 })
   }
 }
-
