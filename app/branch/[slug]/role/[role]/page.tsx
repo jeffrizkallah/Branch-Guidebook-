@@ -13,29 +13,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface RolePageProps {
-  params: {
+  params: Promise<{
     slug: string
     role: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     print?: string
-  }
+  }>
 }
 
-export default function RolePage({ params, searchParams }: RolePageProps) {
-  const branch = loadBranch(params.slug)
-  const role = getRole(params.role)
+export default async function RolePage({ params, searchParams }: RolePageProps) {
+  const { slug, role: roleId } = await params
+  const { print } = await searchParams
+  const branch = await loadBranch(slug)
+  const role = getRole(roleId)
 
   if (!branch || !role) {
     notFound()
   }
 
-  const isPrintMode = searchParams.print === '1'
+  const isPrintMode = print === '1'
 
   // "What good looks like" sample images
   const whatGoodLooksLike = [
-    `https://picsum.photos/seed/${params.role}-good-1/800/600`,
-    `https://picsum.photos/seed/${params.role}-good-2/800/600`,
+    `https://picsum.photos/seed/${roleId}-good-1/800/600`,
+    `https://picsum.photos/seed/${roleId}-good-2/800/600`,
   ]
 
   return (

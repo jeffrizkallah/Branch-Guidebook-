@@ -19,7 +19,7 @@ import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { PrintHeader } from '@/components/PrintHeader'
-import { loadBranch, isCentralKitchen } from '@/lib/data'
+import { isCentralKitchen } from '@/lib/data'
 import type { RecipeInstruction, Branch } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -43,10 +43,15 @@ export default function RecipeInstructionPage({ params }: RecipeInstructionPageP
 
   const isPrintMode = searchParams.get('print') === '1'
 
-  // Load branch data
+  // Load branch data from API
   useEffect(() => {
-    const branchData = loadBranch(params.slug)
-    setBranch(branchData ?? null)
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+      })
+      .catch(() => setBranch(null))
   }, [params.slug])
 
   // Redirect Central Kitchen to recipes page

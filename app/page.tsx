@@ -1,17 +1,32 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { BranchCard } from '@/components/BranchCard'
 import { Footer } from '@/components/Footer'
-import { loadBranches, filterBranches, getUniqueLocations } from '@/lib/data'
+import { filterBranches, type Branch } from '@/lib/data'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 
 export default function HomePage() {
-  const allBranches = loadBranches()
-  const locations = getUniqueLocations()
+  const [allBranches, setAllBranches] = useState<Branch[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        setAllBranches(data)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const locations = useMemo(() => {
+    const locs = allBranches.map(b => b.location)
+    return Array.from(new Set(locs)).sort()
+  }, [allBranches])
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('all')
@@ -69,7 +84,11 @@ export default function HomePage() {
           </div>
 
           {/* Branch grid */}
-          {filteredBranches.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredBranches.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredBranches.map(branch => (
                 <BranchCard key={branch.id} branch={branch} />

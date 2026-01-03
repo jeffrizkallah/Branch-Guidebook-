@@ -16,7 +16,6 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { PrintHeader } from '@/components/PrintHeader'
 import { RecipeTabs } from '@/components/RecipeTabs'
 import { YieldScaler } from '@/components/YieldScaler'
-import { loadBranch } from '@/lib/data'
 import type { Recipe, Branch } from '@/lib/data'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -46,10 +45,15 @@ export default function RecipePage({ params }: RecipePageProps) {
     setTargetYieldValue(targetValue)
   }, [])
 
-  // Load branch data
+  // Load branch data from API
   useEffect(() => {
-    const branchData = loadBranch(params.slug)
-    setBranch(branchData ?? null)
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+      })
+      .catch(() => setBranch(null))
   }, [params.slug])
 
   // Fetch recipe from API

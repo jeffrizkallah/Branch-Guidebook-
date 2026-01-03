@@ -19,8 +19,7 @@ import {
   Save,
   XCircle
 } from 'lucide-react'
-import { loadBranches } from '@/lib/data'
-import type { BranchDispatch, DispatchItem } from '@/lib/data'
+import type { BranchDispatch, DispatchItem, Branch } from '@/lib/data'
 
 interface ReceivingPageProps {
   params: {
@@ -43,8 +42,17 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     ? 'packing' 
     : 'receiving'
 
-  const branches = loadBranches()
-  const branch = branches.find(b => b.slug === params.slug)
+  const [branch, setBranch] = useState<Branch | null>(null)
+
+  useEffect(() => {
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+      })
+      .catch(console.error)
+  }, [params.slug])
 
   useEffect(() => {
     fetchDispatch()

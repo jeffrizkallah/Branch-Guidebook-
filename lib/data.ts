@@ -1,4 +1,4 @@
-import branchesData from '@/data/branches.json'
+import { sql } from '@vercel/postgres'
 import rolesData from '@/data/roles.json'
 import recipesData from '@/data/recipes.json'
 import dispatchesData from '@/data/dispatches.json'
@@ -244,19 +244,50 @@ export interface Dispatch {
   branchDispatches: BranchDispatch[]
 }
 
-/**
- * Load all branches
- */
-export function loadBranches(): Branch[] {
-  return branchesData as Branch[]
+// Helper to convert database row to Branch type
+function rowToBranch(row: any): Branch {
+  return {
+    id: String(row.id),
+    slug: row.slug,
+    name: row.name,
+    branchType: row.branch_type,
+    school: row.school || '',
+    location: row.location,
+    manager: row.manager,
+    contacts: row.contacts || [],
+    operatingHours: row.operating_hours || '',
+    deliverySchedule: row.delivery_schedule || [],
+    kpis: row.kpis || { salesTarget: '', wastePct: '', hygieneScore: '' },
+    roles: row.roles || [],
+    media: row.media || { photos: [], videos: [] }
+  }
 }
 
 /**
- * Load a single branch by slug
+ * Load all branches from database
  */
-export function loadBranch(slug: string): Branch | undefined {
-  const branches = loadBranches()
-  return branches.find(branch => branch.slug === slug)
+export async function loadBranches(): Promise<Branch[]> {
+  try {
+    const result = await sql`SELECT * FROM branches ORDER BY name ASC`
+    return result.rows.map(rowToBranch)
+  } catch (error) {
+    console.error('Error loading branches from database:', error)
+    return []
+  }
+}
+
+/**
+ * Load a single branch by slug from database
+ */
+export async function loadBranch(slug: string): Promise<Branch | undefined> {
+  try {
+    const result = await sql`SELECT * FROM branches WHERE slug = ${slug}`
+    if (result.rows.length === 0) return undefined
+    return rowToBranch(result.rows[0])
+  } catch (error) {
+    console.error('Error loading branch from database:', error)
+    return undefined
+  }
 }
 
 /**

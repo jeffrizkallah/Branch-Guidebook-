@@ -15,23 +15,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface BranchPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
-  searchParams: {
+  }>
+  searchParams: Promise<{
     print?: string
-  }
+  }>
 }
 
-export default function BranchPage({ params, searchParams }: BranchPageProps) {
-  const branch = loadBranch(params.slug)
+export default async function BranchPage({ params, searchParams }: BranchPageProps) {
+  const { slug } = await params
+  const { print } = await searchParams
+  const branch = await loadBranch(slug)
   const allRoles = loadRoles()
 
   if (!branch) {
     notFound()
   }
 
-  const isPrintMode = searchParams.print === '1'
+  const isPrintMode = print === '1'
   const isCK = isCentralKitchen(branch)
   
   // Get role details for this branch
@@ -246,7 +248,7 @@ export default function BranchPage({ params, searchParams }: BranchPageProps) {
 }
 
 export async function generateStaticParams() {
-  const branches = loadBranches()
+  const branches = await loadBranches()
   return branches.map(branch => ({
     slug: branch.slug,
   }))

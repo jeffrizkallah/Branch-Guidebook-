@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar } from '@/components/Sidebar'
 import { Footer } from '@/components/Footer'
@@ -8,7 +8,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Upload, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { loadBranches } from '@/lib/data'
+import type { Branch } from '@/lib/data'
 
 interface ParsedBranchData {
   branchSlug: string
@@ -37,9 +37,15 @@ export default function DispatchUploadPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [detectedFormat, setDetectedFormat] = useState<TemplateFormat>(null)
+  const [branches, setBranches] = useState<Branch[]>([])
   const router = useRouter()
 
-  const branches = loadBranches()
+  useEffect(() => {
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => setBranches(data))
+      .catch(console.error)
+  }, [])
 
   // Map Excel branch names to slugs (case-insensitive matching)
   const branchNameToSlug: Record<string, string> = {

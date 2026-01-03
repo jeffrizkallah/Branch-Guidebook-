@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { loadBranch, isCentralKitchen } from '@/lib/data'
+import { isCentralKitchen } from '@/lib/data'
 import type { RecipeInstruction, Branch } from '@/lib/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -28,10 +28,15 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
   const [instructions, setInstructions] = useState<RecipeInstruction[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load branch data
+  // Load branch data from API
   useEffect(() => {
-    const branchData = loadBranch(params.slug)
-    setBranch(branchData ?? null)
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+      })
+      .catch(() => setBranch(null))
   }, [params.slug])
 
   // Redirect Central Kitchen to recipes page

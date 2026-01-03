@@ -7,7 +7,6 @@ import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { RecipeCard } from '@/components/RecipeCard'
-import { loadBranch } from '@/lib/data'
 import type { Recipe, Branch } from '@/lib/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -31,10 +30,15 @@ export default function RecipesPage({ params }: RecipesPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
 
-  // Load branch data
+  // Load branch data from API
   useEffect(() => {
-    const branchData = loadBranch(params.slug)
-    setBranch(branchData)
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+      })
+      .catch(() => setBranch(null))
   }, [params.slug])
 
   // Fetch recipes from API

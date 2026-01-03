@@ -16,7 +16,7 @@ import {
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
-import { loadBranch, isCentralKitchen } from '@/lib/data'
+import { isCentralKitchen } from '@/lib/data'
 import type { ProductionSchedule, ProductionStation, Branch } from '@/lib/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -46,15 +46,20 @@ export default function ProductionSchedulePage({ params }: ProductionSchedulePag
   const [selectedStation, setSelectedStation] = useState<'all' | ProductionStation>('all')
   const [selectedDayIndex, setSelectedDayIndex] = useState(0)
 
-  // Load branch data
+  // Load branch data from API
   useEffect(() => {
-    const branchData = loadBranch(params.slug)
-    setBranch(branchData ?? null)
-    
-    // Redirect if not Central Kitchen
-    if (branchData && !isCentralKitchen(branchData)) {
-      window.location.href = `/branch/${branchData.slug}`
-    }
+    fetch('/api/branches')
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find((b: Branch) => b.slug === params.slug)
+        setBranch(found || null)
+        
+        // Redirect if not Central Kitchen
+        if (found && !isCentralKitchen(found)) {
+          window.location.href = `/branch/${found.slug}`
+        }
+      })
+      .catch(() => setBranch(null))
   }, [params.slug])
 
   // Fetch schedules
