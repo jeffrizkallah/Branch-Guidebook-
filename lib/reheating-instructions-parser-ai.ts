@@ -96,8 +96,17 @@ Return ONLY the JSON object, no additional text.`
       ],
       response_format: { type: 'json_object' },
       temperature: 0, // Deterministic output for consistent parsing
-      max_tokens: 8192 // Higher limit for batch parsing
+      max_tokens: 16384 // Higher limit for batch parsing with large datasets
     })
+
+    // Check if response was truncated
+    const finishReason = completion.choices[0]?.finish_reason
+    if (finishReason === 'length') {
+      return {
+        success: false,
+        error: 'AI response was truncated due to length limits. Try pasting fewer rows at a time (max ~10-15 dishes per batch).'
+      }
+    }
 
     const rawResponse = completion.choices[0]?.message?.content
     
@@ -113,10 +122,38 @@ Return ONLY the JSON object, no additional text.`
     try {
       parsedJson = JSON.parse(rawResponse)
     } catch (parseError) {
-      return {
-        success: false,
-        error: 'AI returned invalid JSON',
-        rawResponse
+      // Try to extract JSON from markdown code blocks if present
+      const jsonMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/)
+      if (jsonMatch) {
+        try {
+          parsedJson = JSON.parse(jsonMatch[1].trim())
+        } catch {
+          // Still couldn't parse
+        }
+      }
+      
+      // If still no parsed JSON, try to find raw JSON object
+      if (!parsedJson) {
+        const jsonObjectMatch = rawResponse.match(/\{[\s\S]*\}/)
+        if (jsonObjectMatch) {
+          try {
+            parsedJson = JSON.parse(jsonObjectMatch[0])
+          } catch {
+            // Still couldn't parse
+          }
+        }
+      }
+      
+      if (!parsedJson) {
+        // Truncate raw response for error message
+        const truncatedResponse = rawResponse.length > 500 
+          ? rawResponse.substring(0, 500) + '...[truncated]' 
+          : rawResponse
+        return {
+          success: false,
+          error: `AI returned invalid JSON. Response preview: ${truncatedResponse}`,
+          rawResponse
+        }
       }
     }
 
@@ -223,5 +260,115 @@ export function estimateAPICost(inputTokens: number, outputTokens: number = 2000
 // Check if the API is properly configured
 export function isAIConfigured(): boolean {
   return !!process.env.OPENAI_API_KEY
+}
+
+// Split data into chunks based on dish boundaries
+export function splitDataIntoChunks(rawData: string, maxRowsPerChunk: number = 8): string[] {
+  const lines = rawData.trim().split('\n')
+  if (lines.length <= 1) return [rawData]
+  
+  const headerLine = lines[0]
+  const dataLines = lines.slice(1)
+  
+  // Identify dish boundaries (rows where the first column has content = new dish)
+  const dishBoundaries: number[] = [0]
+  let currentDish = ''
+  
+  dataLines.forEach((line, idx) => {
+    const firstCol = line.split('\t')[0]?.trim()
+    if (firstCol && firstCol !== currentDish) {
+      if (idx > 0) dishBoundaries.push(idx)
+      currentDish = firstCol
+    }
+  })
+  dishBoundaries.push(dataLines.length)
+  
+  // Count dishes
+  const dishCount = dishBoundaries.length - 1
+  
+  // If few enough dishes, return as single chunk
+  if (dishCount <= maxRowsPerChunk) {
+    return [rawData]
+  }
+  
+  // Split into chunks of ~maxRowsPerChunk dishes each
+  const chunks: string[] = []
+  let currentChunkStart = 0
+  let dishesInCurrentChunk = 0
+  
+  for (let i = 1; i < dishBoundaries.length; i++) {
+    dishesInCurrentChunk++
+    
+    if (dishesInCurrentChunk >= maxRowsPerChunk || i === dishBoundaries.length - 1) {
+      const startIdx = dishBoundaries[currentChunkStart]
+      const endIdx = dishBoundaries[i]
+      const chunkLines = dataLines.slice(startIdx, endIdx)
+      chunks.push([headerLine, ...chunkLines].join('\n'))
+      
+      currentChunkStart = i
+      dishesInCurrentChunk = 0
+    }
+  }
+  
+  return chunks.filter(chunk => chunk.trim().split('\n').length > 1)
+}
+
+// Parse with automatic batching for large datasets
+export async function parseReheatingInstructionsWithAIBatched(
+  rawExcelData: string,
+  availableRecipes: AvailableRecipe[] = [],
+  onProgress?: (current: number, total: number) => void
+): Promise<{
+  success: boolean
+  data?: ParsedInstructionsResponse
+  error?: string
+  batchInfo?: { processed: number, total: number }
+}> {
+  const chunks = splitDataIntoChunks(rawExcelData, 6) // 6 dishes per batch for safety
+  
+  if (chunks.length === 1) {
+    // Single chunk, use normal parsing
+    return parseReheatingInstructionsWithAI(rawExcelData, availableRecipes)
+  }
+  
+  // Multiple chunks - process in batches
+  const allInstructions: ParsedInstructionsResponse['instructions'] = []
+  const allNotes: string[] = []
+  let failedBatches = 0
+  
+  for (let i = 0; i < chunks.length; i++) {
+    onProgress?.(i + 1, chunks.length)
+    
+    const result = await parseReheatingInstructionsWithAI(chunks[i], availableRecipes)
+    
+    if (result.success && result.data) {
+      allInstructions.push(...result.data.instructions)
+      if (result.data.parsingNotes) {
+        allNotes.push(`Batch ${i + 1}: ${result.data.parsingNotes}`)
+      }
+    } else {
+      failedBatches++
+      allNotes.push(`Batch ${i + 1} failed: ${result.error}`)
+    }
+  }
+  
+  if (allInstructions.length === 0) {
+    return {
+      success: false,
+      error: `All ${chunks.length} batches failed to parse. ${allNotes.join('\n')}`,
+      batchInfo: { processed: 0, total: chunks.length }
+    }
+  }
+  
+  return {
+    success: true,
+    data: {
+      instructions: allInstructions,
+      parsingNotes: failedBatches > 0 
+        ? `Processed ${chunks.length - failedBatches}/${chunks.length} batches. ${allNotes.join(' | ')}`
+        : `Successfully processed all ${chunks.length} batches.`
+    },
+    batchInfo: { processed: chunks.length - failedBatches, total: chunks.length }
+  }
 }
 

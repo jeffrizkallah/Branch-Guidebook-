@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
-import { parseReheatingInstructionsWithAI, isAIConfigured } from '@/lib/reheating-instructions-parser-ai'
+import { parseReheatingInstructionsWithAIBatched, isAIConfigured } from '@/lib/reheating-instructions-parser-ai'
 
 // Read recipes to get available recipe IDs for matching
 function getAvailableRecipes(): { recipeId: string; name: string }[] {
@@ -48,14 +48,14 @@ export async function POST(request: Request) {
     // Get available recipes for matching
     const availableRecipes = getAvailableRecipes()
 
-    // Parse with AI
-    const result = await parseReheatingInstructionsWithAI(rawData, availableRecipes)
+    // Parse with AI (uses automatic batching for large datasets)
+    const result = await parseReheatingInstructionsWithAIBatched(rawData, availableRecipes)
 
     if (!result.success) {
       return NextResponse.json(
         { 
           error: result.error || 'Failed to parse data with AI',
-          rawResponse: result.rawResponse 
+          batchInfo: result.batchInfo
         },
         { status: 422 }
       )
@@ -64,7 +64,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       data: result.data,
-      instructionsCount: result.data?.instructions.length || 0
+      instructionsCount: result.data?.instructions.length || 0,
+      batchInfo: result.batchInfo || { processed: 1, total: 1 }
     })
 
   } catch (error) {

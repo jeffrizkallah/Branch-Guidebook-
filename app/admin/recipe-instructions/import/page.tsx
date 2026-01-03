@@ -105,7 +105,13 @@ export default function ImportRecipeInstructionsPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to parse with AI')
+        // Include raw response preview if available
+        let errorMessage = data.error || 'Failed to parse with AI'
+        if (data.rawResponse && !errorMessage.includes('Response preview')) {
+          const preview = data.rawResponse.substring(0, 300)
+          errorMessage += `\n\nRaw AI response preview:\n${preview}${data.rawResponse.length > 300 ? '...' : ''}`
+        }
+        throw new Error(errorMessage)
       }
 
       if (!data.success || !data.data?.instructions) {
@@ -115,8 +121,16 @@ export default function ImportRecipeInstructionsPage() {
       const instructions = data.data.instructions as ParsedInstruction[]
       setParsedInstructions(instructions)
       
+      // Build parsing notes including batch info
+      let notes = ''
+      if (data.batchInfo && data.batchInfo.total > 1) {
+        notes = `Processed in ${data.batchInfo.total} batches. `
+      }
       if (data.data.parsingNotes) {
-        setParsingNotes(data.data.parsingNotes)
+        notes += data.data.parsingNotes
+      }
+      if (notes) {
+        setParsingNotes(notes)
       }
 
       // Select all by default
@@ -338,7 +352,7 @@ Hm Oriental Chicken with Rice\tChicken Stuffed For Oriental Chicken 1 KG\t120\tG
               {isParsing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Parsing with AI...
+                  Parsing with AI... (may take a moment for large datasets)
                 </>
               ) : (
                 <>
