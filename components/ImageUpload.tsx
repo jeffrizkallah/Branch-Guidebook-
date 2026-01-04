@@ -76,15 +76,17 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
         body: formData,
       })
 
+      const data = await response.json()
+      
       if (!response.ok) {
-        throw new Error('Upload failed')
+        throw new Error(data.error || 'Upload failed')
       }
 
-      const data = await response.json()
       onImagesChange([...images, ...data.urls])
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Failed to upload images. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Failed to upload images: ${errorMessage}`)
     } finally {
       setIsUploading(false)
     }
