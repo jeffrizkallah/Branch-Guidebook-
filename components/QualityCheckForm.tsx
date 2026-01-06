@@ -307,8 +307,8 @@ export function QualityCheckForm({ branchSlug, branchName, onSuccess }: QualityC
 
     switch (field.fieldType) {
       case 'rating':
-        const min = field.minValue ?? 1
-        const max = field.maxValue ?? 5
+        const min = Number(field.minValue ?? 1)
+        const max = Number(field.maxValue ?? 5)
         const stars = Array.from({ length: max - min + 1 }, (_, i) => i + min)
         
         return (
