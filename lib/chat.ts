@@ -189,6 +189,7 @@ export async function getReactionsForMessages(
   if (messageIds.length === 0) return new Map()
   
   try {
+    const messageIdsArray = `{${messageIds.join(',')}}`
     const result = await sql`
       SELECT 
         r.message_id,
@@ -198,7 +199,7 @@ export async function getReactionsForMessages(
         u.last_name
       FROM chat_reactions r
       JOIN users u ON r.user_id = u.id
-      WHERE r.message_id = ANY(${messageIds}::int[])
+      WHERE r.message_id = ANY(${messageIdsArray}::int[])
       ORDER BY r.created_at ASC
     `
 
