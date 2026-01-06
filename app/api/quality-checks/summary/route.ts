@@ -54,6 +54,8 @@ export async function GET(request: Request) {
     }
 
     // Get total submissions in period
+    const branchesArray = user.branches ? `{${user.branches.join(',')}}` : '{}'
+    
     let totalResult
     if (isAdmin) {
       totalResult = await sql`
@@ -66,7 +68,7 @@ export async function GET(request: Request) {
         SELECT COUNT(*) as count
         FROM quality_checks
         WHERE submission_date >= ${startDate.toISOString()}
-        AND branch_slug = ANY(${user.branches})
+        AND branch_slug = ANY(${branchesArray}::text[])
       `
     }
     const totalSubmissions = parseInt(totalResult.rows[0].count)
@@ -85,7 +87,7 @@ export async function GET(request: Request) {
         SELECT DISTINCT branch_slug, meal_service
         FROM quality_checks
         WHERE submission_date >= ${todayStart}
-        AND branch_slug = ANY(${user.branches})
+        AND branch_slug = ANY(${branchesArray}::text[])
       `
     }
 
@@ -125,7 +127,7 @@ export async function GET(request: Request) {
           ROUND(AVG(appearance_score)::numeric, 1) as "avgAppearance"
         FROM quality_checks
         WHERE submission_date >= ${startDate.toISOString()}
-        AND branch_slug = ANY(${user.branches})
+        AND branch_slug = ANY(${branchesArray}::text[])
       `
     }
 
@@ -152,7 +154,7 @@ export async function GET(request: Request) {
           ROUND(AVG(appearance_score)::numeric, 1) as "avgAppearance"
         FROM quality_checks
         WHERE submission_date >= ${startDate.toISOString()}
-        AND branch_slug = ANY(${user.branches})
+        AND branch_slug = ANY(${branchesArray}::text[])
         GROUP BY section
         ORDER BY count DESC
       `
@@ -197,7 +199,7 @@ export async function GET(request: Request) {
         FROM quality_checks qc
         LEFT JOIN users u ON qc.submitted_by = u.id
         LEFT JOIN branches b ON qc.branch_slug = b.slug
-        WHERE qc.branch_slug = ANY(${user.branches})
+        WHERE qc.branch_slug = ANY(${branchesArray}::text[])
         ORDER BY qc.submission_date DESC
         LIMIT 10
       `
@@ -246,7 +248,7 @@ export async function GET(request: Request) {
         LEFT JOIN branches b ON qc.branch_slug = b.slug
         WHERE (qc.taste_score <= 2 OR qc.appearance_score <= 2)
         AND qc.submission_date >= ${startDate.toISOString()}
-        AND qc.branch_slug = ANY(${user.branches})
+        AND qc.branch_slug = ANY(${branchesArray}::text[])
         ORDER BY qc.submission_date DESC
         LIMIT 5
       `
