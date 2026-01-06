@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = parseInt(session.user.id)
+    const userId = Number(session.user.id)
     const totalUnread = await getTotalUnreadCount(userId)
 
     return NextResponse.json({ totalUnread })

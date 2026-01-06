@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'A channel with this name already exists' }, { status: 400 })
     }
 
-    const userId = parseInt(session.user.id)
+    const userId = Number(session.user.id)
     const result = await sql`
       INSERT INTO chat_channels (name, slug, description, icon, is_read_only, created_by)
       VALUES (${name.trim()}, ${slug}, ${description || null}, ${icon || 'hash'}, ${is_read_only || false}, ${userId})

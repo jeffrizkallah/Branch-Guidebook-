@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = parseInt(session.user.id)
+    const userId = Number(session.user.id)
     const { searchParams } = new URL(request.url)
     const channelId = parseInt(searchParams.get('channelId') || '0')
     const beforeId = searchParams.get('beforeId') ? parseInt(searchParams.get('beforeId')!) : undefined
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = parseInt(session.user.id)
+    const userId = Number(session.user.id)
     const body = await request.json()
     const { channelId, content, imageUrl, isUrgent } = body
 
