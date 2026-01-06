@@ -17,7 +17,8 @@
     "setup:odoo:all": "tsx scripts/create-all-odoo-tables.ts",
     "sync:sales": "node scripts/sync-sharepoint-sales.js",
     "sync:all": "node scripts/sync-all-sharepoint.js",
-    "migrate:onboarding": "tsx scripts/add-onboarding-fields.ts"
+    "migrate:onboarding": "tsx scripts/add-onboarding-fields.ts",
+    "setup:chat": "tsx scripts/create-chat-tables.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

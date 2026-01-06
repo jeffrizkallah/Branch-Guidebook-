@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Notification, formatRelativeTime, getNotificationTypeConfig } from '@/lib/notifications'
-import { AdminProtection } from '@/components/AdminProtection'
 import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 
 const typeIcons: Record<string, typeof Info> = {
@@ -158,8 +157,7 @@ export default function NotificationsAdminPage() {
   }
 
   return (
-    <AdminProtection>
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -394,7 +392,6 @@ export default function NotificationsAdminPage() {
           description={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         />
       </div>
-    </AdminProtection>
   )
 }
 

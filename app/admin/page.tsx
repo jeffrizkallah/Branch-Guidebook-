@@ -27,6 +27,10 @@ import {
   DollarSign,
   ShoppingCart,
   Users,
+  MessageCircle,
+  ClipboardCheck,
+  Coffee,
+  Sun,
 } from 'lucide-react'
 
 interface Branch {
@@ -130,16 +134,48 @@ interface SalesData {
   }
 }
 
+interface QualitySummary {
+  totalSubmissions: number
+  complianceRate: number
+  todayCompliance: {
+    branchSlug: string
+    branchName: string
+    breakfastSubmitted: boolean
+    lunchSubmitted: boolean
+  }[]
+  lowScores: {
+    id: number
+    productName: string
+    branchName: string
+    tasteScore: number
+    appearanceScore: number
+  }[]
+}
+
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [branches, setBranches] = useState<Branch[]>([])
   const [salesData, setSalesData] = useState<SalesData | null>(null)
+  const [qualitySummary, setQualitySummary] = useState<QualitySummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     fetchDashboardData()
     fetchSalesData()
+    fetchQualitySummary()
   }, [])
+
+  const fetchQualitySummary = async () => {
+    try {
+      const response = await fetch('/api/quality-checks/summary?period=today')
+      if (response.ok) {
+        const data = await response.json()
+        setQualitySummary(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch quality summary:', error)
+    }
+  }
 
   const fetchSalesData = async () => {
     try {
@@ -641,6 +677,95 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
+      {/* Quality Control Widget */}
+      {qualitySummary && (
+        <Card className="border-l-4 border-l-green-500">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4 text-green-600" />
+                Quality Control Today
+              </CardTitle>
+              <Link href="/admin/quality-control">
+                <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+                  View All
+                  <ArrowRight className="h-3 w-3" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <p className="text-2xl font-bold text-green-700">{qualitySummary.totalSubmissions}</p>
+                <p className="text-xs text-green-600">Submissions</p>
+              </div>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <p className="text-2xl font-bold text-blue-700">{qualitySummary.complianceRate}%</p>
+                <p className="text-xs text-blue-600">Compliance</p>
+              </div>
+              <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                <p className="text-2xl font-bold text-emerald-700">
+                  {qualitySummary.todayCompliance.filter(b => b.breakfastSubmitted || b.lunchSubmitted).length}
+                </p>
+                <p className="text-xs text-emerald-600">Branches Done</p>
+              </div>
+              <div className="text-center p-3 bg-amber-50 rounded-lg">
+                <p className="text-2xl font-bold text-amber-700">
+                  {qualitySummary.todayCompliance.filter(b => !b.breakfastSubmitted && !b.lunchSubmitted).length}
+                </p>
+                <p className="text-xs text-amber-600">Pending</p>
+              </div>
+            </div>
+
+            {/* Branch compliance grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {qualitySummary.todayCompliance.slice(0, 8).map((branch) => (
+                <div 
+                  key={branch.branchSlug}
+                  className={`
+                    flex items-center justify-between p-2 rounded-lg text-xs
+                    ${branch.breakfastSubmitted && branch.lunchSubmitted
+                      ? 'bg-green-50 border border-green-200'
+                      : branch.breakfastSubmitted || branch.lunchSubmitted
+                      ? 'bg-blue-50 border border-blue-200'
+                      : 'bg-amber-50 border border-amber-200'
+                    }
+                  `}
+                >
+                  <span className="font-medium truncate flex-1">{branch.branchName}</span>
+                  <div className="flex gap-1 shrink-0">
+                    <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                      <Coffee className="h-3 w-3" />
+                    </div>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                      <Sun className="h-3 w-3" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Low scores alert */}
+            {qualitySummary.lowScores.length > 0 && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm font-medium text-red-700 flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Low Score Alerts ({qualitySummary.lowScores.length})
+                </p>
+                <div className="space-y-1">
+                  {qualitySummary.lowScores.slice(0, 3).map((item) => (
+                    <div key={item.id} className="text-xs text-red-600">
+                      {item.productName} at {item.branchName} - Taste: {item.tasteScore}/5, Look: {item.appearanceScore}/5
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Management Cards */}
       <div className="space-y-3" data-tour-id="admin-quick-actions">
         <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -835,6 +960,62 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </Link>
+
+          {/* Quality Control */}
+          <Link href="/admin/quality-control">
+            <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300">
+                    <ClipboardCheck className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground">Quality Control</h3>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      Monitor food quality checks from all branches
+                    </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-0">
+                        {qualitySummary?.totalSubmissions || 0} today
+                      </Badge>
+                      {(qualitySummary?.lowScores.length || 0) > 0 && (
+                        <Badge variant="outline" className="text-xs text-red-600 border-red-300">
+                          {qualitySummary?.lowScores.length} alerts
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Chat Channels - Disabled for now, uncomment to re-enable
+          <Link href="/admin/chat-channels">
+            <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-xl bg-violet-500/10 text-violet-600 group-hover:scale-110 transition-transform duration-300">
+                    <MessageCircle className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground">Chat Channels</h3>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      Create and manage team chat channels
+                    </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Badge variant="secondary" className="text-xs bg-violet-100 text-violet-700 border-0">
+                        Team Communication
+                      </Badge>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          */}
         </div>
       </div>
 

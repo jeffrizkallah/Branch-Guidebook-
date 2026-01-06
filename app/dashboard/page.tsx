@@ -16,14 +16,24 @@ import {
   TrendingDown,
   DollarSign,
   ShoppingCart,
-  Clock,
   MapPin,
   Truck,
-  ChefHat,
   CheckCircle2,
   Calendar,
+  AlertTriangle,
+  ClipboardCheck,
+  Coffee,
+  Sun,
+  PackageOpen,
+  ChevronRight,
+  Flame,
+  ChevronDown,
+  Star,
+  Boxes,
+  Eye
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { cn } from '@/lib/utils'
 
 interface Branch {
   id: string
@@ -58,8 +68,24 @@ interface Dispatch {
   }[]
 }
 
+interface QualityCompliance {
+  branchSlug: string
+  branchName: string
+  breakfastSubmitted: boolean
+  lunchSubmitted: boolean
+}
+
+interface InventorySummary {
+  totalItems: number
+  totalValue: number
+  syncInfo: {
+    lastSynced: string
+    dataDate: string
+  } | null
+}
+
 export default function BranchManagerDashboard() {
-  const { user, loading: authLoading, hasBranchAccess } = useAuth({ 
+  const { user, loading: authLoading } = useAuth({ 
     required: true, 
     allowedRoles: ['admin', 'operations_lead', 'branch_manager'] 
   })
@@ -71,6 +97,10 @@ export default function BranchManagerDashboard() {
   const [todayRevenue, setTodayRevenue] = useState(0)
   const [todayOrders, setTodayOrders] = useState(0)
   const [revenueChange, setRevenueChange] = useState(0)
+  const [alertsExpanded, setAlertsExpanded] = useState(true)
+  const [qualityCompliance, setQualityCompliance] = useState<QualityCompliance[]>([])
+  const [inventorySummary, setInventorySummary] = useState<InventorySummary | null>(null)
+  const [sortBy, setSortBy] = useState<'revenue' | 'name' | 'hygiene'>('revenue')
 
   useEffect(() => {
     if (user) {
@@ -99,15 +129,31 @@ export default function BranchManagerDashboard() {
       const analyticsRes = await fetch('/api/analytics/branches?period=today')
       const analyticsData = await analyticsRes.json()
       
-      // Filter analytics to user's branches
-      const userAnalytics = (analyticsData.branches || []).filter((a: BranchAnalytics) =>
-        userBranches.some(b => b.name === a.branch || b.slug === a.branch.toLowerCase().replace(/\s+/g, '-'))
-      )
+      // Filter analytics to user's branches with flexible matching
+      const userAnalytics = (analyticsData.branches || []).filter((a: BranchAnalytics) => {
+        const analyticsBranch = (a.branch || '').toLowerCase().trim()
+        return userBranches.some(b => {
+          const branchName = b.name.toLowerCase().trim()
+          const branchSlug = b.slug.toLowerCase()
+          // Match exact name, slug conversion, or partial containment
+          return branchName === analyticsBranch ||
+                 branchSlug === analyticsBranch.replace(/\s+/g, '-') ||
+                 branchName.includes(analyticsBranch) ||
+                 analyticsBranch.includes(branchName.replace('isc ', ''))
+        })
+      })
       setBranchAnalytics(userAnalytics)
 
-      // Calculate totals for user's branches
-      const totalRevenue = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.revenue, 0)
-      const totalOrders = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.orders, 0)
+      // Calculate totals for user's branches (use filtered analytics or fallback to all if matching failed)
+      let totalRevenue = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.revenue, 0)
+      let totalOrders = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.orders, 0)
+      
+      // If no matching analytics but user has branches, use total from API response
+      if (totalRevenue === 0 && userBranches.length > 0 && analyticsData.totalRevenue) {
+        totalRevenue = analyticsData.totalRevenue
+        totalOrders = (analyticsData.branches || []).reduce((sum: number, a: BranchAnalytics) => sum + a.orders, 0)
+      }
+      
       setTodayRevenue(totalRevenue)
       setTodayOrders(totalOrders)
 
@@ -127,6 +173,24 @@ export default function BranchManagerDashboard() {
         )
       ).slice(0, 5) // Last 5 dispatches
       setDispatches(userDispatches)
+
+      // Fetch quality compliance
+      try {
+        const qualityRes = await fetch('/api/quality-checks/summary?period=today')
+        const qualityData = await qualityRes.json()
+        setQualityCompliance(qualityData.todayCompliance || [])
+      } catch (e) {
+        console.error('Error fetching quality compliance:', e)
+      }
+
+      // Fetch inventory summary
+      try {
+        const inventoryRes = await fetch('/api/inventory/summary')
+        const inventoryData = await inventoryRes.json()
+        setInventorySummary(inventoryData)
+      } catch (e) {
+        console.error('Error fetching inventory:', e)
+      }
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
@@ -161,11 +225,43 @@ export default function BranchManagerDashboard() {
     return null
   }
 
+  const getQualityStatusForBranch = (branchSlug: string) => {
+    return qualityCompliance.find(q => q.branchSlug === branchSlug)
+  }
+
   const getHygieneColor = (score: number) => {
     if (score >= 95) return 'text-green-600 bg-green-100'
     if (score >= 92) return 'text-amber-600 bg-amber-100'
     return 'text-red-600 bg-red-100'
   }
+
+  // Calculate alerts
+  const alerts = {
+    qualityPending: qualityCompliance.filter(q => !q.breakfastSubmitted && !q.lunchSubmitted),
+    dispatchPending: dispatches.filter(d => 
+      d.branchDispatches.some(bd => 
+        branches.some(b => b.slug === bd.branchSlug) && bd.status === 'pending'
+      )
+    )
+  }
+  const totalAlerts = alerts.qualityPending.length + alerts.dispatchPending.length
+
+  // Quality completion stats
+  const qualityComplete = qualityCompliance.filter(q => q.breakfastSubmitted || q.lunchSubmitted).length
+  const qualityTotal = qualityCompliance.length
+  const qualityPercentage = qualityTotal > 0 ? Math.round((qualityComplete / qualityTotal) * 100) : 0
+
+  // Sort branches
+  const sortedBranches = [...branches].sort((a, b) => {
+    if (sortBy === 'revenue') {
+      const aRev = getAnalyticsForBranch(a.name)?.revenue || 0
+      const bRev = getAnalyticsForBranch(b.name)?.revenue || 0
+      return bRev - aRev
+    } else if (sortBy === 'hygiene') {
+      return parseInt(b.kpis.hygieneScore) - parseInt(a.kpis.hygieneScore)
+    }
+    return a.name.localeCompare(b.name)
+  })
 
   if (authLoading || loading) {
     return (
@@ -183,259 +279,413 @@ export default function BranchManagerDashboard() {
       <RoleSidebar />
 
       <main className="flex-1 flex flex-col pt-16 md:pt-0">
-        <div className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex-1 container mx-auto px-4 py-6 max-w-7xl">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-primary/10">
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Branch Dashboard</h1>
+                <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
                 <p className="text-sm text-muted-foreground">
                   Welcome back, {user?.firstName}!
                 </p>
               </div>
             </div>
           </div>
-        {/* Today's Snapshot */}
-        <Card className="mb-8 border-l-4 border-l-primary" data-tour-id="today-snapshot">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar className="h-4 w-4 text-primary" />
-              <h2 className="font-semibold">Today&apos;s Snapshot</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-emerald-50 rounded-lg">
-                <DollarSign className="h-5 w-5 text-emerald-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-emerald-700">{formatCurrency(todayRevenue)}</p>
-                <p className="text-xs text-emerald-600">Revenue</p>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <ShoppingCart className="h-5 w-5 text-blue-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-blue-700">{todayOrders}</p>
-                <p className="text-xs text-blue-600">Orders</p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <Building2 className="h-5 w-5 text-purple-600 mx-auto mb-1" />
-                <p className="text-2xl font-bold text-purple-700">{branches.length}</p>
-                <p className="text-xs text-purple-600">Your Branches</p>
-              </div>
-              <div className={`text-center p-4 rounded-lg ${revenueChange >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                {revenueChange >= 0 ? (
-                  <TrendingUp className="h-5 w-5 text-green-600 mx-auto mb-1" />
-                ) : (
-                  <TrendingDown className="h-5 w-5 text-red-600 mx-auto mb-1" />
-                )}
-                <p className={`text-2xl font-bold ${revenueChange >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  {revenueChange >= 0 ? '+' : ''}{revenueChange}%
-                </p>
-                <p className={`text-xs ${revenueChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>vs Yesterday</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Your Branches */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-primary" />
-            Your Branches
-          </h2>
-          
-          {branches.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No Branches Assigned</h3>
-                <p className="text-muted-foreground">
-                  Contact your administrator to get branches assigned to your account.
-                </p>
+          {/* Alerts Section */}
+          {totalAlerts > 0 && (
+            <Card className="mb-6 border-l-4 transition-all border-l-amber-500">
+              <CardHeader 
+                className="py-4 cursor-pointer"
+                onClick={() => setAlertsExpanded(!alertsExpanded)}
+              >
+                <CardTitle className="text-base flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <span>Needs Attention</span>
+                    <Badge variant="secondary" className="ml-2">{totalAlerts}</Badge>
+                  </div>
+                  {alertsExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </CardTitle>
+              </CardHeader>
+              {alertsExpanded && (
+                <CardContent className="pt-0">
+                  <div className="space-y-2">
+                    {alerts.qualityPending.map(q => (
+                      <div key={q.branchSlug} className="flex items-center gap-3 text-sm p-2 bg-amber-50 rounded-lg">
+                        <div className="w-2 h-2 rounded-full bg-amber-500" />
+                        <span className="flex-1">
+                          <strong>Quality:</strong> {q.branchName} - No checks submitted today
+                        </span>
+                        <Link href={`/branch/${q.branchSlug}/quality-check`}>
+                          <Button variant="ghost" size="sm">Fill Now</Button>
+                        </Link>
+                      </div>
+                    ))}
+                    {alerts.dispatchPending.map(d => (
+                      <div key={d.id} className="flex items-center gap-3 text-sm p-2 bg-blue-50 rounded-lg">
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span className="flex-1">
+                          <strong>Dispatch:</strong> Pending confirmation for {new Date(d.deliveryDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          )}
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            {/* Revenue Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 rounded-lg bg-emerald-100">
+                    <DollarSign className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Revenue</span>
+                </div>
+                <p className="text-xl font-bold">{formatCurrency(todayRevenue)}</p>
+                <div className={cn(
+                  "flex items-center gap-1 text-xs mt-1",
+                  revenueChange >= 0 ? "text-green-600" : "text-red-600"
+                )}>
+                  {revenueChange >= 0 ? (
+                    <TrendingUp className="h-3 w-3" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3" />
+                  )}
+                  <span>{revenueChange >= 0 ? '+' : ''}{revenueChange}% vs yesterday</span>
+                </div>
               </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-tour-id="branch-cards">
-              {branches.map(branch => {
-                const analytics = getAnalyticsForBranch(branch.name)
-                const dispatchStatus = getDispatchStatusForBranch(branch.slug)
-                const hygieneScore = parseInt(branch.kpis.hygieneScore) || 0
-                
-                return (
-                  <Card key={branch.id} className="hover:shadow-lg transition-all duration-300 group">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{branch.name}</h3>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {branch.location}
-                          </p>
-                        </div>
-                        <Badge className={`${getHygieneColor(hygieneScore)} border-0`}>
-                          {hygieneScore || 'N/A'}
-                        </Badge>
-                      </div>
 
-                      {/* Analytics */}
-                      <div className="grid grid-cols-2 gap-2 mb-4">
-                        <div className="bg-muted/50 rounded p-2 text-center">
-                          <p className="text-lg font-bold">
-                            {analytics ? formatCurrency(analytics.revenue) : 'N/A'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">Today</p>
-                        </div>
-                        <div className="bg-muted/50 rounded p-2 text-center">
-                          <p className="text-lg font-bold">
-                            {analytics?.orders || 0}
-                          </p>
-                          <p className="text-xs text-muted-foreground">Orders</p>
-                        </div>
-                      </div>
-
-                      {/* Dispatch Status */}
-                      {dispatchStatus && (
-                        <div className={`
-                          flex items-center gap-2 p-2 rounded text-sm mb-4
-                          ${dispatchStatus.status === 'pending' ? 'bg-amber-50 text-amber-700' :
-                            dispatchStatus.status === 'dispatched' ? 'bg-blue-50 text-blue-700' :
-                            'bg-green-50 text-green-700'}
-                        `}>
-                          <Truck className="h-4 w-4" />
-                          <span>
-                            {dispatchStatus.status === 'pending' ? 'Dispatch pending' :
-                             dispatchStatus.status === 'dispatched' ? 'Dispatch incoming' :
-                             dispatchStatus.status === 'packing' ? 'Being packed' :
-                             'Receiving'} ({dispatchStatus.items} items)
-                          </span>
-                        </div>
-                      )}
-
-                      <Link href={`/branch/${branch.slug}`}>
-                        <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-white transition-colors">
-                          View Details
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mb-8" data-tour-id="quick-actions">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Clock className="h-4 w-4 text-primary" />
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/">
-              <Card className="hover:shadow-md transition-all cursor-pointer group h-full">
-                <CardContent className="pt-6 text-center">
-                  <div className="p-3 rounded-xl bg-blue-100 text-blue-600 w-fit mx-auto mb-3 group-hover:scale-110 transition-transform">
-                    <Building2 className="h-6 w-6" />
+            {/* Orders Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 rounded-lg bg-blue-100">
+                    <ShoppingCart className="h-4 w-4 text-blue-600" />
                   </div>
-                  <h3 className="font-medium">All Branches</h3>
-                  <p className="text-xs text-muted-foreground mt-1">Browse all locations</p>
+                  <span className="text-xs text-muted-foreground">Orders</span>
+                </div>
+                <p className="text-xl font-bold">{todayOrders}</p>
+                <span className="text-xs text-muted-foreground">Today</span>
+              </CardContent>
+            </Card>
+
+            {/* Quality Compliance Card */}
+            <Link href={branches[0] ? `/branch/${branches[0].slug}/quality-check` : '#'}>
+              <Card className="hover:shadow-md transition-shadow cursor-pointer group h-full">
+                <CardContent className="pt-4 pb-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-green-100">
+                      <ClipboardCheck className="h-4 w-4 text-green-600" />
+                    </div>
+                    <span className="text-xs text-muted-foreground">Quality</span>
+                  </div>
+                  <p className="text-xl font-bold">{qualityPercentage}%</p>
+                  <span className="text-xs text-muted-foreground">{qualityComplete}/{qualityTotal} today</span>
                 </CardContent>
               </Card>
             </Link>
 
-            {branches[0] && (
-              <Link href={`/branch/${branches[0].slug}/recipes`}>
-                <Card className="hover:shadow-md transition-all cursor-pointer group h-full">
-                  <CardContent className="pt-6 text-center">
-                    <div className="p-3 rounded-xl bg-orange-100 text-orange-600 w-fit mx-auto mb-3 group-hover:scale-110 transition-transform">
-                      <ChefHat className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium">Recipes</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Prep instructions</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            )}
-
-            <Card className="opacity-60 h-full">
-              <CardContent className="pt-6 text-center">
-                <div className="p-3 rounded-xl bg-gray-100 text-gray-400 w-fit mx-auto mb-3">
-                  <Package className="h-6 w-6" />
+            {/* Inventory Card */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-1.5 rounded-lg bg-purple-100">
+                    <Boxes className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">Inventory</span>
                 </div>
-                <h3 className="font-medium text-muted-foreground">Weekly Order</h3>
-                <Badge variant="secondary" className="text-xs mt-1">Coming Soon</Badge>
-              </CardContent>
-            </Card>
-
-            <Card className="opacity-60 h-full">
-              <CardContent className="pt-6 text-center">
-                <div className="p-3 rounded-xl bg-gray-100 text-gray-400 w-fit mx-auto mb-3">
-                  <BarChart3 className="h-6 w-6" />
-                </div>
-                <h3 className="font-medium text-muted-foreground">Sales Report</h3>
-                <Badge variant="secondary" className="text-xs mt-1">Coming Soon</Badge>
+                <p className="text-xl font-bold">{inventorySummary?.totalItems || 0}</p>
+                <span className="text-xs text-muted-foreground">Items tracked</span>
               </CardContent>
             </Card>
           </div>
-        </div>
 
-        {/* Recent Dispatches */}
-        {dispatches.length > 0 && (
-          <Card data-tour-id="recent-dispatches">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Truck className="h-4 w-4 text-primary" />
-                Recent Dispatches
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {dispatches.slice(0, 3).map(dispatch => {
-                  const relevantBranches = dispatch.branchDispatches.filter(bd =>
-                    branches.some(b => b.slug === bd.branchSlug)
-                  )
-                  
-                  return (
-                    <div key={dispatch.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="font-medium">
-                          {new Date(dispatch.deliveryDate).toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {relevantBranches.map(bd => bd.branchName).join(', ')}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {relevantBranches.map(bd => (
-                          <Badge 
-                            key={bd.branchSlug}
-                            className={`
-                              ${bd.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                bd.status === 'dispatched' || bd.status === 'receiving' ? 'bg-blue-100 text-blue-700' :
-                                'bg-amber-100 text-amber-700'}
-                              border-0
-                            `}
-                          >
-                            {bd.status === 'completed' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : null}
-                            {bd.status}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Branches Column - Takes 2/3 */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Branch Header with Sort */}
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  Your Branches
+                </h2>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="text-sm border rounded-lg px-2 py-1 bg-background"
+                >
+                  <option value="revenue">Sort: Revenue</option>
+                  <option value="hygiene">Sort: Hygiene</option>
+                  <option value="name">Sort: Name</option>
+                </select>
               </div>
-            </CardContent>
-          </Card>
-        )}
+
+              {branches.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2">No Branches Assigned</h3>
+                    <p className="text-muted-foreground">
+                      Contact your administrator to get branches assigned to your account.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {sortedBranches.map(branch => {
+                    const analytics = getAnalyticsForBranch(branch.name)
+                    const dispatchStatus = getDispatchStatusForBranch(branch.slug)
+                    const qualityStatus = getQualityStatusForBranch(branch.slug)
+                    const hygieneScore = parseInt(branch.kpis.hygieneScore) || 0
+                    const hasQualityIssue = qualityStatus && !qualityStatus.breakfastSubmitted && !qualityStatus.lunchSubmitted
+                    
+                    return (
+                      <Card 
+                        key={branch.id} 
+                        className={cn(
+                          "hover:shadow-lg transition-all duration-300",
+                          hasQualityIssue && "border-l-4 border-l-amber-400"
+                        )}
+                      >
+                        <CardContent className="py-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-lg">{branch.name}</h3>
+                                <Badge className={`${getHygieneColor(hygieneScore)} border-0 text-xs`}>
+                                  {hygieneScore || 'N/A'}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <MapPin className="h-3 w-3" />
+                                {branch.location}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xl font-bold">
+                                {analytics ? formatCurrency(analytics.revenue) : '-'}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {analytics?.orders || 0} orders today
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Status indicators */}
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {/* Dispatch Status */}
+                            {dispatchStatus && (
+                              <div className={cn(
+                                "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs",
+                                dispatchStatus.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                dispatchStatus.status === 'dispatched' ? 'bg-blue-100 text-blue-700' :
+                                'bg-green-100 text-green-700'
+                              )}>
+                                <Truck className="h-3 w-3" />
+                                {dispatchStatus.status === 'pending' ? 'Dispatch pending' :
+                                 dispatchStatus.status === 'dispatched' ? 'Incoming' :
+                                 'Receiving'} ({dispatchStatus.items})
+                              </div>
+                            )}
+
+                            {/* Quality Status */}
+                            {qualityStatus && (
+                              <div className={cn(
+                                "flex items-center gap-1.5 px-2 py-1 rounded-full text-xs",
+                                qualityStatus.breakfastSubmitted && qualityStatus.lunchSubmitted
+                                  ? "bg-green-100 text-green-700"
+                                  : qualityStatus.breakfastSubmitted || qualityStatus.lunchSubmitted
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-amber-100 text-amber-700"
+                              )}>
+                                <ClipboardCheck className="h-3 w-3" />
+                                {qualityStatus.breakfastSubmitted && qualityStatus.lunchSubmitted
+                                  ? "Quality ✓"
+                                  : qualityStatus.breakfastSubmitted
+                                  ? "Breakfast ✓"
+                                  : qualityStatus.lunchSubmitted
+                                  ? "Lunch ✓"
+                                  : "Quality pending"
+                                }
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2">
+                            <Link href={`/branch/${branch.slug}`} className="flex-1">
+                              <Button variant="outline" className="w-full" size="sm">
+                                <Eye className="h-3 w-3 mr-1" />
+                                View
+                              </Button>
+                            </Link>
+                            <Link href={`/branch/${branch.slug}/quality-check`}>
+                              <Button 
+                                variant={hasQualityIssue ? "default" : "outline"} 
+                                size="sm"
+                                className={hasQualityIssue ? "bg-green-600 hover:bg-green-700" : ""}
+                              >
+                                <ClipboardCheck className="h-3 w-3 mr-1" />
+                                Quality
+                              </Button>
+                            </Link>
+                            <Link href={`/branch/${branch.slug}/recipe-instructions`}>
+                              <Button variant="outline" size="sm">
+                                <Flame className="h-3 w-3 mr-1" />
+                                Reheating
+                              </Button>
+                            </Link>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Right Sidebar - Takes 1/3 */}
+            <div className="space-y-4">
+              {/* Quality Overview Widget */}
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <ClipboardCheck className="h-4 w-4 text-green-600" />
+                    Quality Today
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {qualityCompliance.length > 0 ? (
+                    <div className="space-y-2">
+                      {qualityCompliance.slice(0, 5).map(q => (
+                        <div key={q.branchSlug} className="flex items-center justify-between text-sm">
+                          <span className="truncate flex-1">{q.branchName}</span>
+                          <div className="flex gap-1">
+                            <div className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center",
+                              q.breakfastSubmitted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+                            )}>
+                              <Coffee className="h-3 w-3" />
+                            </div>
+                            <div className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center",
+                              q.lunchSubmitted ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+                            )}>
+                              <Sun className="h-3 w-3" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No data yet</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Inventory Widget */}
+              {inventorySummary && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Boxes className="h-4 w-4 text-purple-600" />
+                      Inventory Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Total Items</span>
+                        <span className="font-semibold">{inventorySummary.totalItems}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Total Value</span>
+                        <span className="font-semibold">{formatCurrency(inventorySummary.totalValue)}</span>
+                      </div>
+                      {inventorySummary.syncInfo && (
+                        <div className="pt-2 border-t text-xs text-muted-foreground">
+                          Last synced: {new Date(inventorySummary.syncInfo.lastSynced).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Recent Dispatches */}
+              {dispatches.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-blue-600" />
+                      Recent Dispatches
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {dispatches.slice(0, 3).map(dispatch => {
+                        const relevantBranches = dispatch.branchDispatches.filter(bd =>
+                          branches.some(b => b.slug === bd.branchSlug)
+                        )
+                        
+                        return (
+                          <div key={dispatch.id} className="flex items-center justify-between text-sm p-2 bg-muted/50 rounded-lg">
+                            <div>
+                              <p className="font-medium">
+                                {new Date(dispatch.deliveryDate).toLocaleDateString('en-US', {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric'
+                                })}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate max-w-[120px]">
+                                {relevantBranches.map(bd => bd.branchName).join(', ')}
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap gap-1 justify-end">
+                              {relevantBranches.map(bd => (
+                                <Badge 
+                                  key={bd.branchSlug}
+                                  className={cn(
+                                    "text-xs",
+                                    bd.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                    bd.status === 'dispatched' || bd.status === 'receiving' ? 'bg-blue-100 text-blue-700' :
+                                    'bg-amber-100 text-amber-700',
+                                    "border-0"
+                                  )}
+                                >
+                                  {bd.status}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+            </div>
+          </div>
         </div>
         <Footer />
       </main>
     </div>
   )
 }
-

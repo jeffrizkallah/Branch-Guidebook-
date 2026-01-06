@@ -14,9 +14,11 @@ CHANGES/ADDITIONS
 - Add Ordering section for branches 
 - Breakdown of orders into recipes, sub-recipes, and ingredients
 - Add Inventory System
-- Add recipes and reheating steps
+- Add recipes  
+- **(DONE)** Add reheating steps **(Need to chnage the imagine)**
 - Update all data details on branches
 - Prepare Branch manager dashboard (make video)
+- **(ONGOING)** Add internal Chat System **(HIDDEN)**
 
 
 ---------------------------------------------------------------

@@ -28,6 +28,8 @@ import {
 import type { UserRole } from '@/lib/auth'
 import { useRolePreview } from '@/lib/role-preview'
 import { ViewAsRoleSelector } from '@/components/ViewAsRoleSelector'
+// Chat system disabled for now - uncomment to re-enable
+// import { ChatButton } from '@/components/chat'
 
 interface NavItem {
   href: string
@@ -59,6 +61,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
             { href: '/admin/production-schedules', label: 'Production Schedules' },
             { href: '/admin/branches', label: 'Branch Settings' },
             { href: '/admin/notifications', label: 'Notifications' },
+            // { href: '/admin/chat-channels', label: 'Chat Channels' }, // Disabled for now
             { href: '/admin/analytics', label: 'Analytics' },
           ]
         },
@@ -317,6 +320,11 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
             )
           })}
         </nav>
+
+        {/* Chat Button - Disabled for now, uncomment to re-enable */}
+        {/* <div className={`px-4 pb-2 ${isCollapsed ? 'px-2' : ''}`}>
+          <ChatButton isCollapsed={isCollapsed} />
+        </div> */}
 
         {/* View As Role Selector (Admin only) */}
         {canPreview && (

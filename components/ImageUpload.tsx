@@ -2,7 +2,7 @@
 
 import { useState, useRef, DragEvent } from 'react'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, X, Image as ImageIcon, Loader2, Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ImageUploadProps {
@@ -15,6 +15,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -51,9 +52,12 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
       await uploadFiles(files)
     }
 
-    // Reset input
+    // Reset inputs
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = ''
     }
   }
 
@@ -100,15 +104,62 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
     fileInputRef.current?.click()
   }
 
+  const handleCameraClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    cameraInputRef.current?.click()
+  }
+
   return (
     <div className="space-y-4">
+      {/* Upload Options Buttons */}
+      <div className="flex gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleBrowseClick}
+          disabled={isUploading}
+          className="flex-1 h-14 border-2 hover:border-orange-400 hover:bg-orange-50"
+        >
+          <Upload className="h-5 w-5 mr-2 text-orange-500" />
+          <span className="font-medium">Browse Gallery</span>
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCameraClick}
+          disabled={isUploading}
+          className="flex-1 h-14 border-2 hover:border-orange-400 hover:bg-orange-50"
+        >
+          <Camera className="h-5 w-5 mr-2 text-orange-500" />
+          <span className="font-medium">Take Photo</span>
+        </Button>
+      </div>
+
+      {/* Hidden file inputs */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
       {/* Drop Zone */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
+          "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
           isDragging 
             ? "border-orange-500 bg-orange-50" 
             : "border-gray-300 hover:border-orange-400 hover:bg-gray-50",
@@ -116,15 +167,6 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
         )}
         onClick={handleBrowseClick}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="h-10 w-10 text-orange-500 animate-spin" />
