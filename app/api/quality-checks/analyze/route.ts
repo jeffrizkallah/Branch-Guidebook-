@@ -319,7 +319,7 @@ Important: Return ONLY the JSON object, no additional text or markdown formattin
         ${JSON.stringify(analysis.lowPerformers || [])}::jsonb,
         ${JSON.stringify(analysis.trends || {})}::jsonb,
         ${submissionCount},
-        ${uniqueBranches},
+        ${JSON.stringify(uniqueBranches)}::jsonb,
         'openai-gpt-4o',
         ${estimatedCost},
         ${generationTime},
