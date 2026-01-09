@@ -9,17 +9,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const period = searchParams.get('period') || 'month' // 'today', 'week', 'month', 'year'
 
-    // Get today's stats
-    const todayResult = await sql`
-      SELECT 
-        COALESCE(SUM(price_subtotal_with_tax), 0) as revenue,
-        COALESCE(SUM(qty), 0) as units,
-        COUNT(DISTINCT order_number) as orders
-      FROM odoo_sales
-      WHERE date = CURRENT_DATE
-    `
-
-    // Get yesterday's stats for comparison
+    // Get yesterday's stats (most recent synced data)
     const yesterdayResult = await sql`
       SELECT 
         COALESCE(SUM(price_subtotal_with_tax), 0) as revenue,
@@ -27,6 +17,16 @@ export async function GET(request: Request) {
         COUNT(DISTINCT order_number) as orders
       FROM odoo_sales
       WHERE date = CURRENT_DATE - INTERVAL '1 day'
+    `
+
+    // Get day before yesterday for comparison
+    const twoDaysAgoResult = await sql`
+      SELECT 
+        COALESCE(SUM(price_subtotal_with_tax), 0) as revenue,
+        COALESCE(SUM(qty), 0) as units,
+        COUNT(DISTINCT order_number) as orders
+      FROM odoo_sales
+      WHERE date = CURRENT_DATE - INTERVAL '2 days'
     `
 
     // Get this month's stats
@@ -77,19 +77,22 @@ export async function GET(request: Request) {
       return Math.round(((current - previous) / previous) * 100 * 10) / 10
     }
 
-    const today = todayResult.rows[0]
     const yesterday = yesterdayResult.rows[0]
+    const twoDaysAgo = twoDaysAgoResult.rows[0]
     const thisMonth = thisMonthResult.rows[0]
     const lastMonth = lastMonthResult.rows[0]
     const thisWeek = thisWeekResult.rows[0]
     const lastWeek = lastWeekResult.rows[0]
 
+    console.log('Analytics Summary - Yesterday:', yesterday)
+    console.log('Analytics Summary - This Month:', thisMonth)
+
     // Calculate average order value
-    const todayAOV = Number(today.orders) > 0 
-      ? Number(today.revenue) / Number(today.orders) 
-      : 0
     const yesterdayAOV = Number(yesterday.orders) > 0 
       ? Number(yesterday.revenue) / Number(yesterday.orders) 
+      : 0
+    const twoDaysAgoAOV = Number(twoDaysAgo.orders) > 0 
+      ? Number(twoDaysAgo.revenue) / Number(twoDaysAgo.orders) 
       : 0
     const thisMonthAOV = Number(thisMonth.orders) > 0 
       ? Number(thisMonth.revenue) / Number(thisMonth.orders) 
@@ -100,15 +103,15 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       today: {
-        revenue: Number(today.revenue),
-        units: Number(today.units),
-        orders: Number(today.orders),
-        aov: Math.round(todayAOV * 100) / 100,
+        revenue: Number(yesterday.revenue),
+        units: Number(yesterday.units),
+        orders: Number(yesterday.orders),
+        aov: Math.round(yesterdayAOV * 100) / 100,
         changes: {
-          revenue: calcChange(Number(today.revenue), Number(yesterday.revenue)),
-          units: calcChange(Number(today.units), Number(yesterday.units)),
-          orders: calcChange(Number(today.orders), Number(yesterday.orders)),
-          aov: calcChange(todayAOV, yesterdayAOV),
+          revenue: calcChange(Number(yesterday.revenue), Number(twoDaysAgo.revenue)),
+          units: calcChange(Number(yesterday.units), Number(twoDaysAgo.units)),
+          orders: calcChange(Number(yesterday.orders), Number(twoDaysAgo.orders)),
+          aov: calcChange(yesterdayAOV, twoDaysAgoAOV),
         }
       },
       thisWeek: {

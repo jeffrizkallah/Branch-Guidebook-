@@ -133,6 +133,7 @@ interface SalesData {
       revenue: number
     }
   }
+  error?: string
 }
 
 interface QualitySummary {
@@ -184,10 +185,55 @@ export default function AdminDashboardPage() {
       const response = await fetch('/api/analytics/summary')
       if (response.ok) {
         const data = await response.json()
-        setSalesData(data)
+        console.log('Sales data received:', data)
+        // Check if error field exists in response
+        if (data.error) {
+          setSalesData({
+            ...data,
+            error: 'database_error'
+          })
+        } else {
+          setSalesData(data)
+        }
+      } else {
+        console.error('Failed to fetch sales data - HTTP', response.status)
+        const errorText = await response.text()
+        console.error('Error details:', errorText)
+        // Set error state
+        setSalesData({
+          today: {
+            revenue: 0,
+            units: 0,
+            orders: 0,
+            changes: { revenue: 0, units: 0, orders: 0 }
+          },
+          thisMonth: {
+            revenue: 0,
+            units: 0,
+            orders: 0,
+            changes: { revenue: 0 }
+          },
+          error: 'api_error'
+        })
       }
     } catch (error) {
       console.error('Failed to fetch sales data:', error)
+      // Network or other error
+      setSalesData({
+        today: {
+          revenue: 0,
+          units: 0,
+          orders: 0,
+          changes: { revenue: 0, units: 0, orders: 0 }
+        },
+        thisMonth: {
+          revenue: 0,
+          units: 0,
+          orders: 0,
+          changes: { revenue: 0 }
+        },
+        error: 'network_error'
+      })
     }
   }
 
@@ -474,33 +520,38 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Sales Snapshot */}
-      {salesData && (
-        <Card className="border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-5" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
+      <Card className="border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-5" style={{ animationFillMode: 'forwards' }}>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
               <CardTitle className="text-base flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-emerald-600" />
                 Sales Snapshot
               </CardTitle>
-              <Link href="/admin/analytics">
-                <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
-                  View Analytics
-                  <ArrowRight className="h-3 w-3" />
-                </Button>
-              </Link>
+              <p className="text-[10px] text-muted-foreground">
+                Showing yesterday&apos;s data • Synced daily at 12:00 AM
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
+            <Link href="/admin/analytics">
+              <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+                View Analytics
+                <ArrowRight className="h-3 w-3" />
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {salesData && !salesData.error ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Today's Revenue */}
+              {/* Yesterday's Revenue */}
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Today&apos;s Revenue</p>
+                <p className="text-xs text-muted-foreground">Yesterday&apos;s Revenue</p>
                 <p className="text-xl font-bold text-foreground">
                   {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(salesData.today.revenue)}
                 </p>
                 <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.revenue >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {salesData.today.changes.revenue >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.revenue >= 0 ? '+' : ''}{salesData.today.changes.revenue}% vs yesterday
+                  {salesData.today.changes.revenue >= 0 ? '+' : ''}{salesData.today.changes.revenue}% vs day before
                 </div>
               </div>
 
@@ -521,33 +572,77 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Today's Units */}
+              {/* Yesterday's Units */}
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Units Sold Today</p>
+                <p className="text-xs text-muted-foreground">Units Sold Yesterday</p>
                 <p className="text-xl font-bold text-foreground">
                   {new Intl.NumberFormat('en-AE').format(salesData.today.units)}
                 </p>
                 <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.units >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {salesData.today.changes.units >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.units >= 0 ? '+' : ''}{salesData.today.changes.units}% vs yesterday
+                  {salesData.today.changes.units >= 0 ? '+' : ''}{salesData.today.changes.units}% vs day before
                 </div>
               </div>
 
-              {/* Today's Orders */}
+              {/* Yesterday's Orders */}
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Orders Today</p>
+                <p className="text-xs text-muted-foreground">Orders Yesterday</p>
                 <p className="text-xl font-bold text-foreground">
                   {new Intl.NumberFormat('en-AE').format(salesData.today.orders)}
                 </p>
                 <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.orders >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                   {salesData.today.changes.orders >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.orders >= 0 ? '+' : ''}{salesData.today.changes.orders}% vs yesterday
+                  {salesData.today.changes.orders >= 0 ? '+' : ''}{salesData.today.changes.orders}% vs day before
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="text-center py-8 px-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 mb-4">
+                <AlertTriangle className="h-8 w-8 text-amber-600" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">
+                {salesData?.error === 'database_error' ? 'Database Connection Error' :
+                 salesData?.error === 'api_error' ? 'API Error' :
+                 salesData?.error === 'network_error' ? 'Network Error' :
+                 'Sales Analytics Not Configured'}
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
+                {salesData?.error === 'database_error' ? 
+                  'Cannot connect to the sales database. Please check your database credentials in .env.local file.' :
+                 salesData?.error === 'api_error' ? 
+                  'The analytics API returned an error. Please check the server logs for details.' :
+                 salesData?.error === 'network_error' ? 
+                  'Could not reach the analytics API. Please check your network connection.' :
+                 'To display sales data, you need to configure your database connection and sync sales data from Odoo.'}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center items-center">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs gap-2"
+                  onClick={() => {
+                    // Open setup guide in new tab
+                    window.open('/SALES_ANALYTICS_SETUP.md', '_blank')
+                  }}
+                >
+                  <FileText className="h-3 w-3" />
+                  View Setup Guide
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="text-xs gap-2"
+                  onClick={() => fetchSalesData()}
+                >
+                  <Activity className="h-3 w-3" />
+                  Retry Connection
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
 
       {/* Quality Control Widget */}

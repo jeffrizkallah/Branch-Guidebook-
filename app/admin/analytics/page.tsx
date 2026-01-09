@@ -228,7 +228,7 @@ export default function AnalyticsPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-4">
-          <div className="relative">
+          <div className="relative mx-auto w-16 h-16">
             <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse"></div>
             <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
