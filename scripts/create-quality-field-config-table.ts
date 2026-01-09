@@ -100,3 +100,4 @@ createQualityFieldConfigTable()
     process.exit(1)
   })
 
+

@@ -82,7 +82,10 @@ export default function OperationsDashboardPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <div className="relative mx-auto w-16 h-16">
+            <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
           <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>

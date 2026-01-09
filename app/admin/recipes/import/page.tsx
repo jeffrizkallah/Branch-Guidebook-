@@ -7,14 +7,22 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Upload, AlertCircle, CheckCircle2, Edit2, Trash2, Plus, ChevronDown, ChevronUp, Sparkles, Loader2 } from 'lucide-react'
+import { Upload, AlertCircle, CheckCircle2, Edit2, Trash2, Plus, ChevronDown, ChevronUp, Sparkles, Loader2, FileSpreadsheet } from 'lucide-react'
 import type { Recipe, MainIngredient, SubRecipe, PreparationStep, MachineToolRequirement, QualitySpecification } from '@/lib/data'
+import * as XLSX from 'xlsx'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const CATEGORIES = ['Main Course', 'Appetizer', 'Dessert', 'Side Dish', 'Beverage', 'Snack']
 
 interface ParsedRecipe extends Omit<Recipe, 'recipeId'> {
   recipeId?: string
+}
+
+interface BulkImportResult {
+  sheetName: string
+  recipe: ParsedRecipe | null
+  error: string | null
+  status: 'pending' | 'parsing' | 'success' | 'failed'
 }
 
 export default function RecipeImportPage() {
@@ -35,6 +43,13 @@ export default function RecipeImportPage() {
     quality: false,
     packing: false
   })
+  
+  // Bulk import state
+  const [bulkMode, setBulkMode] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [bulkResults, setBulkResults] = useState<BulkImportResult[]>([])
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 })
+  
   const router = useRouter()
 
   const toggleSection = (section: string) => {
@@ -60,64 +75,7 @@ export default function RecipeImportPage() {
       }
       
       // Convert AI response to ParsedRecipe format
-      const aiData = result.data
-      const recipe: ParsedRecipe = {
-        recipeId: aiData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || '',
-        name: aiData.name || '',
-        category: 'Main Course',
-        station: aiData.station || '',
-        recipeCode: aiData.recipeCode || '',
-        yield: aiData.yield || '',
-        daysAvailable: [],
-        prepTime: '30 minutes',
-        cookTime: '30 minutes',
-        servings: aiData.yield || '1 portion',
-        ingredients: [],
-        mainIngredients: aiData.mainIngredients || [],
-        subRecipes: aiData.subRecipes?.map((sr: any) => ({
-          ...sr,
-          ingredients: sr.ingredients || [],
-          preparation: sr.preparation || [],
-          requiredMachinesTools: sr.requiredMachinesTools || [],
-          qualitySpecifications: sr.qualitySpecifications || [],
-          packingLabeling: sr.packingLabeling || {
-            packingType: '',
-            serviceItems: [],
-            labelRequirements: '',
-            storageCondition: '',
-            shelfLife: ''
-          }
-        })) || [],
-        preparation: aiData.preparation || [],
-        requiredMachinesTools: aiData.requiredMachinesTools || [],
-        qualitySpecifications: aiData.qualitySpecifications || [],
-        packingLabeling: aiData.packingLabeling || {
-          packingType: '',
-          serviceItems: [],
-          labelRequirements: '',
-          storageCondition: '',
-          shelfLife: ''
-        },
-        presentation: {
-          description: '',
-          instructions: [],
-          photos: aiData.name ? [
-            `https://picsum.photos/seed/${aiData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-1/800/600`,
-            `https://picsum.photos/seed/${aiData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-2/800/600`,
-            `https://picsum.photos/seed/${aiData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3/800/600`
-          ] : []
-        },
-        sops: {
-          foodSafetyAndHygiene: [],
-          cookingStandards: [],
-          storageAndHolding: [],
-          qualityStandards: []
-        },
-        troubleshooting: [],
-        allergens: [],
-        storageInstructions: ''
-      }
-      
+      const recipe = convertAIDataToRecipe(result.data, 'Unknown Recipe')
       setParsedRecipe(recipe)
       setParsingMethod('ai')
       setParsingStatus(`✅ AI parsed successfully in ${result.parsingTime}ms`)
@@ -667,6 +625,218 @@ export default function RecipeImportPage() {
     }
   }
 
+  // Bulk import handlers
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      setError('Please upload an Excel file (.xlsx or .xls)')
+      return
+    }
+    
+    setUploadedFile(file)
+    setError('')
+    
+    try {
+      // Read the workbook to show sheet preview
+      const arrayBuffer = await file.arrayBuffer()
+      const workbook = XLSX.read(arrayBuffer)
+      
+      // Initialize results for each sheet
+      const results: BulkImportResult[] = workbook.SheetNames.map(name => ({
+        sheetName: name,
+        recipe: null,
+        error: null,
+        status: 'pending'
+      }))
+      
+      setBulkResults(results)
+      setBulkProgress({ current: 0, total: workbook.SheetNames.length })
+    } catch (err) {
+      setError('Failed to read Excel file. Please ensure it\'s a valid Excel workbook.')
+      console.error(err)
+    }
+  }
+
+  // Convert AI response to ParsedRecipe format
+  const convertAIDataToRecipe = (aiData: any, fallbackName: string): ParsedRecipe => {
+    const recipeName = aiData.name || fallbackName
+    return {
+      recipeId: recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      name: recipeName,
+      category: 'Main Course',
+      station: aiData.station || '',
+      recipeCode: aiData.recipeCode || '',
+      yield: aiData.yield || '',
+      daysAvailable: [],
+      prepTime: '30 minutes',
+      cookTime: '30 minutes',
+      servings: aiData.yield || '1 portion',
+      ingredients: [],
+      mainIngredients: aiData.mainIngredients || [],
+      subRecipes: aiData.subRecipes?.map((sr: any) => ({
+        ...sr,
+        ingredients: sr.ingredients || [],
+        preparation: sr.preparation || [],
+        requiredMachinesTools: sr.requiredMachinesTools || [],
+        qualitySpecifications: sr.qualitySpecifications || [],
+        packingLabeling: sr.packingLabeling || {
+          packingType: '',
+          serviceItems: [],
+          labelRequirements: '',
+          storageCondition: '',
+          shelfLife: ''
+        }
+      })) || [],
+      preparation: aiData.preparation || [],
+      requiredMachinesTools: aiData.requiredMachinesTools || [],
+      qualitySpecifications: aiData.qualitySpecifications || [],
+      packingLabeling: aiData.packingLabeling || {
+        packingType: '',
+        serviceItems: [],
+        labelRequirements: '',
+        storageCondition: '',
+        shelfLife: ''
+      },
+      presentation: {
+        description: '',
+        instructions: [],
+        photos: recipeName ? [
+          `https://picsum.photos/seed/${recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-1/800/600`,
+          `https://picsum.photos/seed/${recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-2/800/600`,
+          `https://picsum.photos/seed/${recipeName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-3/800/600`
+        ] : []
+      },
+      sops: {
+        foodSafetyAndHygiene: [],
+        cookingStandards: [],
+        storageAndHolding: [],
+        qualityStandards: []
+      },
+      troubleshooting: [],
+      allergens: [],
+      storageInstructions: ''
+    }
+  }
+
+  // Process all sheets in the workbook
+  const processBulkImport = async () => {
+    if (!uploadedFile) return
+    
+    setParsing(true)
+    setError('')
+    
+    try {
+      const arrayBuffer = await uploadedFile.arrayBuffer()
+      const workbook = XLSX.read(arrayBuffer)
+      
+      const results = [...bulkResults]
+      
+      for (let i = 0; i < workbook.SheetNames.length; i++) {
+        const sheetName = workbook.SheetNames[i]
+        const sheet = workbook.Sheets[sheetName]
+        
+        // Update status
+        results[i].status = 'parsing'
+        setBulkResults([...results])
+        setBulkProgress({ current: i + 1, total: workbook.SheetNames.length })
+        
+        try {
+          // Convert sheet to TSV (tab-separated values)
+          const tsv = XLSX.utils.sheet_to_csv(sheet, { FS: '\t' })
+          
+          // Parse with AI
+          const response = await fetch('/api/recipes/parse-ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rawData: tsv })
+          })
+          
+          const result = await response.json()
+          
+          if (result.success) {
+            // Convert to ParsedRecipe format
+            const recipe = convertAIDataToRecipe(result.data, sheetName)
+            results[i].recipe = recipe
+            results[i].status = 'success'
+          } else {
+            results[i].error = result.error || 'Failed to parse'
+            results[i].status = 'failed'
+          }
+        } catch (err) {
+          results[i].error = err instanceof Error ? err.message : 'Unknown error'
+          results[i].status = 'failed'
+        }
+        
+        setBulkResults([...results])
+        
+        // Small delay to avoid rate limits (500ms between requests)
+        if (i < workbook.SheetNames.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500))
+        }
+      }
+    } catch (err) {
+      setError('Error processing workbook. Please check the console for details.')
+      console.error(err)
+    } finally {
+      setParsing(false)
+    }
+  }
+
+  // Save all successful recipes
+  const saveBulkRecipes = async () => {
+    const successfulRecipes = bulkResults.filter(r => r.status === 'success' && r.recipe)
+    
+    if (successfulRecipes.length === 0) {
+      setError('No successfully parsed recipes to save')
+      return
+    }
+    
+    setLoading(true)
+    setError('')
+    let savedCount = 0
+    const errors: string[] = []
+    
+    for (const result of successfulRecipes) {
+      if (!result.recipe) continue
+      
+      // Auto-assign all days if not set
+      if (!result.recipe.daysAvailable || result.recipe.daysAvailable.length === 0) {
+        result.recipe.daysAvailable = DAYS
+      }
+      
+      try {
+        const response = await fetch('/api/recipes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(result.recipe)
+        })
+        
+        if (response.ok) {
+          savedCount++
+        } else {
+          const errorData = await response.json()
+          errors.push(`${result.recipe.name}: ${errorData.error || 'Failed to save'}`)
+        }
+      } catch (err) {
+        console.error(`Failed to save ${result.recipe.name}:`, err)
+        errors.push(`${result.recipe.name}: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      }
+    }
+    
+    setLoading(false)
+    
+    if (errors.length > 0) {
+      setError(`Saved ${savedCount} recipes. Errors: ${errors.join(', ')}`)
+    } else {
+      setSuccess(true)
+      setTimeout(() => {
+        router.push('/admin/recipes')
+      }, 2000)
+    }
+  }
+
   const updateBasicInfo = (field: string, value: any) => {
     if (!parsedRecipe) return
     setParsedRecipe({ ...parsedRecipe, [field]: value })
@@ -785,7 +955,41 @@ export default function RecipeImportPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-primary">Import Recipe</h1>
-        <p className="text-muted-foreground">Paste recipe data from Excel and import it to your collection</p>
+        <p className="text-muted-foreground">
+          {bulkMode 
+            ? 'Upload an Excel workbook with multiple recipe sheets' 
+            : 'Paste recipe data from Excel and import it to your collection'}
+        </p>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="flex gap-3">
+        <Button
+          variant={!bulkMode ? 'default' : 'outline'}
+          onClick={() => {
+            setBulkMode(false)
+            setError('')
+            setBulkResults([])
+            setUploadedFile(null)
+          }}
+          className="gap-2"
+        >
+          <Upload className="h-4 w-4" />
+          Single Recipe Import
+        </Button>
+        <Button
+          variant={bulkMode ? 'default' : 'outline'}
+          onClick={() => {
+            setBulkMode(true)
+            setError('')
+            setParsedRecipe(null)
+            setPastedData('')
+          }}
+          className="gap-2"
+        >
+          <FileSpreadsheet className="h-4 w-4" />
+          Bulk Excel Import (Multiple Sheets)
+        </Button>
       </div>
 
       {success ? (
@@ -793,18 +997,166 @@ export default function RecipeImportPage() {
           <CardContent className="pt-6">
             <div className="text-center py-8">
               <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold mb-2">Recipe Imported Successfully!</h2>
+              <h2 className="text-2xl font-bold mb-2">
+                {bulkMode ? 'Recipes Imported Successfully!' : 'Recipe Imported Successfully!'}
+              </h2>
               <p className="text-muted-foreground mb-4">
-                {parsedRecipe?.name} has been added to your collection
+                {bulkMode 
+                  ? `${bulkResults.filter(r => r.status === 'success').length} recipes have been added to your collection`
+                  : `${parsedRecipe?.name} has been added to your collection`
+                }
               </p>
-              <p className="text-sm text-muted-foreground">Redirecting to recipe page...</p>
+              <p className="text-sm text-muted-foreground">Redirecting to recipes page...</p>
             </div>
           </CardContent>
         </Card>
       ) : (
         <>
-          {/* Step 1: Paste Data */}
-          <Card>
+          {/* Bulk Import Mode */}
+          {bulkMode ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileSpreadsheet className="h-5 w-5" />
+                  Upload Excel Workbook
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="block text-sm font-medium mb-2">
+                      Select Excel file with multiple recipe sheets (each sheet = one recipe):
+                    </Label>
+                    <Input
+                      type="file"
+                      accept=".xlsx,.xls"
+                      onChange={handleFileUpload}
+                      disabled={parsing || loading}
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      📊 Each sheet in your workbook will be parsed as a separate recipe
+                    </p>
+                  </div>
+                  
+                  {bulkResults.length > 0 && (
+                    <>
+                      <div className="border rounded-lg p-4 bg-muted/30">
+                        <h3 className="font-semibold mb-3">
+                          Found {bulkResults.length} sheet{bulkResults.length !== 1 ? 's' : ''} in workbook
+                        </h3>
+                        
+                        {parsing && (
+                          <div className="mb-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <span className="text-sm">
+                                Processing sheet {bulkProgress.current} of {bulkProgress.total}...
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className="bg-primary h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              ⏱️ Estimated time: ~{Math.ceil((bulkProgress.total - bulkProgress.current) * 0.5)} seconds remaining
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2 max-h-96 overflow-y-auto">
+                          {bulkResults.map((result, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 bg-background rounded border">
+                              <div className="flex-1">
+                                <span className="font-medium">{result.sheetName}</span>
+                                {result.recipe && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {result.recipe.mainIngredients?.length || 0} ingredients, {' '}
+                                    {result.recipe.subRecipes?.length || 0} sub-recipe(s), {' '}
+                                    {result.recipe.preparation?.length || 0} steps
+                                  </p>
+                                )}
+                                {result.error && (
+                                  <p className="text-xs text-red-600 mt-1">Error: {result.error}</p>
+                                )}
+                              </div>
+                              <span className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ml-3 ${
+                                result.status === 'success' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
+                                result.status === 'failed' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                                result.status === 'parsing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                              }`}>
+                                {result.status === 'success' && '✅ Parsed'}
+                                {result.status === 'failed' && '❌ Failed'}
+                                {result.status === 'parsing' && '⏳ Parsing...'}
+                                {result.status === 'pending' && '⏸️ Pending'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-3 items-center">
+                        {!parsing && bulkResults.some(r => r.status === 'pending') && (
+                          <Button
+                            onClick={processBulkImport}
+                            size="lg"
+                            className="gap-2"
+                          >
+                            <Sparkles className="h-4 w-4" />
+                            Parse All Recipes with AI
+                          </Button>
+                        )}
+                        
+                        {bulkResults.some(r => r.status === 'success') && !parsing && (
+                          <Button
+                            onClick={saveBulkRecipes}
+                            size="lg"
+                            variant="default"
+                            disabled={loading}
+                            className="gap-2"
+                          >
+                            {loading ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="h-4 w-4" />
+                                Save {bulkResults.filter(r => r.status === 'success').length} Recipe(s)
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        
+                        {bulkResults.some(r => r.status === 'success' || r.status === 'failed') && (
+                          <div className="text-sm text-muted-foreground">
+                            ✅ {bulkResults.filter(r => r.status === 'success').length} successful
+                            {bulkResults.filter(r => r.status === 'failed').length > 0 && 
+                              ` • ❌ ${bulkResults.filter(r => r.status === 'failed').length} failed`
+                            }
+                          </div>
+                        )}
+                      </div>
+                      
+                      {bulkResults.filter(r => r.status === 'success').length > 0 && (
+                        <div className="text-xs text-muted-foreground p-3 bg-blue-50 dark:bg-blue-950 rounded border border-blue-200 dark:border-blue-800">
+                          ℹ️ <strong>Note:</strong> All recipes will be set as available on all days by default. 
+                          You can edit individual recipes after import to adjust availability.
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            /* Single Recipe Import Mode (existing code) */
+            <>
+              {/* Step 1: Paste Data */}
+              <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
@@ -1207,6 +1559,8 @@ export default function RecipeImportPage() {
                 </div>
               </CardContent>
             </Card>
+          )}
+            </>
           )}
         </>
       )}

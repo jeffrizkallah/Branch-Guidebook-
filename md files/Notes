@@ -19,6 +19,8 @@ CHANGES/ADDITIONS
 - Update all data details on branches
 - Prepare Branch manager dashboard (make video)
 - **(ONGOING)** Add internal Chat System **(HIDDEN)**
+- Fix loafing sign to be centered
+- Remove Branch health widgets from admin dashboard
 
 
 ---------------------------------------------------------------

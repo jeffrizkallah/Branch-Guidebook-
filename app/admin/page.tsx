@@ -356,7 +356,7 @@ export default function AdminDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-4">
-          <div className="relative">
+          <div className="relative mx-auto w-16 h-16">
             <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-pulse"></div>
             <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
@@ -547,135 +547,6 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Alerts Panel - Takes 1 column */}
-        <Card className="lg:col-span-1 border-l-4 border-l-amber-500 animate-slide-up opacity-0 stagger-5" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                Attention Required
-              </CardTitle>
-              {(stats?.alerts.length || 0) > 0 && (
-                <Badge className="bg-amber-100 text-amber-700 border-0">
-                  {stats?.alerts.length}
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {(stats?.alerts.length || 0) === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <div className="p-3 rounded-full bg-emerald-100 mb-3">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-600" />
-                </div>
-                <p className="text-sm font-medium text-foreground">All Clear!</p>
-                <p className="text-xs text-muted-foreground">No issues require attention</p>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1 dashboard-scroll">
-                {stats?.alerts.slice(0, 5).map((alert) => (
-                  <Link 
-                    key={alert.id} 
-                    href={alert.link || '#'}
-                    className="block"
-                  >
-                    <div className={`
-                      p-3 rounded-lg border transition-all duration-200
-                      hover:shadow-sm hover:border-primary/30
-                      ${alert.type === 'warning' ? 'bg-amber-50/50 border-amber-200' : 
-                        alert.type === 'info' ? 'bg-blue-50/50 border-blue-200' : 
-                        'bg-emerald-50/50 border-emerald-200'}
-                    `}>
-                      <p className="text-sm font-medium text-foreground line-clamp-1">
-                        {alert.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                        {alert.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-                {(stats?.alerts.length || 0) > 5 && (
-                  <p className="text-xs text-center text-muted-foreground pt-2">
-                    +{(stats?.alerts.length || 0) - 5} more alerts
-                  </p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Branch Health Overview - Takes 2 columns */}
-        <Card className="lg:col-span-2 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="h-4 w-4 text-primary" />
-                Branch Health Overview
-              </CardTitle>
-              <Link href="/admin/branches">
-                <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
-                  View All
-                  <ArrowRight className="h-3 w-3" />
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Location Summary */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {Object.entries(stats?.branches.byLocation || {}).map(([location, count]) => (
-                <div key={location} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/50 text-xs">
-                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                  <span className="font-medium">{location}</span>
-                  <span className="text-muted-foreground">({count})</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Branch Health Bars */}
-            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-1 dashboard-scroll">
-              {sortedBranches.map((branch) => {
-                const score = parseInt(branch.kpis.hygieneScore) || 0
-                return (
-                  <Link key={branch.slug} href={`/admin/branches/${branch.slug}`}>
-                    <div className={`
-                      flex items-center gap-3 p-2 rounded-lg border transition-all duration-200
-                      hover:shadow-sm hover:border-primary/30
-                      ${getHygieneBgColor(score)}
-                    `}>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium truncate">{branch.name}</p>
-                          <span className={`
-                            text-xs font-semibold px-2 py-0.5 rounded-full
-                            ${score >= 95 ? 'bg-emerald-100 text-emerald-700' : 
-                              score >= 92 ? 'bg-amber-100 text-amber-700' : 
-                              'bg-red-100 text-red-700'}
-                          `}>
-                            {score}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full progress-bar-animate ${getHygieneColor(score)}`}
-                              style={{ width: `${score}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-[10px] text-muted-foreground">{branch.location}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Quality Control Widget */}
       {qualitySummary && (
