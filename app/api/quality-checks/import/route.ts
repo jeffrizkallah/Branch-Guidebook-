@@ -371,7 +371,7 @@ export async function POST(request: Request) {
           ) VALUES (
             ${branchSlug},
             ${user.id},
-            ${submissionDate || new Date()},
+            ${(submissionDate || new Date()).toISOString()},
             ${mealService},
             ${productName},
             ${section},
