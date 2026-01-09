@@ -28,7 +28,7 @@ function matchBranchSlug(excelBranchName: string, branches: any[]): string | nul
     
     // Check if major keywords match
     return excelWords.some(word => 
-      word.length > 2 && branchWords.some(bWord => 
+      word.length > 2 && branchWords.some((bWord: string) => 
         bWord.includes(word) || word.includes(bWord)
       )
     )
