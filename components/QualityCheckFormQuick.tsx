@@ -150,11 +150,7 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
       return
     }
     if (!currentItem.tasteNotes.trim()) {
-      setError('Please add notes about the taste')
-      return
-    }
-    if (!currentItem.appearanceNotes.trim()) {
-      setError('Please add notes about the appearance')
+      setError('Please add notes about taste and appearance')
       return
     }
     if (!currentItem.portion) {
@@ -450,17 +446,17 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                   <label className="text-sm font-semibold mb-2 block">
                     Taste
                   </label>
-                  <div className="flex gap-2 justify-center p-4 bg-gray-50 rounded-lg">
+                  <div className="flex gap-1 sm:gap-2 justify-center p-4 bg-gray-50 rounded-lg">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setCurrentItem(prev => ({ ...prev, taste: star }))}
-                        className="transition-transform hover:scale-110"
+                        className="transition-transform hover:scale-110 flex-shrink-0"
                       >
                         <Star 
                           className={cn(
-                            "h-8 w-8 transition-colors",
+                            "h-6 w-6 sm:h-8 sm:w-8 transition-colors",
                             currentItem.taste >= star
                               ? "fill-yellow-400 text-yellow-500 drop-shadow-sm"
                               : "fill-gray-200 text-gray-300"
@@ -472,34 +468,23 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                   <div className="text-center text-xl font-bold mt-2 text-yellow-600">
                     {currentItem.taste}/5
                   </div>
-                  <input
-                    type="text"
-                    value={currentItem.tasteNotes}
-                    onChange={(e) => setCurrentItem(prev => ({ ...prev, tasteNotes: e.target.value }))}
-                    placeholder="Notes about taste *"
-                    className={cn(
-                      "w-full mt-2 p-2 text-sm border rounded-lg",
-                      !currentItem.tasteNotes && "border-red-300"
-                    )}
-                    required
-                  />
                 </div>
 
                 <div>
                   <label className="text-sm font-semibold mb-2 block">
                     Appearance
                   </label>
-                  <div className="flex gap-2 justify-center p-4 bg-gray-50 rounded-lg">
+                  <div className="flex gap-1 sm:gap-2 justify-center p-4 bg-gray-50 rounded-lg">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setCurrentItem(prev => ({ ...prev, appearance: star }))}
-                        className="transition-transform hover:scale-110"
+                        className="transition-transform hover:scale-110 flex-shrink-0"
                       >
                         <Star 
                           className={cn(
-                            "h-8 w-8 transition-colors",
+                            "h-6 w-6 sm:h-8 sm:w-8 transition-colors",
                             currentItem.appearance >= star
                               ? "fill-blue-400 text-blue-500 drop-shadow-sm"
                               : "fill-gray-200 text-gray-300"
@@ -511,18 +496,24 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                   <div className="text-center text-xl font-bold mt-2 text-blue-600">
                     {currentItem.appearance}/5
                   </div>
-                  <input
-                    type="text"
-                    value={currentItem.appearanceNotes}
-                    onChange={(e) => setCurrentItem(prev => ({ ...prev, appearanceNotes: e.target.value }))}
-                    placeholder="Notes about appearance *"
-                    className={cn(
-                      "w-full mt-2 p-2 text-sm border rounded-lg",
-                      !currentItem.appearanceNotes && "border-red-300"
-                    )}
-                    required
-                  />
                 </div>
+              </div>
+
+              {/* Combined Notes Section for Taste & Appearance */}
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Notes (Taste & Appearance) <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={currentItem.tasteNotes}
+                  onChange={(e) => setCurrentItem(prev => ({ ...prev, tasteNotes: e.target.value, appearanceNotes: e.target.value }))}
+                  placeholder="Describe the taste and appearance of the product..."
+                  className={cn(
+                    "w-full p-3 border rounded-lg min-h-[80px] resize-none",
+                    !currentItem.tasteNotes && "border-red-300"
+                  )}
+                  required
+                />
               </div>
 
               {/* Measurements - User must fill */}

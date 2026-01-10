@@ -318,14 +318,14 @@ export function QualityCheckForm({ branchSlug, branchName, onSuccess }: QualityC
               {field.label}
               {field.isRequired && <span className="text-red-500">*</span>}
             </label>
-            <div className="flex justify-center gap-2">
+            <div className="flex justify-center gap-1 sm:gap-2">
               {stars.map((score) => (
                 <button
                   key={score}
                   type="button"
                   onClick={() => updateFieldValue(field.fieldKey, score)}
                   className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
+                    "w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center transition-all flex-shrink-0",
                     (value ?? 0) >= score
                       ? field.fieldKey.includes('appearance') 
                         ? "bg-blue-500 text-white"
@@ -333,7 +333,7 @@ export function QualityCheckForm({ branchSlug, branchName, onSuccess }: QualityC
                       : "bg-gray-100 hover:bg-gray-200"
                   )}
                 >
-                  <Star className={cn("h-6 w-6", (value ?? 0) >= score && "fill-current")} />
+                  <Star className={cn("h-5 w-5 sm:h-6 sm:w-6", (value ?? 0) >= score && "fill-current")} />
                 </button>
               ))}
             </div>
