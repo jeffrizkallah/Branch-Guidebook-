@@ -458,7 +458,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                                               Added by {item.addedBy}
                                               {item.addedReason && ` • ${item.addedReason}`}
                                             </div>
-                                          )}</div>
+                                          )}
                           
                           {mode === 'packing' ? (
                             <div className="text-xs md:text-sm text-muted-foreground">
