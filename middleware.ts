@@ -170,7 +170,9 @@ export default withAuth(
     }
 
     // Check role-based access for protected routes
-    for (const [route, allowedRoles] of Object.entries(roleRestrictedRoutes)) {
+    // Sort routes by length (longest first) so more specific routes match before general ones
+    const sortedRoutes = Object.entries(roleRestrictedRoutes).sort((a, b) => b[0].length - a[0].length)
+    for (const [route, allowedRoles] of sortedRoutes) {
       if (path.startsWith(route)) {
         if (!userRole || !allowedRoles.includes(userRole)) {
           // Redirect to user's appropriate landing page
