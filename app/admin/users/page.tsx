@@ -84,7 +84,7 @@ function Modal({ isOpen, onClose, children, title }: ModalProps) {
 }
 
 export default function UserManagementPage() {
-  const { isAdmin, loading: authLoading } = useAuth({ required: true, allowedRoles: ['admin'] })
+  const { isAdmin, loading: authLoading } = useAuth({ required: true, allowedRoles: ['admin', 'dispatcher'] })
   
   const [users, setUsers] = useState<UserWithBranches[]>([])
   const [pendingUsers, setPendingUsers] = useState<UserWithBranches[]>([])

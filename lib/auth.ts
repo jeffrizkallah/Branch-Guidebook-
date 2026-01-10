@@ -470,7 +470,7 @@ export function userCanEdit(role: UserRole | null, resource: string): boolean {
     case 'dispatch':
       return ['admin', 'operations_lead', 'dispatcher', 'central_kitchen'].includes(role)
     case 'users':
-      return role === 'admin'
+      return ['admin', 'dispatcher'].includes(role)
     case 'branches':
       return ['admin', 'operations_lead'].includes(role)
     case 'orders':

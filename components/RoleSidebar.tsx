@@ -78,6 +78,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
       return [
         { href: '/dispatch', label: 'Home', icon: Home },
         { href: '/', label: 'Branches', icon: Building2 },
+        { href: '/admin/users', label: 'User Management', icon: Users },
       ]
 
     case 'central_kitchen':

@@ -66,7 +66,7 @@ export function useAuth(options?: {
       case 'admin':
         return user.role === 'admin'
       case 'users':
-        return user.role === 'admin'
+        return ['admin', 'dispatcher'].includes(user.role)
       case 'recipes':
       case 'prep_instructions':
       case 'production_schedules':
@@ -97,7 +97,7 @@ export function useAuth(options?: {
       case 'dispatch':
         return ['admin', 'operations_lead', 'dispatcher'].includes(user.role)
       case 'users':
-        return user.role === 'admin'
+        return ['admin', 'dispatcher'].includes(user.role)
       case 'branches':
         return ['admin', 'operations_lead'].includes(user.role)
       default:
