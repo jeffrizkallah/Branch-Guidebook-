@@ -110,7 +110,9 @@ export async function POST(
         // Late addition fields
         addedLate: true,
         addedAt: new Date().toISOString(),
-        addedBy: session.user.name || session.user.email || 'Unknown',
+        addedBy: session.user.firstName && session.user.lastName 
+          ? `${session.user.firstName} ${session.user.lastName}` 
+          : session.user.email || 'Unknown',
         addedReason: body.reason?.trim() || null
       }
 
