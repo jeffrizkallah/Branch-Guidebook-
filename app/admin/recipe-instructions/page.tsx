@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Pencil, Trash2, Loader2, Search, X, Upload, Flame } from 'lucide-react'
@@ -192,6 +193,7 @@ export default function AdminRecipeInstructionsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr className="border-b">
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground w-16">Image</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Dish Name</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Category</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Components</th>
@@ -202,6 +204,23 @@ export default function AdminRecipeInstructionsPage() {
                 <tbody>
                   {filteredInstructions.map((instruction) => (
                     <tr key={instruction.instructionId} className="border-b transition-colors hover:bg-muted/50">
+                      <td className="p-4 align-middle">
+                        {instruction.visualPresentation?.[0] ? (
+                          <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted">
+                            <Image
+                              src={instruction.visualPresentation[0]}
+                              alt={instruction.dishName}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
+                            <Flame className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                        )}
+                      </td>
                       <td className="p-4 align-middle font-medium">{instruction.dishName}</td>
                       <td className="p-4 align-middle">{instruction.category}</td>
                       <td className="p-4 align-middle">
@@ -239,7 +258,7 @@ export default function AdminRecipeInstructionsPage() {
                   ))}
                   {filteredInstructions.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
                         No recipe instructions found.
                       </td>
                     </tr>
