@@ -104,8 +104,11 @@ export default function QualityControlPage() {
     section: '',
     mealService: '',
     period: 'today',
-    search: ''
+    search: '',
+    date: '',
+    product: ''
   })
+  const [activeColumnFilter, setActiveColumnFilter] = useState<'date' | 'branch' | 'product' | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -166,11 +169,28 @@ export default function QualityControlPage() {
     }
   }
 
+  // Get unique values for column filters
+  const uniqueBranches = Array.from(new Set(submissions.map(s => s.branchSlug)))
+    .map(slug => {
+      const sub = submissions.find(s => s.branchSlug === slug)
+      return { slug, name: sub?.branchName || slug }
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+
+  const uniqueProducts = Array.from(new Set(submissions.map(s => s.productName)))
+    .sort((a, b) => a.localeCompare(b))
+
+  const uniqueDates = Array.from(new Set(submissions.map(s => 
+    new Date(s.submissionDate).toLocaleDateString()
+  ))).sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+
   const filteredSubmissions = submissions.filter(s => {
     if (filters.branch && s.branchSlug !== filters.branch) return false
     if (filters.section && s.section !== filters.section) return false
     if (filters.mealService && s.mealService !== filters.mealService) return false
     if (filters.search && !s.productName.toLowerCase().includes(filters.search.toLowerCase())) return false
+    if (filters.date && new Date(s.submissionDate).toLocaleDateString() !== filters.date) return false
+    if (filters.product && s.productName !== filters.product) return false
     return true
   })
 
@@ -245,10 +265,93 @@ export default function QualityControlPage() {
     )
   }
 
+  // Column filter header component
+  const ColumnFilterHeader = ({ 
+    field, 
+    label, 
+    filterKey, 
+    options,
+    currentValue
+  }: { 
+    field: typeof sortField
+    label: string
+    filterKey: 'date' | 'branch' | 'product'
+    options: { value: string; label: string }[]
+    currentValue: string
+  }) => {
+    const isActive = activeColumnFilter === filterKey
+    const hasFilter = currentValue !== ''
+    
+    return (
+      <th className="text-left p-3 text-sm font-medium relative">
+        <div className="flex items-center gap-1">
+          <button
+            className="column-filter-trigger flex items-center gap-1 hover:text-primary transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              setActiveColumnFilter(isActive ? null : filterKey)
+            }}
+          >
+            {label}
+            <Filter className={cn(
+              "h-3 w-3 transition-colors",
+              hasFilter ? "text-primary fill-primary" : "text-muted-foreground"
+            )} />
+          </button>
+        </div>
+        
+        {/* Dropdown */}
+        {isActive && (
+          <div className="column-filter-dropdown absolute top-full left-0 mt-1 z-50 bg-background border rounded-lg shadow-lg min-w-[200px] max-h-[300px] overflow-y-auto">
+            <div className="p-2 border-b">
+              <button
+                className="w-full text-left px-3 py-2 text-sm rounded hover:bg-muted transition-colors flex items-center justify-between"
+                onClick={() => {
+                  setFilters({ ...filters, [filterKey]: '' })
+                  setActiveColumnFilter(null)
+                }}
+              >
+                <span>All {label}s</span>
+                {!hasFilter && <CheckCircle2 className="h-4 w-4 text-primary" />}
+              </button>
+            </div>
+            <div className="p-2">
+              {options.map((option) => (
+                <button
+                  key={option.value}
+                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-muted transition-colors flex items-center justify-between"
+                  onClick={() => {
+                    setFilters({ ...filters, [filterKey]: option.value })
+                    setActiveColumnFilter(null)
+                  }}
+                >
+                  <span className="truncate">{option.label}</span>
+                  {currentValue === option.value && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </th>
+    )
+  }
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [filters.branch, filters.section, filters.mealService, filters.search, filters.period])
+  }, [filters.branch, filters.section, filters.mealService, filters.search, filters.period, filters.date, filters.product])
+
+  // Close column filter when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('.column-filter-dropdown') && !target.closest('.column-filter-trigger')) {
+        setActiveColumnFilter(null)
+      }
+    }
+    document.addEventListener('click', handleClickOutside)
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [])
 
   const exportToCSV = () => {
     const headers = ['Date', 'Branch', 'Meal', 'Product', 'Section', 'Taste', 'Appearance', 'Portion(g)', 'Temp(°C)', 'Remarks']
@@ -558,29 +661,78 @@ export default function QualityControlPage() {
               </select>
             </div>
 
+            {/* Active Filters */}
+            {(filters.date || filters.branch || filters.product) && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-muted-foreground">Active filters:</span>
+                {filters.date && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    Date: {filters.date}
+                    <button 
+                      onClick={() => setFilters({ ...filters, date: '' })}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {filters.branch && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    Branch: {uniqueBranches.find(b => b.slug === filters.branch)?.name || filters.branch}
+                    <button 
+                      onClick={() => setFilters({ ...filters, branch: '' })}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {filters.product && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    Product: {filters.product}
+                    <button 
+                      onClick={() => setFilters({ ...filters, product: '' })}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                <button
+                  onClick={() => setFilters({ ...filters, date: '', branch: '', product: '' })}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
             {/* Table */}
             <div className="border rounded-lg overflow-hidden">
               <table className="w-full">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th 
-                      className="text-left p-3 text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none"
-                      onClick={() => handleSort('date')}
-                    >
-                      Date/Time <SortIndicator field="date" />
-                    </th>
-                    <th 
-                      className="text-left p-3 text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none"
-                      onClick={() => handleSort('branch')}
-                    >
-                      Branch <SortIndicator field="branch" />
-                    </th>
-                    <th 
-                      className="text-left p-3 text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none"
-                      onClick={() => handleSort('product')}
-                    >
-                      Product <SortIndicator field="product" />
-                    </th>
+                    <ColumnFilterHeader
+                      field="date"
+                      label="Date/Time"
+                      filterKey="date"
+                      options={uniqueDates.map(d => ({ value: d, label: d }))}
+                      currentValue={filters.date}
+                    />
+                    <ColumnFilterHeader
+                      field="branch"
+                      label="Branch"
+                      filterKey="branch"
+                      options={uniqueBranches.map(b => ({ value: b.slug, label: b.name }))}
+                      currentValue={filters.branch}
+                    />
+                    <ColumnFilterHeader
+                      field="product"
+                      label="Product"
+                      filterKey="product"
+                      options={uniqueProducts.map(p => ({ value: p, label: p }))}
+                      currentValue={filters.product}
+                    />
                     <th 
                       className="text-left p-3 text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none"
                       onClick={() => handleSort('section')}
@@ -598,6 +750,9 @@ export default function QualityControlPage() {
                       onClick={() => handleSort('appearance')}
                     >
                       Appearance <SortIndicator field="appearance" />
+                    </th>
+                    <th className="text-center p-3 text-sm font-medium">
+                      Photo
                     </th>
                     <th 
                       className="text-center p-3 text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none"
@@ -652,6 +807,29 @@ export default function QualityControlPage() {
                         )}>
                           <Eye className="h-3 w-3" /> {check.appearanceScore}
                         </span>
+                      </td>
+                      <td className="p-3 text-center">
+                        {check.photos && check.photos.length > 0 ? (
+                          <button
+                            onClick={() => setSelectedCheck(check)}
+                            className="relative group"
+                          >
+                            <img 
+                              src={check.photos[0]} 
+                              alt={check.productName}
+                              className="w-10 h-10 rounded-lg object-cover border hover:ring-2 hover:ring-primary transition-all"
+                            />
+                            {check.photos.length > 1 && (
+                              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                                {check.photos.length}
+                              </span>
+                            )}
+                          </button>
+                        ) : (
+                          <span className="text-muted-foreground">
+                            <ImageIcon className="h-4 w-4 mx-auto opacity-30" />
+                          </span>
+                        )}
                       </td>
                       <td className="p-3 text-center">
                         <Badge variant={
@@ -911,17 +1089,17 @@ export default function QualityControlPage() {
                 {/* Photos */}
                 {selectedCheck.photos && selectedCheck.photos.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <p className="text-sm font-medium mb-3 flex items-center gap-2">
                       <ImageIcon className="h-4 w-4" />
                       Photos
                     </p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-3">
                       {selectedCheck.photos.map((photo, i) => (
                         <a key={i} href={photo} target="_blank" rel="noopener noreferrer">
                           <img 
                             src={photo} 
                             alt={`Photo ${i + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border hover:opacity-80 transition-opacity"
+                            className="w-full rounded-lg border hover:opacity-90 hover:ring-2 hover:ring-primary transition-all"
                           />
                         </a>
                       ))}
