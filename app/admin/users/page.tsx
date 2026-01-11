@@ -676,7 +676,7 @@ export default function UserManagementPage() {
               value={formRole}
               onChange={(e) => setFormRole(e.target.value as UserRole)}
               className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-              disabled={isDispatcher && selectedUser?.role && PROTECTED_ROLES.includes(selectedUser.role)}
+              disabled={!!(isDispatcher && selectedUser?.role && PROTECTED_ROLES.includes(selectedUser.role))}
             >
               {/* Show current role if it's protected and user is a dispatcher (read-only) */}
               {isDispatcher && selectedUser?.role && PROTECTED_ROLES.includes(selectedUser.role) ? (
