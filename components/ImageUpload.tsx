@@ -67,6 +67,15 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
       return
     }
 
+    // Check total file size before upload (Vercel limit is 4.5MB for serverless)
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0)
+    const maxTotalSize = 4 * 1024 * 1024 // 4MB to stay safely under limit
+    
+    if (totalSize > maxTotalSize) {
+      alert(`Total file size is too large (${(totalSize / 1024 / 1024).toFixed(1)}MB). Please upload smaller images or fewer at a time. Maximum total size is 4MB per upload.`)
+      return
+    }
+
     setIsUploading(true)
 
     try {
@@ -80,36 +89,55 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
         body: formData,
       })
 
-      // Handle non-OK responses properly (check status BEFORE parsing JSON)
+      // Get response as text first to handle both JSON and non-JSON responses
+      const responseText = await response.text()
+      
+      // Handle non-OK responses
       if (!response.ok) {
         let errorMessage = `Upload failed (${response.status})`
-        const contentType = response.headers.get('content-type')
         
-        if (contentType?.includes('application/json')) {
-          const data = await response.json()
+        // Check for common server error messages
+        if (response.status === 413 || responseText.toLowerCase().includes('entity too large') || responseText.toLowerCase().includes('request entity')) {
+          throw new Error('FILE_TOO_LARGE')
+        }
+        
+        // Try to parse as JSON for structured error
+        try {
+          const data = JSON.parse(responseText)
           errorMessage = data.error || errorMessage
-        } else {
-          // Handle non-JSON responses (like plain "Forbidden" text from Vercel)
-          const text = await response.text()
-          if (text) errorMessage = text
+        } catch {
+          // Use plain text if not JSON
+          if (responseText) errorMessage = responseText
         }
         
         throw new Error(errorMessage)
       }
 
-      const data = await response.json()
+      // Parse successful response
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch {
+        console.error('Failed to parse response:', responseText)
+        throw new Error('PARSE_ERROR')
+      }
+      
       onImagesChange([...images, ...data.urls])
     } catch (error) {
       console.error('Upload error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       
       // Provide user-friendly messages for common errors
-      if (errorMessage.toLowerCase().includes('forbidden')) {
+      if (errorMessage === 'FILE_TOO_LARGE') {
+        alert('Upload failed: Images are too large. Please use smaller images (under 4MB total) or upload one at a time.')
+      } else if (errorMessage === 'PARSE_ERROR' || errorMessage.toLowerCase().includes('unexpected token') || errorMessage.toLowerCase().includes('json')) {
+        alert('Upload failed: Server error. The images may be too large. Please try uploading smaller images or one at a time.')
+      } else if (errorMessage.toLowerCase().includes('forbidden')) {
         alert('Upload failed: Access denied. Please try again in a moment.')
-      } else if (errorMessage.includes('Unexpected token')) {
-        alert('Upload failed: Server error. Please try again.')
+      } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('failed to fetch')) {
+        alert('Upload failed: Network error. Please check your connection and try again.')
       } else {
-        alert(`Failed to upload images: ${errorMessage}`)
+        alert(`Upload failed: ${errorMessage}`)
       }
     } finally {
       setIsUploading(false)
@@ -202,7 +230,7 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
                 Drop images here or <span className="text-orange-500">browse</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                PNG, JPG, GIF up to 10MB (max {maxImages} images)
+                PNG, JPG, GIF (max 4MB total per upload, max {maxImages} images)
               </p>
             </div>
           </div>
