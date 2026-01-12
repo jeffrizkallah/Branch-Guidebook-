@@ -77,8 +77,8 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
   const [currentItem, setCurrentItem] = useState<FormItem>({
     product: '',
     section: 'Hot',
-    taste: 5,
-    appearance: 5,
+    taste: 0,
+    appearance: 0,
     tasteNotes: '',
     appearanceNotes: '',
     portion: '',
@@ -111,8 +111,8 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
     setCurrentItem({
       product,
       section: defaults.section,
-      taste: 5, // Always default to 5
-      appearance: 5,
+      taste: 0, // Start at 0 - user must select rating
+      appearance: 0,
       tasteNotes: '',
       appearanceNotes: '',
       portion: '', // Empty - user must fill
@@ -147,6 +147,14 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
     // Validation
     if (!currentItem.product) {
       setError('Please select a product')
+      return
+    }
+    if (currentItem.taste === 0) {
+      setError('Please rate the taste (select stars)')
+      return
+    }
+    if (currentItem.appearance === 0) {
+      setError('Please rate the appearance (select stars)')
       return
     }
     if (!currentItem.tasteNotes.trim()) {
@@ -227,8 +235,8 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
       setCurrentItem({
         product: '',
         section: savedSection,
-        taste: 5,
-        appearance: 5,
+        taste: 0,
+        appearance: 0,
         tasteNotes: '',
         appearanceNotes: '',
         portion: '',
