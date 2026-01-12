@@ -11,7 +11,8 @@ import type { RecipeInstruction, Branch } from '@/lib/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Flame, Loader2, ChevronRight, Utensils, ChevronDown } from 'lucide-react'
+import { Flame, Loader2, ChevronRight, Utensils, ChevronDown, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 
 const DAY_ORDER = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -29,6 +30,7 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
   const [instructions, setInstructions] = useState<RecipeInstruction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAll, setShowAll] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   
   const INITIAL_DISPLAY_COUNT = 5
 
@@ -77,16 +79,32 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
     )
   }, [instructions])
 
-  // Filter instructions based on selected day
+  // Filter instructions based on selected day and search query
   const filteredInstructions = useMemo(() => {
-    if (!dayParam) return instructions
-    return instructions.filter(instruction => instruction.daysAvailable?.includes(dayParam))
-  }, [instructions, dayParam])
+    let filtered = instructions
+    
+    // Filter by day
+    if (dayParam) {
+      filtered = filtered.filter(instruction => instruction.daysAvailable?.includes(dayParam))
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim()
+      filtered = filtered.filter(instruction => 
+        instruction.dishName.toLowerCase().includes(query) ||
+        instruction.category?.toLowerCase().includes(query) ||
+        instruction.components?.some(comp => comp.name?.toLowerCase().includes(query))
+      )
+    }
+    
+    return filtered
+  }, [instructions, dayParam, searchQuery])
 
-  // Reset showAll when day filter changes
+  // Reset showAll when day filter or search changes
   useEffect(() => {
     setShowAll(false)
-  }, [dayParam])
+  }, [dayParam, searchQuery])
 
   // Get instructions to display (limited or all)
   const displayedInstructions = useMemo(() => {
@@ -138,6 +156,25 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
           <p className="text-xl text-muted-foreground">
             {branch.name} - Reheating & Assembly Guide
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by dish name, category, or component..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          {searchQuery && (
+            <p className="text-sm text-muted-foreground mt-2">
+              {filteredInstructions.length} result{filteredInstructions.length !== 1 ? 's' : ''} for &quot;{searchQuery}&quot;
+            </p>
+          )}
         </div>
 
         {/* Day Filter Tabs */}

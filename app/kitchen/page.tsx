@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   Building2,
   ClipboardList,
+  BarChart3,
+  Eye,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -35,6 +37,27 @@ interface Dispatch {
   }[]
 }
 
+interface ProductionSchedule {
+  scheduleId: string
+  weekStart: string
+  weekEnd: string
+  createdBy: string
+  createdAt: string
+  days: {
+    date: string
+    dayName: string
+    items: {
+      itemId: string
+      recipeName: string
+      quantity: number
+      unit: string
+      station: string
+      notes: string
+      completed: boolean
+    }[]
+  }[]
+}
+
 export default function CentralKitchenDashboard() {
   const { user, loading: authLoading } = useAuth({ 
     required: true, 
@@ -42,6 +65,7 @@ export default function CentralKitchenDashboard() {
   })
   
   const [dispatches, setDispatches] = useState<Dispatch[]>([])
+  const [productionSchedules, setProductionSchedules] = useState<ProductionSchedule[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalItems: 0,
@@ -57,17 +81,28 @@ export default function CentralKitchenDashboard() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/dispatch')
-      const data: Dispatch[] = await response.json()
+      const [dispatchResponse, schedulesResponse] = await Promise.all([
+        fetch('/api/dispatch'),
+        fetch('/api/production-schedules')
+      ])
       
-      // Sort by delivery date, most recent first
-      const sorted = data.sort((a, b) => 
+      const dispatchData: Dispatch[] = await dispatchResponse.json()
+      const schedulesData: ProductionSchedule[] = await schedulesResponse.json()
+      
+      // Sort dispatches by delivery date, most recent first
+      const sorted = dispatchData.sort((a, b) => 
         new Date(b.deliveryDate).getTime() - new Date(a.deliveryDate).getTime()
       )
       setDispatches(sorted)
+      
+      // Sort schedules by week start, most recent first
+      const sortedSchedules = schedulesData.sort((a, b) => 
+        new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime()
+      )
+      setProductionSchedules(sortedSchedules)
 
       // Calculate stats
-      const allBranchDispatches = data.flatMap(d => d.branchDispatches)
+      const allBranchDispatches = dispatchData.flatMap(d => d.branchDispatches)
       setStats({
         totalItems: allBranchDispatches.reduce((sum, bd) => sum + (bd.items?.length || 0), 0),
         pendingBranches: allBranchDispatches.filter(bd => bd.status === 'pending').length,
@@ -76,10 +111,20 @@ export default function CentralKitchenDashboard() {
         completedBranches: allBranchDispatches.filter(bd => bd.status === 'completed').length,
       })
     } catch (error) {
-      console.error('Error fetching dispatches:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
+  }
+  
+  const getTotalItems = (schedule: ProductionSchedule) => {
+    return schedule.days.reduce((acc, day) => acc + day.items.length, 0)
+  }
+
+  const getCompletedItems = (schedule: ProductionSchedule) => {
+    return schedule.days.reduce((acc, day) => 
+      acc + day.items.filter(item => item.completed).length, 0
+    )
   }
 
   const getStatusBadge = (status: string) => {
@@ -197,7 +242,7 @@ export default function CentralKitchenDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Link href="/">
             <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
               <CardContent className="pt-6">
@@ -235,26 +280,90 @@ export default function CentralKitchenDashboard() {
               </CardContent>
             </Card>
           </Link>
-
-          <Link href="/branch/central-kitchen/production-schedule">
-            <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 text-violet-600 group-hover:scale-110 transition-transform">
-                    <Calendar className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">Production Schedule</h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      View weekly production plans
-                    </p>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
         </div>
+
+        {/* Production Schedule Section */}
+        <Card className="mb-8 bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <BarChart3 className="h-5 w-5 text-orange-600" />
+              Production Schedule
+            </CardTitle>
+            <p className="text-sm text-orange-700/80">View and manage the weekly production schedule</p>
+          </CardHeader>
+          <CardContent>
+            {productionSchedules.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="h-12 w-12 text-orange-300 mx-auto mb-3" />
+                <p className="text-orange-700/70">No production schedules found.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {productionSchedules.map((schedule) => {
+                  const totalItems = getTotalItems(schedule)
+                  const completedItems = getCompletedItems(schedule)
+                  const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+
+                  return (
+                    <Card 
+                      key={schedule.scheduleId} 
+                      className="bg-white hover:shadow-lg transition-all group overflow-hidden border-orange-100"
+                    >
+                      <div className="h-1.5 bg-orange-100">
+                        <div 
+                          className="h-full bg-orange-500 transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-semibold flex items-center gap-2 text-gray-800">
+                              <Calendar className="h-4 w-4 text-orange-500" />
+                              Week of {new Date(schedule.weekStart).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(schedule.weekStart).toLocaleDateString()} - {new Date(schedule.weekEnd).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <Badge 
+                            className={`${
+                              progress === 100 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-orange-100 text-orange-700'
+                            } border-0`}
+                          >
+                            {progress}%
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-1.5 text-sm text-muted-foreground mb-4">
+                          <p>{schedule.days.length} production days</p>
+                          <p>{totalItems} total items</p>
+                          <p>{completedItems} completed</p>
+                          <p className="text-xs">Created by {schedule.createdBy}</p>
+                        </div>
+
+                        <Link href={`/branch/central-kitchen/production-schedule?scheduleId=${schedule.scheduleId}`}>
+                          <Button 
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white gap-2"
+                            size="sm"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View Schedule
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Today's Dispatches */}
         {todaysDispatches.length > 0 && (

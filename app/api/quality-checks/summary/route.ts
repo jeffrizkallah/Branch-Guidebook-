@@ -205,12 +205,12 @@ export async function GET(request: Request) {
       `
     }
 
-    // Calculate compliance rate
-    const daysInPeriod = period === 'today' ? 1 : period === 'week' ? 7 : 30
+    // Calculate compliance rate based on branches that have submitted
+    // Count branches with at least one submission for breakfast or lunch
+    const branchesWithSubmissions = completedBranches.length
     const branchCount = relevantBranches.length
-    const expectedSubmissions = branchCount * 2 * daysInPeriod
-    const complianceRate = expectedSubmissions > 0 
-      ? Math.round((totalSubmissions / expectedSubmissions) * 100) 
+    const complianceRate = branchCount > 0 
+      ? Math.round((branchesWithSubmissions / branchCount) * 100) 
       : 0
 
     // Get low scores

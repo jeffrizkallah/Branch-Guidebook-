@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { MapPin, Phone, Mail, Clock, Factory, Flame, ChefHat } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, Flame, ChefHat } from 'lucide-react'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
@@ -9,6 +9,7 @@ import { BranchRolesSection } from '@/components/BranchRolesSection'
 import { RecipeSelector } from '@/components/RecipeSelector'
 import { RecipeInstructionSelector } from '@/components/RecipeInstructionSelector'
 import { BranchDispatches } from '@/components/BranchDispatches'
+import { ProductionScheduleSection } from '@/components/ProductionScheduleSection'
 import { loadBranch, loadBranches, loadRoles, isCentralKitchen } from '@/lib/data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -148,26 +149,9 @@ export default async function BranchPage({ params, searchParams }: BranchPagePro
             />
           </div>
 
-          {/* Central Kitchen: Production Schedule Link */}
+          {/* Central Kitchen: Production Schedule Section */}
           {isCK && !isPrintMode && (
-            <Card className="mb-4 md:mb-6 border-2 border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30">
-              <CardHeader className="px-4 py-3 md:px-6 md:py-4">
-                <CardTitle className="text-base sm:text-lg md:text-xl flex items-center gap-2">
-                  <Factory className="h-5 w-5 text-orange-500" />
-                  Production Schedule
-                </CardTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  View and manage the weekly production schedule
-                </p>
-              </CardHeader>
-              <CardContent className="px-4 py-3 md:px-6 md:py-4">
-                <Link href={`/branch/${branch.slug}/production-schedule`}>
-                  <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white">
-                    View Production Schedule
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <ProductionScheduleSection branchSlug={branch.slug} />
           )}
 
           {/* Recipes Section (Central Kitchen) or Recipe Instructions (Branches) */}
