@@ -80,17 +80,37 @@ export function ImageUpload({ images, onImagesChange, maxImages = 10 }: ImageUpl
         body: formData,
       })
 
-      const data = await response.json()
-      
+      // Handle non-OK responses properly (check status BEFORE parsing JSON)
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed')
+        let errorMessage = `Upload failed (${response.status})`
+        const contentType = response.headers.get('content-type')
+        
+        if (contentType?.includes('application/json')) {
+          const data = await response.json()
+          errorMessage = data.error || errorMessage
+        } else {
+          // Handle non-JSON responses (like plain "Forbidden" text from Vercel)
+          const text = await response.text()
+          if (text) errorMessage = text
+        }
+        
+        throw new Error(errorMessage)
       }
 
+      const data = await response.json()
       onImagesChange([...images, ...data.urls])
     } catch (error) {
       console.error('Upload error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Failed to upload images: ${errorMessage}`)
+      
+      // Provide user-friendly messages for common errors
+      if (errorMessage.toLowerCase().includes('forbidden')) {
+        alert('Upload failed: Access denied. Please try again in a moment.')
+      } else if (errorMessage.includes('Unexpected token')) {
+        alert('Upload failed: Server error. Please try again.')
+      } else {
+        alert(`Failed to upload images: ${errorMessage}`)
+      }
     } finally {
       setIsUploading(false)
     }
