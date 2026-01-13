@@ -45,7 +45,7 @@ export default function QualityCheckPage() {
   
   const { user, loading: authLoading } = useAuth({ 
     required: true, 
-    allowedRoles: ['admin', 'operations_lead', 'branch_manager', 'branch_staff'] 
+    allowedRoles: ['admin', 'operations_lead', 'branch_manager', 'branch_staff', 'central_kitchen'] 
   })
   
   const [branch, setBranch] = useState<Branch | null>(null)
