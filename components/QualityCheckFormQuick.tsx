@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -12,8 +12,12 @@ import {
   Sun,
   Loader2,
   AlertCircle,
-  Zap,
-  ClipboardCheck
+  ClipboardCheck,
+  Search,
+  Clock,
+  X,
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,10 +27,25 @@ interface QualityCheckFormQuickProps {
   onSuccess?: () => void
 }
 
-interface ItemDefaults {
-  portion: string
-  temp: string
-  section: string
+interface Product {
+  name: string
+  category: string
+  revenue?: number
+}
+
+interface ProductsByCategory {
+  [category: string]: Array<{
+    name: string
+    revenue: number
+    quantity: number
+    timesSold: number
+  }>
+}
+
+interface CategoryInfo {
+  name: string
+  count: number
+  topProducts: string[]
 }
 
 interface FormItem {
@@ -44,42 +63,71 @@ interface FormItem {
   correctiveNotes: string
 }
 
-// Smart defaults for common products
-const productDefaults: Record<string, ItemDefaults> = {
-  'Chicken Biryani': { portion: '250', temp: '65', section: 'Hot' },
-  'Vegetable Biryani': { portion: '250', temp: '65', section: 'Hot' },
-  'Pasta': { portion: '200', temp: '70', section: 'Hot' },
-  'Grilled Chicken': { portion: '180', temp: '75', section: 'Hot' },
-  'Rice': { portion: '200', temp: '65', section: 'Hot' },
-  'Salad': { portion: '150', temp: '4', section: 'Cold' },
-  'Coleslaw': { portion: '100', temp: '4', section: 'Cold' },
-  'Sandwich': { portion: '200', temp: '8', section: 'Cold' },
-  'Croissant': { portion: '80', temp: '22', section: 'Bakery' },
-  'Pizza': { portion: '250', temp: '70', section: 'Bakery' },
+// Category icons
+const categoryIcons: Record<string, string> = {
+  'Recent': '🕐',
+  'Breakfast': '🍳',
+  'Beverages': '☕',
+  'Hot Meals': '🔥',
+  'Sandwiches': '🥪',
+  'Pizza': '🍕',
+  'Desserts': '🍰',
+  'Salads': '🥗',
+  'Appetizers': '🍟',
+  'Burgers': '🍔',
+  'Mezza': '🧆',
+  'Subscriptions': '📦',
+  'Special Events': '🎉',
+  'OBB': '📋',
+  'Soups': '🍲',
 }
 
-const commonProducts = {
-  'Hot': ['Chicken Biryani', 'Vegetable Biryani', 'Pasta', 'Grilled Chicken', 'Rice', 'Curry', 'Fried Rice'],
-  'Cold': ['Salad', 'Coleslaw', 'Sandwich', 'Wrap', 'Hummus'],
-  'Bakery': ['Croissant', 'Pizza', 'Bread', 'Muffin', 'Pastry'],
-  'Beverages': ['Juice', 'Milk', 'Smoothie', 'Lemonade']
+// Default portion/temp by category
+const categoryDefaults: Record<string, { portion: string, temp: string }> = {
+  'Hot Meals': { portion: '250', temp: '65' },
+  'Breakfast': { portion: '150', temp: '70' },
+  'Pizza': { portion: '250', temp: '70' },
+  'Sandwiches': { portion: '200', temp: '8' },
+  'Salads': { portion: '150', temp: '4' },
+  'Desserts': { portion: '100', temp: '8' },
+  'Beverages': { portion: '330', temp: '4' },
+  'Appetizers': { portion: '100', temp: '65' },
+  'Burgers': { portion: '250', temp: '70' },
+  'Soups': { portion: '300', temp: '70' },
+  'Mezza': { portion: '150', temp: '22' },
 }
 
 export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: QualityCheckFormQuickProps) {
-  // Central Kitchen uses different units: KG for portions, "Stored Temp" for temperature (frozen items)
   const isCentralKitchen = branchSlug === 'central-kitchen'
   
+  // Product data
+  const [categories, setCategories] = useState<CategoryInfo[]>([])
+  const [productsByCategory, setProductsByCategory] = useState<ProductsByCategory>({})
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true)
+  
+  // UI state
+  const [selectedCategory, setSelectedCategory] = useState<string>('Recent')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Product[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [isSearchFocused, setIsSearchFocused] = useState(false)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [modalCategory, setModalCategory] = useState<string>('')
+  const [modalSearchQuery, setModalSearchQuery] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const searchTimeoutRef = useRef<NodeJS.Timeout>()
+  
+  // Form state
   const [mealService, setMealService] = useState<'breakfast' | 'lunch'>('lunch')
   const [submittedToday, setSubmittedToday] = useState<string[]>([])
+  const [recentProducts, setRecentProducts] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [showCustomInput, setShowCustomInput] = useState(false)
-  const [customProductName, setCustomProductName] = useState('')
   
   const [currentItem, setCurrentItem] = useState<FormItem>({
     product: '',
-    section: 'Hot',
+    section: '',
     taste: 0,
     appearance: 0,
     tasteNotes: '',
@@ -92,95 +140,145 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
     correctiveNotes: ''
   })
 
-  // Auto-detect meal service based on time
+  // Auto-detect meal service
   useEffect(() => {
     const hour = new Date().getHours()
     setMealService(hour < 11 ? 'breakfast' : 'lunch')
   }, [])
 
-  // Load today's submissions from localStorage
+  // Load products
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const response = await fetch('/api/quality-checks/products')
+        if (response.ok) {
+          const data = await response.json()
+          setCategories(data.categories || [])
+          setProductsByCategory(data.productsByCategory || {})
+        }
+      } catch (error) {
+        console.error('Error loading products:', error)
+      } finally {
+        setIsLoadingProducts(false)
+      }
+    }
+    loadProducts()
+  }, [])
+
+  // Load localStorage data
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0]
-    const key = `qc-submitted-${branchSlug}-${today}`
-    const saved = localStorage.getItem(key)
-    if (saved) {
-      setSubmittedToday(JSON.parse(saved))
-    }
+    const submittedKey = `qc-submitted-${branchSlug}-${today}`
+    const savedSubmitted = localStorage.getItem(submittedKey)
+    if (savedSubmitted) setSubmittedToday(JSON.parse(savedSubmitted))
+    
+    const recentKey = `qc-recent-${branchSlug}`
+    const savedRecent = localStorage.getItem(recentKey)
+    if (savedRecent) setRecentProducts(JSON.parse(savedRecent))
   }, [branchSlug])
 
-  const selectProduct = (product: string) => {
-    const defaults = productDefaults[product] || { portion: '', temp: '', section: currentItem.section }
-    
+  // Search with debounce
+  useEffect(() => {
+    if (searchQuery.length < 2) {
+      setSearchResults([])
+      return
+    }
+
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    setIsSearching(true)
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/quality-checks/products?search=${encodeURIComponent(searchQuery)}&limit=20`)
+        if (response.ok) {
+          const data = await response.json()
+          setSearchResults(data.searchResults || [])
+        }
+      } catch (error) {
+        console.error('Search error:', error)
+      } finally {
+        setIsSearching(false)
+      }
+    }, 250)
+
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+    }
+  }, [searchQuery])
+
+  // Get products for category (limited for initial view)
+  const getDisplayProducts = (category: string, limit: number = 6) => {
+    if (category === 'Recent') {
+      return recentProducts.slice(0, limit).map(name => {
+        for (const [cat, products] of Object.entries(productsByCategory)) {
+          const found = products.find(p => p.name === name)
+          if (found) return { name, category: cat }
+        }
+        return { name, category: '' }
+      })
+    }
+    const products = productsByCategory[category] || []
+    return products.slice(0, limit).map(p => ({ name: p.name, category }))
+  }
+
+  // Filter modal products by search
+  const filteredModalProducts = useMemo(() => {
+    const products = productsByCategory[modalCategory] || []
+    if (!modalSearchQuery) return products
+    const query = modalSearchQuery.toLowerCase()
+    return products.filter(p => p.name.toLowerCase().includes(query))
+  }, [modalCategory, modalSearchQuery, productsByCategory])
+
+  const selectProduct = (productName: string, category: string) => {
     setCurrentItem({
-      product,
-      section: defaults.section,
-      taste: 0, // Start at 0 - user must select rating
+      product: productName,
+      section: category,
+      taste: 0,
       appearance: 0,
       tasteNotes: '',
       appearanceNotes: '',
-      portion: '', // Empty - user must fill
-      temp: '', // Empty - user must fill
+      portion: '',
+      temp: '',
       photos: [],
       remarks: '',
       correctiveAction: false,
       correctiveNotes: ''
     })
-    setShowCustomInput(false)
-    setCustomProductName('')
-  }
-  
-  // Get placeholder values for display
-  const getPlaceholder = (product: string, field: 'portion' | 'temp') => {
-    const defaults = productDefaults[product]
-    if (defaults) {
-      return field === 'portion' ? defaults.portion : defaults.temp
-    }
-    return field === 'portion' ? '250' : '65'
+    
+    setSearchQuery('')
+    setIsSearchFocused(false)
+    setShowCategoryModal(false)
+    
+    const updatedRecent = [productName, ...recentProducts.filter(p => p !== productName)].slice(0, 20)
+    setRecentProducts(updatedRecent)
+    localStorage.setItem(`qc-recent-${branchSlug}`, JSON.stringify(updatedRecent))
   }
 
-  const handleCustomProduct = () => {
-    if (customProductName.trim()) {
-      selectProduct(customProductName.trim())
-    }
+  const openCategoryModal = (category: string) => {
+    setModalCategory(category)
+    setModalSearchQuery('')
+    setShowCategoryModal(true)
+  }
+
+  const getPlaceholder = (field: 'portion' | 'temp') => {
+    const defaults = categoryDefaults[currentItem.section] || { portion: '250', temp: '65' }
+    return field === 'portion' ? defaults.portion : defaults.temp
   }
 
   const handleSubmit = async () => {
     setError(null)
     
-    // Validation
-    if (!currentItem.product) {
-      setError('Please select a product')
-      return
-    }
-    if (currentItem.taste === 0) {
-      setError('Please rate the taste (select stars)')
-      return
-    }
-    if (currentItem.appearance === 0) {
-      setError('Please rate the appearance (select stars)')
-      return
-    }
-    if (!currentItem.tasteNotes.trim()) {
-      setError('Please add notes about taste and appearance')
-      return
-    }
-    if (!currentItem.portion) {
-      setError('Please enter portion weight')
-      return
-    }
-    if (!currentItem.temp) {
-      setError('Please enter temperature')
-      return
-    }
-    if (currentItem.photos.length === 0) {
-      setError('Please add at least one photo')
-      return
-    }
+    if (!currentItem.product) { setError('Please select a product'); return }
+    if (currentItem.taste === 0) { setError('Please rate the taste'); return }
+    if (currentItem.appearance === 0) { setError('Please rate the appearance'); return }
+    if (!currentItem.tasteNotes.trim()) { setError('Please add notes'); return }
+    if (!currentItem.portion) { setError('Please enter portion weight'); return }
+    if (!currentItem.temp) { setError('Please enter temperature'); return }
+    if (currentItem.photos.length === 0) { setError('Please add at least one photo'); return }
 
     setIsSubmitting(true)
 
     try {
-      console.log('Submitting quality check with meal service:', mealService)
       const response = await fetch('/api/quality-checks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -203,41 +301,19 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
       })
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to submit')
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit')
-      }
-
-      console.log('✅ Quality check submitted successfully:', data)
-      console.log('Submission details:', {
-        product: currentItem.product,
-        mealService: mealService,
-        branchSlug: branchSlug,
-        submissionId: data.id
-      })
-
-      // Save to submitted list
       const today = new Date().toISOString().split('T')[0]
       const key = `qc-submitted-${branchSlug}-${today}`
       const newSubmitted = [...submittedToday, currentItem.product]
       setSubmittedToday(newSubmitted)
       localStorage.setItem(key, JSON.stringify(newSubmitted))
 
-      // Save last used values for this product
-      const lastUsedKey = `qc-last-${branchSlug}-${currentItem.product}`
-      localStorage.setItem(lastUsedKey, JSON.stringify({
-        section: currentItem.section,
-        portion: currentItem.portion,
-        temp: currentItem.temp
-      }))
-
       setSuccessMessage(`✓ ${currentItem.product} submitted!`)
       
-      // Reset form for next item, keeping section and meal service
-      const savedSection = currentItem.section
       setCurrentItem({
         product: '',
-        section: savedSection,
+        section: '',
         taste: 0,
         appearance: 0,
         tasteNotes: '',
@@ -250,329 +326,428 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
         correctiveNotes: ''
       })
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000)
-
-      // Call the success callback to refresh parent
-      if (onSuccess) {
-        console.log('📞 Calling onSuccess callback to refresh parent page')
-        onSuccess()
-      }
+      if (onSuccess) onSuccess()
 
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit quality check')
+      setError(err instanceof Error ? err.message : 'Failed to submit')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const availableProducts = commonProducts[currentItem.section as keyof typeof commonProducts] || []
+  const visibleCategories = useMemo(() => {
+    return ['Recent', ...categories.map(c => c.name)].slice(0, 10)
+  }, [categories])
+
+  const showSearchOverlay = isSearchFocused && searchQuery.length >= 2
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      {/* Success Message */}
-      {successMessage && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2 text-green-700">
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
-          {successMessage}
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2 text-red-700 text-sm">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          {error}
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      <Card className="border-2 border-green-200 bg-green-50/50">
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-3">
-            <Badge variant="secondary" className="px-3 py-1 flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              {submittedToday.length} checked today
-            </Badge>
+    <div className="max-w-2xl mx-auto">
+      {/* Sticky Header with Search */}
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm pb-2 -mx-4 px-4 pt-2">
+        {/* Success/Error Messages */}
+        {successMessage && (
+          <div className="mb-2 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2 text-green-700 text-sm">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            {successMessage}
           </div>
-          
-          {/* Meal Service - Auto-selected but changeable */}
-          <div className="flex gap-2 mb-3">
+        )}
+        {error && (
+          <div className="mb-2 bg-red-50 border border-red-200 rounded-lg p-2 flex items-center gap-2 text-red-700 text-sm">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            {error}
+          </div>
+        )}
+
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            placeholder="Search products..."
+            className="w-full pl-11 pr-11 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-base bg-white"
+          />
+          {searchQuery && (
             <button
-              type="button"
-              onClick={() => setMealService('breakfast')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all relative",
-                mealService === 'breakfast'
-                  ? "border-orange-500 bg-orange-100 text-orange-700 font-semibold shadow-md"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              )}
+              onClick={() => { setSearchQuery(''); setIsSearchFocused(false) }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-full"
             >
-              <Coffee className="h-4 w-4" />
-              Breakfast
-              {mealService === 'breakfast' && (
-                <CheckCircle2 className="h-4 w-4 absolute right-2 top-2 text-orange-600" />
-              )}
+              <X className="h-5 w-5 text-gray-400" />
             </button>
-            <button
-              type="button"
-              onClick={() => setMealService('lunch')}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all relative",
-                mealService === 'lunch'
-                  ? "border-orange-500 bg-orange-100 text-orange-700 font-semibold shadow-md"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              )}
-            >
-              <Sun className="h-4 w-4" />
-              Lunch
-              {mealService === 'lunch' && (
-                <CheckCircle2 className="h-4 w-4 absolute right-2 top-2 text-orange-600" />
-              )}
-            </button>
-          </div>
+          )}
+        </div>
+      </div>
 
-        </CardContent>
-      </Card>
-
-      {/* Main Quick Entry Form */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <ClipboardCheck className="h-5 w-5 text-green-600" />
-            Quality Check Entry
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          
-          {/* Section Selection */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Food Section</label>
-            <div className="grid grid-cols-4 gap-2">
-              {Object.keys(commonProducts).map((section) => (
-                <button
-                  key={section}
-                  type="button"
-                  onClick={() => {
-                    setCurrentItem(prev => ({ ...prev, section, product: '' }))
-                  }}
-                  className={cn(
-                    "py-2.5 rounded-lg text-sm font-medium transition-all",
-                    currentItem.section === section
-                      ? "bg-primary text-white shadow-md"
-                      : "bg-gray-100 hover:bg-gray-200"
-                  )}
-                >
-                  {section}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Quick Select Chips */}
-          <div>
-            <label className="text-sm font-medium mb-2 block">Select Product</label>
-            <div className="flex flex-wrap gap-2">
-              {availableProducts.map((product) => (
-                <button
-                  key={product}
-                  type="button"
-                  onClick={() => selectProduct(product)}
-                  className={cn(
-                    "px-4 py-2 rounded-full text-sm font-medium transition-all relative",
-                    currentItem.product === product && !showCustomInput
-                      ? "bg-primary text-white shadow-md scale-105"
-                      : "bg-gray-100 hover:bg-gray-200",
-                    submittedToday.includes(product) && "ring-2 ring-green-500 ring-offset-2"
-                  )}
-                >
-                  {product}
-                  {submittedToday.includes(product) && (
-                    <CheckCircle2 className="inline h-3 w-3 ml-1 text-green-600 absolute -top-1 -right-1 bg-white rounded-full" />
-                  )}
-                </button>
-              ))}
-              <button 
-                type="button"
-                className={cn(
-                  "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                  showCustomInput 
-                    ? "bg-primary text-white shadow-md" 
-                    : "bg-gray-100 hover:bg-gray-200"
-                )}
-                onClick={() => {
-                  setShowCustomInput(true)
-                  setCurrentItem(prev => ({ ...prev, product: '' }))
-                }}
+      {/* Search Results Overlay */}
+      {showSearchOverlay && (
+        <div className="fixed inset-0 z-50 bg-background">
+          <div className="sticky top-0 bg-background border-b p-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                autoFocus
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search products..."
+                className="w-full pl-11 pr-11 py-3.5 border-2 rounded-xl text-base"
+              />
+              <button
+                onClick={() => { setSearchQuery(''); setIsSearchFocused(false) }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5"
               >
-                + Other
+                <X className="h-5 w-5" />
               </button>
             </div>
-
-            {/* Custom Product Input */}
-            {showCustomInput && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  value={customProductName}
-                  onChange={(e) => setCustomProductName(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleCustomProduct()
-                    }
-                  }}
-                  placeholder="Enter product name..."
-                  className="flex-1 p-3 border-2 border-primary rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  autoFocus
-                />
-                <Button 
-                  type="button"
-                  onClick={handleCustomProduct}
-                  disabled={!customProductName.trim()}
-                  size="lg"
+          </div>
+          
+          <div className="overflow-y-auto h-[calc(100vh-70px)]">
+            {isSearching ? (
+              <div className="p-8 text-center text-gray-500">
+                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                Searching...
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="divide-y">
+                {searchResults.map((product, index) => (
+                  <button
+                    key={index}
+                    onClick={() => selectProduct(product.name, product.category)}
+                    className={cn(
+                      "w-full px-4 py-4 text-left flex items-center justify-between active:bg-gray-100",
+                      submittedToday.includes(product.name) && "bg-green-50"
+                    )}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{product.name}</p>
+                      <p className="text-sm text-gray-500">{product.category}</p>
+                    </div>
+                    {submittedToday.includes(product.name) && (
+                      <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 ml-2" />
+                    )}
+                  </button>
+                ))}
+                {/* Add custom product option at the bottom of results */}
+                <button
+                  onClick={() => selectProduct(searchQuery.trim(), 'Other')}
+                  className="w-full px-4 py-4 text-left flex items-center gap-3 active:bg-blue-50 bg-blue-50/50 border-t-2 border-blue-100"
                 >
-                  Add
-                </Button>
-                <Button 
-                  type="button"
-                  onClick={() => {
-                    setShowCustomInput(false)
-                    setCustomProductName('')
-                  }}
-                  variant="outline"
-                  size="lg"
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <span className="text-lg">✏️</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-blue-700">Add &quot;{searchQuery.trim()}&quot;</p>
+                    <p className="text-sm text-blue-600">Use custom product name</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-blue-400" />
+                </button>
+              </div>
+            ) : (
+              <div className="p-6 text-center">
+                <div className="text-gray-500 mb-4">
+                  No products found for &quot;{searchQuery}&quot;
+                </div>
+                <button
+                  onClick={() => selectProduct(searchQuery.trim(), 'Other')}
+                  className="w-full p-4 text-left flex items-center gap-3 active:bg-blue-100 bg-blue-50 rounded-xl border-2 border-blue-200"
                 >
-                  Cancel
-                </Button>
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <span className="text-lg">✏️</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-blue-700">Add &quot;{searchQuery.trim()}&quot;</p>
+                    <p className="text-sm text-blue-600">Use this as custom product name</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-blue-400" />
+                </button>
               </div>
             )}
           </div>
+        </div>
+      )}
 
-          {/* Only show rest of form when product selected */}
-          {currentItem.product && (
-            <>
-              {/* Ratings - Improved Stars */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">
-                    Taste
-                  </label>
-                  <div className="flex gap-1 sm:gap-2 justify-center p-4 bg-gray-50 rounded-lg">
+      {/* Category Modal */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 z-50 bg-background">
+          <div className="sticky top-0 bg-background border-b p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <span>{categoryIcons[modalCategory] || '📦'}</span>
+                {modalCategory}
+              </h2>
+              <button
+                onClick={() => setShowCategoryModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                value={modalSearchQuery}
+                onChange={(e) => setModalSearchQuery(e.target.value)}
+                placeholder={`Filter ${modalCategory}...`}
+                className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm"
+              />
+            </div>
+          </div>
+          
+          <div className="overflow-y-auto h-[calc(100vh-120px)] p-2">
+            <div className="grid grid-cols-2 gap-2">
+              {filteredModalProducts.map((product, index) => (
+                <button
+                  key={index}
+                  onClick={() => selectProduct(product.name, modalCategory)}
+                  className={cn(
+                    "p-3 rounded-lg text-left text-sm font-medium border-2 active:scale-95 transition-transform",
+                    submittedToday.includes(product.name) 
+                      ? "border-green-500 bg-green-50" 
+                      : "border-gray-100 bg-gray-50 active:bg-gray-100"
+                  )}
+                >
+                  <span className="line-clamp-2">{product.name}</span>
+                  {submittedToday.includes(product.name) && (
+                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-1" />
+                  )}
+                </button>
+              ))}
+            </div>
+            {filteredModalProducts.length === 0 && (
+              <p className="text-center text-gray-500 py-8">No products found</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="space-y-3 pb-4">
+        
+        {/* Meal Service - Compact */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setMealService('breakfast')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 text-sm font-medium transition-all",
+              mealService === 'breakfast'
+                ? "border-orange-500 bg-orange-50 text-orange-700"
+                : "border-gray-200 bg-white"
+            )}
+          >
+            <Coffee className="h-4 w-4" />
+            Breakfast
+            {mealService === 'breakfast' && <CheckCircle2 className="h-4 w-4" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMealService('lunch')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border-2 text-sm font-medium transition-all",
+              mealService === 'lunch'
+                ? "border-orange-500 bg-orange-50 text-orange-700"
+                : "border-gray-200 bg-white"
+            )}
+          >
+            <Sun className="h-4 w-4" />
+            Lunch
+            {mealService === 'lunch' && <CheckCircle2 className="h-4 w-4" />}
+          </button>
+        </div>
+
+        {/* Category Pills - Compact Horizontal Scroll */}
+        <div className="overflow-x-auto -mx-4 px-4 pb-1">
+          <div className="flex gap-1.5 min-w-max">
+            {visibleCategories.map((cat) => {
+              const count = cat === 'Recent' ? recentProducts.length : categories.find(c => c.name === cat)?.count || 0
+              const isSelected = selectedCategory === cat
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={cn(
+                    "flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
+                    isSelected
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-700 active:bg-gray-200"
+                  )}
+                >
+                  <span>{categoryIcons[cat] || '📦'}</span>
+                  <span>{cat}</span>
+                  {count > 0 && <span className="opacity-70">({count})</span>}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Product Grid - Compact */}
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-3">
+            {isLoadingProducts ? (
+              <div className="py-6 text-center text-gray-500">
+                <Loader2 className="h-5 w-5 animate-spin mx-auto mb-1" />
+                <span className="text-sm">Loading...</span>
+              </div>
+            ) : selectedCategory === 'Recent' && recentProducts.length === 0 ? (
+              <div className="py-6 text-center text-gray-500">
+                <Clock className="h-6 w-6 mx-auto mb-1 opacity-50" />
+                <p className="text-sm">No recent products</p>
+                <p className="text-xs">Search or select a category</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {getDisplayProducts(selectedCategory, 6).map((product, index) => (
+                  <button
+                    key={index}
+                    onClick={() => selectProduct(product.name, product.category || selectedCategory)}
+                    className={cn(
+                      "relative p-2.5 rounded-lg text-left text-sm font-medium border-2 active:scale-95 transition-transform",
+                      currentItem.product === product.name
+                        ? "border-primary bg-primary/10"
+                        : submittedToday.includes(product.name)
+                        ? "border-green-400 bg-green-50"
+                        : "border-gray-100 bg-gray-50 active:bg-gray-100"
+                    )}
+                  >
+                    <span className="line-clamp-2 text-xs leading-tight">{product.name}</span>
+                    {submittedToday.includes(product.name) && (
+                      <CheckCircle2 className="absolute top-1 right-1 h-3.5 w-3.5 text-green-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Selected Product Indicator */}
+        {currentItem.product && (
+          <div className="flex items-center gap-2 p-2.5 bg-primary/10 rounded-lg border-2 border-primary">
+            <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-primary text-sm truncate">{currentItem.product}</p>
+              <p className="text-xs text-gray-600">{currentItem.section}</p>
+            </div>
+            <button 
+              onClick={() => setCurrentItem(prev => ({ ...prev, product: '', section: '' }))}
+              className="p-1 hover:bg-white/50 rounded"
+            >
+              <X className="h-4 w-4 text-gray-500" />
+            </button>
+          </div>
+        )}
+
+        {/* Quality Form - Compact */}
+        {currentItem.product && (
+          <Card className="border-0 shadow-sm">
+            <CardHeader className="pb-2 pt-3 px-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4 text-green-600" />
+                Rate Quality
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 p-3 pt-0">
+              
+              {/* Star Ratings - Compact */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center">
+                  <label className="text-xs font-semibold block mb-1">Taste</label>
+                  <div className="flex justify-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setCurrentItem(prev => ({ ...prev, taste: star }))}
-                        className="transition-transform hover:scale-110 flex-shrink-0"
+                        className="p-0.5"
                       >
-                        <Star 
-                          className={cn(
-                            "h-6 w-6 sm:h-8 sm:w-8 transition-colors",
-                            currentItem.taste >= star
-                              ? "fill-yellow-400 text-yellow-500 drop-shadow-sm"
-                              : "fill-gray-200 text-gray-300"
-                          )} 
-                        />
+                        <Star className={cn(
+                          "h-7 w-7",
+                          currentItem.taste >= star
+                            ? "fill-yellow-400 text-yellow-500"
+                            : "fill-gray-200 text-gray-300"
+                        )} />
                       </button>
                     ))}
                   </div>
-                  <div className="text-center text-xl font-bold mt-2 text-yellow-600">
-                    {currentItem.taste}/5
-                  </div>
+                  <span className="text-lg font-bold text-yellow-600">{currentItem.taste}/5</span>
                 </div>
 
-                <div>
-                  <label className="text-sm font-semibold mb-2 block">
-                    Appearance
-                  </label>
-                  <div className="flex gap-1 sm:gap-2 justify-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <label className="text-xs font-semibold block mb-1">Appearance</label>
+                  <div className="flex justify-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
                         onClick={() => setCurrentItem(prev => ({ ...prev, appearance: star }))}
-                        className="transition-transform hover:scale-110 flex-shrink-0"
+                        className="p-0.5"
                       >
-                        <Star 
-                          className={cn(
-                            "h-6 w-6 sm:h-8 sm:w-8 transition-colors",
-                            currentItem.appearance >= star
-                              ? "fill-blue-400 text-blue-500 drop-shadow-sm"
-                              : "fill-gray-200 text-gray-300"
-                          )} 
-                        />
+                        <Star className={cn(
+                          "h-7 w-7",
+                          currentItem.appearance >= star
+                            ? "fill-blue-400 text-blue-500"
+                            : "fill-gray-200 text-gray-300"
+                        )} />
                       </button>
                     ))}
                   </div>
-                  <div className="text-center text-xl font-bold mt-2 text-blue-600">
-                    {currentItem.appearance}/5
-                  </div>
+                  <span className="text-lg font-bold text-blue-600">{currentItem.appearance}/5</span>
                 </div>
               </div>
 
-              {/* Combined Notes Section for Taste & Appearance */}
+              {/* Notes */}
               <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Notes (Taste & Appearance) <span className="text-red-500">*</span>
+                <label className="text-xs font-medium mb-1 block">
+                  Notes <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={currentItem.tasteNotes}
                   onChange={(e) => setCurrentItem(prev => ({ ...prev, tasteNotes: e.target.value, appearanceNotes: e.target.value }))}
-                  placeholder="Describe the taste and appearance of the product..."
-                  className={cn(
-                    "w-full p-3 border rounded-lg min-h-[80px] resize-none",
-                    !currentItem.tasteNotes && "border-red-300"
-                  )}
-                  required
+                  placeholder="Describe taste and appearance..."
+                  className="w-full p-2.5 border rounded-lg min-h-[60px] resize-none text-sm"
                 />
               </div>
 
-              {/* Measurements - User must fill */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Measurements - Side by Side */}
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    {isCentralKitchen ? 'Portion (KG)' : 'Portion (grams)'} <span className="text-red-500">*</span>
+                  <label className="text-xs font-medium mb-1 block">
+                    {isCentralKitchen ? 'Portion (KG)' : 'Portion (g)'} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     inputMode="decimal"
                     value={currentItem.portion}
                     onChange={(e) => setCurrentItem(prev => ({ ...prev, portion: e.target.value }))}
-                    className="w-full p-4 text-2xl font-semibold text-center border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder={isCentralKitchen ? '5' : getPlaceholder(currentItem.product, 'portion')}
+                    className="w-full p-3 text-xl font-bold text-center border-2 rounded-lg"
+                    placeholder={getPlaceholder('portion')}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
-                    {isCentralKitchen ? 'Stored Temp (°C)' : 'Temp (°C)'} <span className="text-red-500">*</span>
+                  <label className="text-xs font-medium mb-1 block">
+                    Temp (°C) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     inputMode="decimal"
                     value={currentItem.temp}
                     onChange={(e) => setCurrentItem(prev => ({ ...prev, temp: e.target.value }))}
-                    className="w-full p-4 text-2xl font-semibold text-center border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary"
-                    placeholder={isCentralKitchen ? '-18' : getPlaceholder(currentItem.product, 'temp')}
+                    className="w-full p-3 text-xl font-bold text-center border-2 rounded-lg"
+                    placeholder={getPlaceholder('temp')}
                   />
                 </div>
               </div>
 
-              {/* Remarks - Always visible */}
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Overall Remarks (optional)
-                </label>
-                <textarea
-                  value={currentItem.remarks}
-                  onChange={(e) => setCurrentItem(prev => ({ ...prev, remarks: e.target.value }))}
-                  placeholder="Any additional comments or observations..."
-                  className="w-full p-3 border rounded-lg min-h-[80px] resize-none"
-                />
-              </div>
-
-              {/* Corrective Action - Show if low score */}
+              {/* Corrective Action - Compact */}
               {(currentItem.taste < 4 || currentItem.appearance < 4) && (
-                <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl space-y-3">
+                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
                   <label className="flex items-center gap-2">
                     <input 
                       type="checkbox" 
@@ -580,8 +755,7 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                       onChange={(e) => setCurrentItem(prev => ({ ...prev, correctiveAction: e.target.checked }))}
                       className="w-4 h-4 rounded" 
                     />
-                    <span className="text-sm font-semibold text-amber-900 flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4" />
+                    <span className="text-xs font-semibold text-amber-900">
                       Corrective action taken
                     </span>
                   </label>
@@ -590,8 +764,8 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                       type="text"
                       value={currentItem.correctiveNotes}
                       onChange={(e) => setCurrentItem(prev => ({ ...prev, correctiveNotes: e.target.value }))}
-                      placeholder="Describe the action taken..."
-                      className="w-full p-2 border rounded-lg text-sm"
+                      placeholder="Describe action..."
+                      className="w-full mt-2 p-2 border rounded text-sm"
                     />
                   )}
                 </div>
@@ -599,7 +773,7 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
 
               {/* Photo Upload */}
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className="text-xs font-medium mb-1 block">
                   Photo <span className="text-red-500">*</span>
                 </label>
                 <ImageUpload 
@@ -609,64 +783,44 @@ export function QualityCheckFormQuick({ branchSlug, branchName, onSuccess }: Qua
                 />
               </div>
 
-              {/* Submit Button - Large and Prominent */}
+              {/* Submit Button - Large Touch Target */}
               <Button 
                 onClick={handleSubmit}
                 disabled={isSubmitting || !currentItem.photos.length}
-                className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700"
+                className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-transform"
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Submitting...
-                  </>
+                  <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Submitting...</>
                 ) : (
-                  <>
-                    <CheckCircle2 className="h-5 w-5 mr-2" />
-                    Submit & Next Item
-                  </>
+                  <><CheckCircle2 className="h-5 w-5 mr-2" /> Submit & Next</>
                 )}
               </Button>
+            </CardContent>
+          </Card>
+        )}
 
-              <p className="text-xs text-center text-muted-foreground">
-                Form will reset automatically for next item
-              </p>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Quick Stats */}
-      {submittedToday.length > 0 && (
-        <Card className="border-green-200 bg-green-50/30">
-          <CardContent className="p-4">
+        {/* Today's Progress - Compact */}
+        {submittedToday.length > 0 && !currentItem.product && (
+          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Today&apos;s Progress</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {submittedToday.length} items completed
-                </p>
+                <p className="text-xs text-gray-600">Today</p>
+                <p className="text-lg font-bold text-green-600">{submittedToday.length} checked</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Checked</p>
-                <div className="flex flex-wrap gap-1 justify-end mt-1">
-                  {submittedToday.slice(0, 5).map((product, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs">
-                      {product}
-                    </Badge>
-                  ))}
-                  {submittedToday.length > 5 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{submittedToday.length - 5}
-                    </Badge>
-                  )}
-                </div>
+              <div className="flex flex-wrap gap-1 justify-end max-w-[60%]">
+                {submittedToday.slice(0, 3).map((product, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs truncate max-w-[100px]">
+                    {product}
+                  </Badge>
+                ))}
+                {submittedToday.length > 3 && (
+                  <Badge variant="outline" className="text-xs">+{submittedToday.length - 3}</Badge>
+                )}
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
-
