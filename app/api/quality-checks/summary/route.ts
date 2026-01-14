@@ -43,9 +43,9 @@ export async function GET(request: Request) {
       startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     }
 
-    // Get all branches (for compliance tracking)
+    // Get all branches (for compliance tracking) - now including central-kitchen
     const branchesResult = await sql`
-      SELECT slug, name FROM branches WHERE slug != 'central-kitchen' ORDER BY name
+      SELECT slug, name FROM branches ORDER BY name
     `
     
     let relevantBranches = branchesResult.rows
@@ -73,39 +73,55 @@ export async function GET(request: Request) {
     }
     const totalSubmissions = parseInt(totalResult.rows[0].count)
 
-    // Get today's submissions for compliance check
+    // Get today's submissions for compliance check with counts per branch
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
     let todaySubmissionsResult
     if (isAdmin) {
       todaySubmissionsResult = await sql`
-        SELECT DISTINCT branch_slug, meal_service
+        SELECT branch_slug, meal_service, COUNT(*) as submission_count
         FROM quality_checks
         WHERE submission_date >= ${todayStart}
+        GROUP BY branch_slug, meal_service
       `
     } else {
       todaySubmissionsResult = await sql`
-        SELECT DISTINCT branch_slug, meal_service
+        SELECT branch_slug, meal_service, COUNT(*) as submission_count
         FROM quality_checks
         WHERE submission_date >= ${todayStart}
         AND branch_slug = ANY(${branchesArray}::text[])
+        GROUP BY branch_slug, meal_service
       `
     }
 
-    // Build compliance map
-    const submittedMap = new Map<string, { breakfast: boolean; lunch: boolean }>()
+    // Build compliance map with counts
+    const submittedMap = new Map<string, { breakfast: boolean; lunch: boolean; breakfastCount: number; lunchCount: number; totalCount: number }>()
     todaySubmissionsResult.rows.forEach(row => {
-      const existing = submittedMap.get(row.branch_slug) || { breakfast: false, lunch: false }
-      if (row.meal_service === 'breakfast') existing.breakfast = true
-      if (row.meal_service === 'lunch') existing.lunch = true
+      const existing = submittedMap.get(row.branch_slug) || { breakfast: false, lunch: false, breakfastCount: 0, lunchCount: 0, totalCount: 0 }
+      const count = parseInt(row.submission_count)
+      if (row.meal_service === 'breakfast') {
+        existing.breakfast = true
+        existing.breakfastCount = count
+      }
+      if (row.meal_service === 'lunch') {
+        existing.lunch = true
+        existing.lunchCount = count
+      }
+      existing.totalCount = existing.breakfastCount + existing.lunchCount
       submittedMap.set(row.branch_slug, existing)
     })
 
-    const todayCompliance = relevantBranches.map(b => ({
-      branchSlug: b.slug,
-      branchName: b.name,
-      breakfastSubmitted: submittedMap.get(b.slug)?.breakfast || false,
-      lunchSubmitted: submittedMap.get(b.slug)?.lunch || false
-    }))
+    const todayCompliance = relevantBranches.map(b => {
+      const submissionData = submittedMap.get(b.slug) || { breakfast: false, lunch: false, breakfastCount: 0, lunchCount: 0, totalCount: 0 }
+      return {
+        branchSlug: b.slug,
+        branchName: b.name,
+        breakfastSubmitted: submissionData.breakfast,
+        lunchSubmitted: submissionData.lunch,
+        breakfastCount: submissionData.breakfastCount,
+        lunchCount: submissionData.lunchCount,
+        totalSubmissions: submissionData.totalCount
+      }
+    })
 
     const completedBranches = todayCompliance.filter(b => b.breakfastSubmitted || b.lunchSubmitted)
     const pendingBranches = todayCompliance.filter(b => !b.breakfastSubmitted && !b.lunchSubmitted)

@@ -51,6 +51,9 @@ interface QualitySummary {
     branchName: string
     breakfastSubmitted: boolean
     lunchSubmitted: boolean
+    breakfastCount: number
+    lunchCount: number
+    totalSubmissions: number
   }[]
   lowScores: {
     id: number
@@ -263,11 +266,11 @@ export default function OperationsDashboardPage() {
 
                 {/* Branch compliance grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {qualitySummary.todayCompliance.slice(0, 8).map((branch) => (
+                  {qualitySummary.todayCompliance.slice(0, 12).map((branch) => (
                     <div 
                       key={branch.branchSlug}
                       className={`
-                        flex items-center justify-between p-2 rounded-lg text-xs
+                        flex flex-col p-2 rounded-lg text-xs
                         ${branch.breakfastSubmitted && branch.lunchSubmitted
                           ? 'bg-green-50 border border-green-200'
                           : branch.breakfastSubmitted || branch.lunchSubmitted
@@ -276,13 +279,22 @@ export default function OperationsDashboardPage() {
                         }
                       `}
                     >
-                      <span className="font-medium truncate flex-1">{branch.branchName}</span>
-                      <div className="flex gap-1 shrink-0">
-                        <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium truncate flex-1">{branch.branchName}</span>
+                        {branch.totalSubmissions > 0 && (
+                          <span className="text-xs font-bold text-primary ml-1">
+                            {branch.totalSubmissions}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-1">
+                        <div className={`flex items-center gap-0.5 px-1 py-0.5 rounded ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
                           <Coffee className="h-3 w-3" />
+                          {branch.breakfastSubmitted && <span className="text-[10px]">{branch.breakfastCount}</span>}
                         </div>
-                        <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                        <div className={`flex items-center gap-0.5 px-1 py-0.5 rounded ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
                           <Sun className="h-3 w-3" />
+                          {branch.lunchSubmitted && <span className="text-[10px]">{branch.lunchCount}</span>}
                         </div>
                       </div>
                     </div>

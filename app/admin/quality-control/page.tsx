@@ -76,7 +76,15 @@ interface QualitySummary {
   complianceRate: number
   completedBranches: any[]
   pendingBranches: any[]
-  todayCompliance: any[]
+  todayCompliance: {
+    branchSlug: string
+    branchName: string
+    breakfastSubmitted: boolean
+    lunchSubmitted: boolean
+    breakfastCount: number
+    lunchCount: number
+    totalSubmissions: number
+  }[]
   averageScores: {
     taste: number
     appearance: number
@@ -491,7 +499,7 @@ export default function QualityControlPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {summary.todayCompliance.map((branch: any) => (
+                  {summary.todayCompliance.map((branch) => (
                     <div 
                       key={branch.branchSlug}
                       className={cn(
@@ -503,7 +511,7 @@ export default function QualityControlPage() {
                           : "bg-amber-50 border-amber-200"
                       )}
                     >
-                      <div>
+                      <div className="flex-1">
                         <p className="font-medium text-sm">{branch.branchName}</p>
                         <div className="flex gap-2 mt-1">
                           <span className={cn(
@@ -511,22 +519,29 @@ export default function QualityControlPage() {
                             branch.breakfastSubmitted ? "text-green-600" : "text-gray-400"
                           )}>
                             <Coffee className="h-3 w-3" />
-                            {branch.breakfastSubmitted ? '✓' : '-'}
+                            {branch.breakfastSubmitted ? `✓ (${branch.breakfastCount})` : '-'}
                           </span>
                           <span className={cn(
                             "text-xs flex items-center gap-1",
                             branch.lunchSubmitted ? "text-green-600" : "text-gray-400"
                           )}>
                             <Sun className="h-3 w-3" />
-                            {branch.lunchSubmitted ? '✓' : '-'}
+                            {branch.lunchSubmitted ? `✓ (${branch.lunchCount})` : '-'}
                           </span>
                         </div>
                       </div>
-                      {branch.breakfastSubmitted && branch.lunchSubmitted ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-amber-500" />
-                      )}
+                      <div className="flex flex-col items-end gap-1">
+                        {branch.breakfastSubmitted && branch.lunchSubmitted ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-amber-500" />
+                        )}
+                        {branch.totalSubmissions > 0 && (
+                          <span className="text-xs font-semibold text-muted-foreground">
+                            {branch.totalSubmissions} total
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -603,7 +618,10 @@ export default function QualityControlPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-blue-50 rounded-lg">
               <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
                 <span className="font-medium text-blue-900">
-                  Showing {startIndex + 1}-{Math.min(endIndex, sortedSubmissions.length)} of {sortedSubmissions.length} submissions
+                  {sortedSubmissions.length === 0 
+                    ? 'Showing 0 of 0 submissions'
+                    : `Showing ${startIndex + 1}-${Math.min(endIndex, sortedSubmissions.length)} of ${sortedSubmissions.length} submissions`
+                  }
                 </span>
                 {sortedSubmissions.length !== submissions.length && (
                   <span className="text-blue-600">
