@@ -460,20 +460,20 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Stats Overview - Bento Grid */}
-      <div className="grid grid-cols-2 fold:grid-cols-4 md:grid-cols-4 gap-2 xs:gap-3 md:gap-4" data-tour-id="admin-stats">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3" data-tour-id="admin-stats">
         {/* Branches Stat */}
         <Card className="relative overflow-hidden group hover:shadow-md transition-all duration-300 animate-slide-up opacity-0 stagger-1" style={{ animationFillMode: 'forwards' }}>
-          <CardContent className="pt-3 xs:pt-4 md:pt-6 px-3 xs:px-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">Total Branches</p>
-                <p className="text-xl xs:text-2xl md:text-3xl font-bold text-foreground mt-0.5 xs:mt-1">{stats?.branches.total || 0}</p>
-                <p className="text-[10px] xs:text-xs text-muted-foreground mt-0.5 xs:mt-1">
+          <CardContent className="pt-3 xs:pt-4 px-3 xs:px-4">
+            <div className="flex items-start justify-between gap-1.5 xs:gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-muted-foreground leading-tight">Total Branches</p>
+                <p className="text-lg xs:text-xl md:text-2xl font-bold text-foreground mt-0.5">{stats?.branches.total || 0}</p>
+                <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 truncate">
                   {Object.keys(stats?.branches.byLocation || {}).length} locations
                 </p>
               </div>
-              <div className="p-1.5 xs:p-2 md:p-2.5 rounded-lg xs:rounded-xl bg-cyan-500/10 text-cyan-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <Building2 className="h-4 w-4 xs:h-5 xs:w-5" />
+              <div className="p-1.5 xs:p-2 rounded-lg bg-cyan-500/10 text-cyan-600 shrink-0">
+                <Building2 className="h-3.5 w-3.5 xs:h-4 xs:w-4 md:h-5 md:w-5" />
               </div>
             </div>
           </CardContent>
@@ -481,17 +481,17 @@ export default function AdminDashboardPage() {
 
         {/* Recipes Stat */}
         <Card className="relative overflow-hidden group hover:shadow-md transition-all duration-300 animate-slide-up opacity-0 stagger-2" style={{ animationFillMode: 'forwards' }}>
-          <CardContent className="pt-3 xs:pt-4 md:pt-6 px-3 xs:px-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">CK Recipes</p>
-                <p className="text-xl xs:text-2xl md:text-3xl font-bold text-foreground mt-0.5 xs:mt-1">{stats?.recipes.total || 0}</p>
-                <p className="text-[10px] xs:text-xs text-muted-foreground mt-0.5 xs:mt-1">
+          <CardContent className="pt-3 xs:pt-4 px-3 xs:px-4">
+            <div className="flex items-start justify-between gap-1.5 xs:gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-muted-foreground leading-tight">CK Recipes</p>
+                <p className="text-lg xs:text-xl md:text-2xl font-bold text-foreground mt-0.5">{stats?.recipes.total || 0}</p>
+                <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 truncate">
                   {Object.keys(stats?.recipes.byCategory || {}).length} categories
                 </p>
               </div>
-              <div className="p-1.5 xs:p-2 md:p-2.5 rounded-lg xs:rounded-xl bg-teal-500/10 text-teal-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <ChefHat className="h-4 w-4 xs:h-5 xs:w-5" />
+              <div className="p-1.5 xs:p-2 rounded-lg bg-teal-500/10 text-teal-600 shrink-0">
+                <ChefHat className="h-3.5 w-3.5 xs:h-4 xs:w-4 md:h-5 md:w-5" />
               </div>
             </div>
           </CardContent>
@@ -499,26 +499,26 @@ export default function AdminDashboardPage() {
 
         {/* Dispatches Stat */}
         <Card className="relative overflow-hidden group hover:shadow-md transition-all duration-300 animate-slide-up opacity-0 stagger-3" style={{ animationFillMode: 'forwards' }}>
-          <CardContent className="pt-3 xs:pt-4 md:pt-6 px-3 xs:px-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">Dispatches</p>
-                <p className="text-xl xs:text-2xl md:text-3xl font-bold text-foreground mt-0.5 xs:mt-1">{stats?.dispatches.total || 0}</p>
-                <div className="flex flex-wrap items-center gap-0.5 xs:gap-1 mt-0.5 xs:mt-1">
+          <CardContent className="pt-3 xs:pt-4 px-3 xs:px-4">
+            <div className="flex items-start justify-between gap-1.5 xs:gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-muted-foreground leading-tight">Dispatches</p>
+                <p className="text-lg xs:text-xl md:text-2xl font-bold text-foreground mt-0.5">{stats?.dispatches.total || 0}</p>
+                <div className="flex flex-wrap items-center gap-0.5 mt-0.5">
                   {(stats?.dispatches.pending || 0) > 0 && (
-                    <Badge variant="secondary" className="text-[8px] xs:text-[10px] px-1 xs:px-1.5 py-0">
+                    <Badge variant="secondary" className="text-[7px] xs:text-[8px] px-0.5 xs:px-1 py-0 leading-tight">
                       {stats?.dispatches.pending} pend
                     </Badge>
                   )}
                   {(stats?.dispatches.inProgress || 0) > 0 && (
-                    <Badge variant="outline" className="text-[8px] xs:text-[10px] px-1 xs:px-1.5 py-0">
+                    <Badge variant="outline" className="text-[7px] xs:text-[8px] px-0.5 xs:px-1 py-0 leading-tight">
                       {stats?.dispatches.inProgress} active
                     </Badge>
                   )}
                 </div>
               </div>
-              <div className="p-1.5 xs:p-2 md:p-2.5 rounded-lg xs:rounded-xl bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <Truck className="h-4 w-4 xs:h-5 xs:w-5" />
+              <div className="p-1.5 xs:p-2 rounded-lg bg-amber-500/10 text-amber-600 shrink-0">
+                <Truck className="h-3.5 w-3.5 xs:h-4 xs:w-4 md:h-5 md:w-5" />
               </div>
             </div>
           </CardContent>
@@ -526,17 +526,17 @@ export default function AdminDashboardPage() {
 
         {/* Hygiene Avg Stat */}
         <Card className="relative overflow-hidden group hover:shadow-md transition-all duration-300 animate-slide-up opacity-0 stagger-4" style={{ animationFillMode: 'forwards' }}>
-          <CardContent className="pt-3 xs:pt-4 md:pt-6 px-3 xs:px-4">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-muted-foreground">Avg. Hygiene</p>
-                <p className="text-xl xs:text-2xl md:text-3xl font-bold text-foreground mt-0.5 xs:mt-1">{stats?.branches.avgHygiene || 0}</p>
-                <p className="text-[10px] xs:text-xs text-muted-foreground mt-0.5 xs:mt-1">
+          <CardContent className="pt-3 xs:pt-4 px-3 xs:px-4">
+            <div className="flex items-start justify-between gap-1.5 xs:gap-2">
+              <div className="min-w-0 flex-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs font-medium text-muted-foreground leading-tight">Avg. Hygiene</p>
+                <p className="text-lg xs:text-xl md:text-2xl font-bold text-foreground mt-0.5">{stats?.branches.avgHygiene || 0}</p>
+                <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 truncate">
                   {stats?.branches.lowHygieneCount || 0} below threshold
                 </p>
               </div>
-              <div className="p-1.5 xs:p-2 md:p-2.5 rounded-lg xs:rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                <TrendingUp className="h-4 w-4 xs:h-5 xs:w-5" />
+              <div className="p-1.5 xs:p-2 rounded-lg bg-green-500/10 text-green-600 shrink-0">
+                <TrendingUp className="h-3.5 w-3.5 xs:h-4 xs:w-4 md:h-5 md:w-5" />
               </div>
             </div>
           </CardContent>
@@ -545,78 +545,79 @@ export default function AdminDashboardPage() {
 
       {/* Sales Snapshot */}
       <Card className="border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-5" style={{ animationFillMode: 'forwards' }}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-emerald-600" />
-                Sales Snapshot
+        <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
+          <div className="flex items-center justify-between gap-2">
+            <div className="space-y-0.5 xs:space-y-1 min-w-0 flex-1">
+              <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2">
+                <BarChart3 className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-emerald-600 shrink-0" />
+                <span className="truncate">Sales Snapshot</span>
               </CardTitle>
-              <p className="text-[10px] text-muted-foreground">
-                Showing yesterday&apos;s data • Synced daily at 12:00 AM
+              <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-muted-foreground leading-tight">
+                Yesterday&apos;s data • Synced daily 12:00 AM
               </p>
             </div>
-            <Link href="/admin/analytics">
-              <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
-                View Analytics
-                <ArrowRight className="h-3 w-3" />
+            <Link href="/admin/analytics" className="shrink-0">
+              <Button variant="ghost" size="sm" className="text-[10px] xs:text-xs gap-1 h-6 xs:h-7 px-2 xs:px-3">
+                <span className="hidden xs:inline">View Analytics</span>
+                <span className="xs:hidden">View</span>
+                <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
               </Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
           {salesData && !salesData.error ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 xs:gap-4">
               {/* Yesterday's Revenue */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Yesterday&apos;s Revenue</p>
-                <p className="text-xl font-bold text-foreground">
+              <div className="space-y-0.5 xs:space-y-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground leading-tight">Yesterday&apos;s Revenue</p>
+                <p className="text-base xs:text-lg sm:text-xl font-bold text-foreground leading-tight">
                   {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(salesData.today.revenue)}
                 </p>
-                <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.revenue >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {salesData.today.changes.revenue >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.revenue >= 0 ? '+' : ''}{salesData.today.changes.revenue}% vs day before
+                <div className={`flex items-center gap-0.5 xs:gap-1 text-[8px] xs:text-[9px] sm:text-xs font-medium ${salesData.today.changes.revenue >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {salesData.today.changes.revenue >= 0 ? <TrendingUp className="h-2.5 w-2.5 xs:h-3 xs:w-3" /> : <TrendingDown className="h-2.5 w-2.5 xs:h-3 xs:w-3" />}
+                  <span className="leading-tight">{salesData.today.changes.revenue >= 0 ? '+' : ''}{salesData.today.changes.revenue}% vs prev</span>
                 </div>
               </div>
 
               {/* This Month Revenue */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">This Month</p>
-                <p className="text-xl font-bold text-foreground">
-                  {salesData.thisMonth.revenue >= 1000000 
+              <div className="space-y-0.5 xs:space-y-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground leading-tight">This Month</p>
+                <p className="text-base xs:text-lg sm:text-xl font-bold text-foreground leading-tight">
+                  {salesData.thisMonth.revenue >= 1000000
                     ? `AED ${(salesData.thisMonth.revenue / 1000000).toFixed(1)}M`
                     : salesData.thisMonth.revenue >= 1000
                     ? `AED ${(salesData.thisMonth.revenue / 1000).toFixed(0)}K`
                     : new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED', maximumFractionDigits: 0 }).format(salesData.thisMonth.revenue)
                   }
                 </p>
-                <div className={`flex items-center gap-1 text-xs font-medium ${salesData.thisMonth.changes.revenue >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {salesData.thisMonth.changes.revenue >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.thisMonth.changes.revenue >= 0 ? '+' : ''}{salesData.thisMonth.changes.revenue}% vs last month
+                <div className={`flex items-center gap-0.5 xs:gap-1 text-[8px] xs:text-[9px] sm:text-xs font-medium ${salesData.thisMonth.changes.revenue >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {salesData.thisMonth.changes.revenue >= 0 ? <TrendingUp className="h-2.5 w-2.5 xs:h-3 xs:w-3" /> : <TrendingDown className="h-2.5 w-2.5 xs:h-3 xs:w-3" />}
+                  <span className="leading-tight">{salesData.thisMonth.changes.revenue >= 0 ? '+' : ''}{salesData.thisMonth.changes.revenue}% vs prev</span>
                 </div>
               </div>
 
               {/* Yesterday's Units */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Units Sold Yesterday</p>
-                <p className="text-xl font-bold text-foreground">
+              <div className="space-y-0.5 xs:space-y-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground leading-tight">Units Yesterday</p>
+                <p className="text-base xs:text-lg sm:text-xl font-bold text-foreground leading-tight">
                   {new Intl.NumberFormat('en-AE').format(salesData.today.units)}
                 </p>
-                <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.units >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {salesData.today.changes.units >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.units >= 0 ? '+' : ''}{salesData.today.changes.units}% vs day before
+                <div className={`flex items-center gap-0.5 xs:gap-1 text-[8px] xs:text-[9px] sm:text-xs font-medium ${salesData.today.changes.units >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {salesData.today.changes.units >= 0 ? <TrendingUp className="h-2.5 w-2.5 xs:h-3 xs:w-3" /> : <TrendingDown className="h-2.5 w-2.5 xs:h-3 xs:w-3" />}
+                  <span className="leading-tight">{salesData.today.changes.units >= 0 ? '+' : ''}{salesData.today.changes.units}% vs prev</span>
                 </div>
               </div>
 
               {/* Yesterday's Orders */}
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Orders Yesterday</p>
-                <p className="text-xl font-bold text-foreground">
+              <div className="space-y-0.5 xs:space-y-1">
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground leading-tight">Orders Yesterday</p>
+                <p className="text-base xs:text-lg sm:text-xl font-bold text-foreground leading-tight">
                   {new Intl.NumberFormat('en-AE').format(salesData.today.orders)}
                 </p>
-                <div className={`flex items-center gap-1 text-xs font-medium ${salesData.today.changes.orders >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {salesData.today.changes.orders >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {salesData.today.changes.orders >= 0 ? '+' : ''}{salesData.today.changes.orders}% vs day before
+                <div className={`flex items-center gap-0.5 xs:gap-1 text-[8px] xs:text-[9px] sm:text-xs font-medium ${salesData.today.changes.orders >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {salesData.today.changes.orders >= 0 ? <TrendingUp className="h-2.5 w-2.5 xs:h-3 xs:w-3" /> : <TrendingDown className="h-2.5 w-2.5 xs:h-3 xs:w-3" />}
+                  <span className="leading-tight">{salesData.today.changes.orders >= 0 ? '+' : ''}{salesData.today.changes.orders}% vs prev</span>
                 </div>
               </div>
             </div>
@@ -669,26 +670,27 @@ export default function AdminDashboardPage() {
       </Card>
 
       {/* Yesterday's Branch Performance & Dispatch Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xs:gap-4">
         {/* Yesterday's Branch Performance Widget - Takes 2 columns */}
         {branchHistory.length > 0 && (
           <Card className="lg:col-span-2 border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-emerald-600" />
-                  Yesterday&apos;s Branch Performance
+            <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2 min-w-0 flex-1">
+                  <BarChart3 className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-emerald-600 shrink-0" />
+                  <span className="truncate">Yesterday&apos;s Branch Performance</span>
                 </CardTitle>
-                <Link href="/admin/analytics">
-                  <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
-                    View Full Analytics
-                    <ArrowRight className="h-3 w-3" />
+                <Link href="/admin/analytics" className="shrink-0">
+                  <Button variant="ghost" size="sm" className="text-[10px] xs:text-xs gap-1 h-6 xs:h-7 px-2 xs:px-3">
+                    <span className="hidden sm:inline">View Full Analytics</span>
+                    <span className="sm:hidden">View</span>
+                    <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
                   </Button>
                 </Link>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
+              <div className="space-y-2 xs:space-y-3">
                 {branchHistory.slice(0, 6).map((branch, idx) => {
                 // Get yesterday's data (last item in history)
                 const yesterdayData = branch.history[branch.history.length - 1]
@@ -771,10 +773,10 @@ export default function AdminDashboardPage() {
                 }
                 
                 return (
-                  <div key={branch.branch} className="flex items-center gap-3 py-1">
-                    {/* Rank - hidden on mobile */}
+                  <div key={branch.branch} className="flex items-center gap-2 xs:gap-3 py-1">
+                    {/* Rank */}
                     <span className={cn(
-                      "w-6 h-6 rounded-full items-center justify-center text-xs font-bold shrink-0 hidden xs:flex",
+                      "w-5 h-5 xs:w-6 xs:h-6 rounded-full flex items-center justify-center text-[10px] xs:text-xs font-bold shrink-0",
                       idx === 0 ? "bg-yellow-100 text-yellow-700" :
                       idx === 1 ? "bg-gray-100 text-gray-600" :
                       idx === 2 ? "bg-amber-100 text-amber-700" :
@@ -786,15 +788,15 @@ export default function AdminDashboardPage() {
                     {/* Branch name and status */}
                     <div className="flex-1 min-w-0">
                       {/* Mobile: show only last part of branch name */}
-                      <span className="text-sm font-medium block truncate xs:hidden">
+                      <span className="text-xs xs:text-sm font-medium block truncate sm:hidden">
                         {branch.branch.replace(/_/g, ' ').split(' ').pop()}
                       </span>
                       {/* Desktop: show full branch name */}
-                      <span className="text-sm font-medium hidden xs:block truncate">
+                      <span className="text-xs xs:text-sm font-medium hidden sm:block truncate">
                         {branch.branch.replace(/_/g, ' ')}
                       </span>
                       <span className={cn(
-                        "text-[10px] px-1.5 py-0.5 rounded-full inline-flex items-center gap-1",
+                        "text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0.5 rounded-full inline-flex items-center gap-0.5 xs:gap-1 mt-0.5",
                         statusColor
                       )}>
                         {status === 'top' && '⭐'}
@@ -802,7 +804,7 @@ export default function AdminDashboardPage() {
                         {status === 'declining' && '▼'}
                         {status === 'attention' && '⚠'}
                         {status === 'steady' && '━'}
-                        {statusLabel}
+                        <span className="leading-tight">{statusLabel}</span>
                       </span>
                     </div>
 
@@ -856,9 +858,9 @@ export default function AdminDashboardPage() {
                     </div>
 
                     {/* Revenue and AOV */}
-                    <div className="text-right shrink-0 min-w-[80px] xs:min-w-[90px]">
-                      <p className="text-sm font-bold">{formatCurrency(yesterdayRevenue)}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                    <div className="text-right shrink-0 min-w-[70px] xs:min-w-[85px]">
+                      <p className="text-xs xs:text-sm font-bold leading-tight">{formatCurrency(yesterdayRevenue)}</p>
+                      <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-muted-foreground leading-tight mt-0.5">
                         AOV {formatCurrency(aov)}
                       </p>
                     </div>
@@ -897,55 +899,55 @@ export default function AdminDashboardPage() {
 
         {/* Dispatch Widget - Takes 1 column */}
         <Card className="border-l-4 border-l-amber-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Truck className="h-4 w-4 text-amber-600" />
-                Dispatch Overview
+          <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2">
+                <Truck className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-amber-600" />
+                <span>Dispatch Overview</span>
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
+            <div className="space-y-3 xs:space-y-4">
               {/* Total Dispatches */}
-              <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
-                <p className="text-3xl font-bold text-amber-900">{stats?.dispatches.total || 0}</p>
-                <p className="text-xs text-amber-700 mt-1">Total Dispatches</p>
+              <div className="text-center p-3 xs:p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
+                <p className="text-2xl xs:text-3xl font-bold text-amber-900">{stats?.dispatches.total || 0}</p>
+                <p className="text-[10px] xs:text-xs text-amber-700 mt-0.5 xs:mt-1">Total Dispatches</p>
               </div>
 
               {/* Status Breakdown */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                    <span className="text-sm font-medium text-yellow-900">Pending</span>
+              <div className="space-y-1.5 xs:space-y-2">
+                <div className="flex items-center justify-between p-2 xs:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-1.5 xs:gap-2">
+                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-yellow-500"></div>
+                    <span className="text-xs xs:text-sm font-medium text-yellow-900">Pending</span>
                   </div>
-                  <span className="text-lg font-bold text-yellow-900">{stats?.dispatches.pending || 0}</span>
+                  <span className="text-base xs:text-lg font-bold text-yellow-900">{stats?.dispatches.pending || 0}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-sm font-medium text-blue-900">In Progress</span>
+                <div className="flex items-center justify-between p-2 xs:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-1.5 xs:gap-2">
+                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-xs xs:text-sm font-medium text-blue-900">In Progress</span>
                   </div>
-                  <span className="text-lg font-bold text-blue-900">{stats?.dispatches.inProgress || 0}</span>
+                  <span className="text-base xs:text-lg font-bold text-blue-900">{stats?.dispatches.inProgress || 0}</span>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    <span className="text-sm font-medium text-green-900">Completed</span>
+                <div className="flex items-center justify-between p-2 xs:p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center gap-1.5 xs:gap-2">
+                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-green-500"></div>
+                    <span className="text-xs xs:text-sm font-medium text-green-900">Completed</span>
                   </div>
-                  <span className="text-lg font-bold text-green-900">{stats?.dispatches.completed || 0}</span>
+                  <span className="text-base xs:text-lg font-bold text-green-900">{stats?.dispatches.completed || 0}</span>
                 </div>
               </div>
 
               {/* Quick Action */}
               <Link href="/dispatch" className="block">
-                <Button variant="outline" size="sm" className="w-full text-xs gap-2">
-                  <Package className="h-3 w-3" />
+                <Button variant="outline" size="sm" className="w-full text-[10px] xs:text-xs gap-1.5 xs:gap-2 h-8 xs:h-9">
+                  <Package className="h-3 w-3 xs:h-3.5 xs:w-3.5" />
                   Manage Dispatches
-                  <ArrowRight className="h-3 w-3 ml-auto" />
+                  <ArrowRight className="h-3 w-3 xs:h-3.5 xs:w-3.5 ml-auto" />
                 </Button>
               </Link>
             </div>
@@ -956,51 +958,51 @@ export default function AdminDashboardPage() {
       {/* Quality Control Widget */}
       {qualitySummary && (
         <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-green-600" />
-                Quality Control Today
+          <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2 min-w-0 flex-1">
+                <ClipboardCheck className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-green-600 shrink-0" />
+                <span className="truncate">Quality Control Today</span>
               </CardTitle>
-              <Link href="/admin/quality-control">
-                <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+              <Link href="/admin/quality-control" className="shrink-0">
+                <Button variant="ghost" size="sm" className="text-[10px] xs:text-xs gap-1 h-6 xs:h-7 px-2 xs:px-3">
                   View All
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
                 </Button>
               </Link>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 fold:grid-cols-4 md:grid-cols-4 gap-2 xs:gap-3 md:gap-4 mb-3 xs:mb-4">
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <p className="text-2xl font-bold text-green-700">{qualitySummary.totalSubmissions}</p>
-                <p className="text-xs text-green-600">Submissions</p>
+          <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3 mb-3 xs:mb-4">
+              <div className="text-center p-2 xs:p-3 bg-green-50 rounded-lg">
+                <p className="text-xl xs:text-2xl font-bold text-green-700">{qualitySummary.totalSubmissions}</p>
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-green-600 mt-0.5">Submissions</p>
               </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <p className="text-2xl font-bold text-blue-700">{qualitySummary.complianceRate}%</p>
-                <p className="text-xs text-blue-600">Compliance</p>
+              <div className="text-center p-2 xs:p-3 bg-blue-50 rounded-lg">
+                <p className="text-xl xs:text-2xl font-bold text-blue-700">{qualitySummary.complianceRate}%</p>
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-blue-600 mt-0.5">Compliance</p>
               </div>
-              <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                <p className="text-2xl font-bold text-emerald-700">
+              <div className="text-center p-2 xs:p-3 bg-emerald-50 rounded-lg">
+                <p className="text-xl xs:text-2xl font-bold text-emerald-700">
                   {qualitySummary.todayCompliance.filter(b => b.breakfastSubmitted || b.lunchSubmitted).length}
                 </p>
-                <p className="text-xs text-emerald-600">Branches Done</p>
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-emerald-600 mt-0.5">Done</p>
               </div>
-              <div className="text-center p-3 bg-amber-50 rounded-lg">
-                <p className="text-2xl font-bold text-amber-700">
+              <div className="text-center p-2 xs:p-3 bg-amber-50 rounded-lg">
+                <p className="text-xl xs:text-2xl font-bold text-amber-700">
                   {qualitySummary.todayCompliance.filter(b => !b.breakfastSubmitted && !b.lunchSubmitted).length}
                 </p>
-                <p className="text-xs text-amber-600">Pending</p>
+                <p className="text-[9px] xs:text-[10px] sm:text-xs text-amber-600 mt-0.5">Pending</p>
               </div>
             </div>
 
             {/* Branch compliance grid */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 fold:grid-cols-3 lg:grid-cols-4 gap-1.5 xs:gap-2">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 xs:gap-2">
               {qualitySummary.todayCompliance.slice(0, 8).map((branch) => (
-                <div 
+                <div
                   key={branch.branchSlug}
                   className={`
-                    flex items-center justify-between p-2 rounded-lg text-xs
+                    flex items-center justify-between p-1.5 xs:p-2 rounded-lg text-[10px] xs:text-xs
                     ${branch.breakfastSubmitted && branch.lunchSubmitted
                       ? 'bg-green-50 border border-green-200'
                       : branch.breakfastSubmitted || branch.lunchSubmitted
@@ -1009,13 +1011,13 @@ export default function AdminDashboardPage() {
                     }
                   `}
                 >
-                  <span className="font-medium truncate flex-1">{branch.branchName}</span>
-                  <div className="flex gap-1 shrink-0">
-                    <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                      <Coffee className="h-3 w-3" />
+                  <span className="font-medium truncate flex-1 leading-tight">{branch.branchName}</span>
+                  <div className="flex gap-0.5 xs:gap-1 shrink-0">
+                    <div className={`w-4 h-4 xs:w-5 xs:h-5 rounded flex items-center justify-center ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                      <Coffee className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
                     </div>
-                    <div className={`w-5 h-5 rounded flex items-center justify-center ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                      <Sun className="h-3 w-3" />
+                    <div className={`w-4 h-4 xs:w-5 xs:h-5 rounded flex items-center justify-center ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
+                      <Sun className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
                     </div>
                   </div>
                 </div>
@@ -1024,17 +1026,17 @@ export default function AdminDashboardPage() {
 
             {/* Low scores alert */}
             {qualitySummary.lowScores.length > 0 && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm font-medium text-red-700 flex items-center gap-2 mb-2">
-                  <AlertTriangle className="h-4 w-4" />
+              <div className="mt-3 xs:mt-4 p-2 xs:p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-xs xs:text-sm font-medium text-red-700 flex items-center gap-1.5 xs:gap-2 mb-1.5 xs:mb-2">
+                  <AlertTriangle className="h-3 w-3 xs:h-4 xs:w-4" />
                   Low Score Alerts ({qualitySummary.lowScores.length})
                 </p>
-                <div className="space-y-1">
+                <div className="space-y-0.5 xs:space-y-1">
                   {qualitySummary.lowScores.slice(0, 3).map((item) => (
                     <button
                       key={item.id}
                       onClick={() => setSelectedSubmissionId(item.id)}
-                      className="w-full text-left text-xs text-red-600 hover:text-red-800 hover:bg-red-100 p-1 rounded transition-colors"
+                      className="w-full text-left text-[9px] xs:text-[10px] sm:text-xs text-red-600 hover:text-red-800 hover:bg-red-100 p-1 xs:p-1.5 rounded transition-colors leading-tight"
                     >
                       {item.productName} at {item.branchName} - Taste: {item.tasteScore}/5, Look: {item.appearanceScore}/5
                     </button>
@@ -1048,34 +1050,34 @@ export default function AdminDashboardPage() {
 
       {/* Management Cards */}
       <div className="space-y-2 xs:space-y-3" data-tour-id="admin-quick-actions">
-        <h2 className="text-base xs:text-lg font-semibold flex items-center gap-2">
+        <h2 className="text-sm xs:text-base font-semibold flex items-center gap-1.5 xs:gap-2 px-1">
           <Sparkles className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-primary" />
           Quick Management
         </h2>
-        <div className="grid grid-cols-1 xs:grid-cols-2 fold:grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-3">
           {/* Recipes Management */}
           <Link href="/admin/recipes">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-teal-500/10 text-teal-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <ChefHat className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-teal-500/10 text-teal-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <ChefHat className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Recipe Manager (CK)</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Recipe Manager (CK)</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Full recipes for Central Kitchen with cooking instructions
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0">
                         {stats?.recipes.total || 0} recipes
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 hidden xs:inline-flex">
+                      <Badge variant="outline" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 hidden lg:inline-flex">
                         {Object.keys(stats?.recipes.byCategory || {}).length} categories
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
+                  <ArrowRight className="h-3 w-3 xs:h-4 xs:w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0 hidden xs:block" />
                 </div>
               </CardContent>
             </Card>
@@ -1084,23 +1086,22 @@ export default function AdminDashboardPage() {
           {/* Recipe Instructions */}
           <Link href="/admin/recipe-instructions">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <Flame className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-blue-500/10 text-blue-600 shrink-0">
+                    <Flame className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Recipe Instructions</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Recipe Instructions</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Reheating & assembly instructions for branches
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0">
                         {stats?.instructions.total || 0} instructions
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1109,24 +1110,23 @@ export default function AdminDashboardPage() {
           {/* Production Schedules */}
           <Link href="/admin/production-schedules">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <Factory className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-blue-500/10 text-blue-600 shrink-0">
+                    <Factory className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Production Schedules</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Production Schedules</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Weekly production plans for Central Kitchen
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
-                        <Clock className="h-2.5 w-2.5 xs:h-3 xs:w-3 mr-1" />
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 flex items-center">
+                        <Clock className="h-2 w-2 xs:h-2.5 xs:w-2.5 mr-0.5" />
                         Weekly plans
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1135,26 +1135,25 @@ export default function AdminDashboardPage() {
           {/* Branch Management */}
           <Link href="/admin/branches">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-cyan-500/10 text-cyan-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <Building2 className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-cyan-500/10 text-cyan-600 shrink-0">
+                    <Building2 className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Branch Management</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Branch Management</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Edit branch information, contacts, and operating hours
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0">
                         {stats?.branches.total || 0} branches
                       </Badge>
-                      <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 hidden xs:inline-flex">
+                      <Badge variant="outline" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 hidden lg:inline-flex">
                         {Object.keys(stats?.branches.byLocation || {}).length} locations
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1163,28 +1162,27 @@ export default function AdminDashboardPage() {
           {/* Notifications */}
           <Link href="/admin/notifications">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <Bell className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-amber-500/10 text-amber-600 shrink-0">
+                    <Bell className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Notifications</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Notifications</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Create announcements, patch notes, and alerts for employees
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0">
                         {stats?.notifications.active || 0} active
                       </Badge>
                       {(stats?.notifications.expiringSoon || 0) > 0 && (
-                        <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 text-amber-600 border-amber-300 hidden xs:inline-flex">
+                        <Badge variant="outline" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 text-amber-600 border-amber-300 hidden lg:inline-flex">
                           {stats?.notifications.expiringSoon} expiring
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1193,24 +1191,23 @@ export default function AdminDashboardPage() {
           {/* Sales Analytics */}
           <Link href="/admin/analytics">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <BarChart3 className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-green-500/10 text-green-600 shrink-0">
+                    <BarChart3 className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Sales Analytics</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Sales Analytics</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Revenue trends, branch performance, and product insights
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-emerald-100 text-emerald-700 border-0">
-                        <DollarSign className="h-2.5 w-2.5 xs:h-3 xs:w-3 mr-1" />
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 bg-emerald-100 text-emerald-700 border-0 flex items-center">
+                        <DollarSign className="h-2 w-2 xs:h-2.5 xs:w-2.5 mr-0.5" />
                         Live Data
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1219,23 +1216,22 @@ export default function AdminDashboardPage() {
           {/* User Management */}
           <Link href="/admin/users">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-gray-500/10 text-gray-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <Users className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-gray-500/10 text-gray-600 shrink-0">
+                    <Users className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">User Management</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">User Management</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Manage user accounts, roles, and permissions
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-indigo-100 text-indigo-700 border-0">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 bg-indigo-100 text-indigo-700 border-0">
                         Role-Based
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1244,28 +1240,27 @@ export default function AdminDashboardPage() {
           {/* Quality Control */}
           <Link href="/admin/quality-control">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-4 xs:pt-6">
-                <div className="flex items-start gap-2.5 xs:gap-4">
-                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
-                    <ClipboardCheck className="h-5 w-5 xs:h-6 xs:w-6" />
+              <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
+                <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-green-500/10 text-green-600 shrink-0">
+                    <ClipboardCheck className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Quality Control</h3>
-                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
+                  <div className="flex-1 min-w-0 w-full">
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Quality Control</h3>
+                    <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Monitor food quality checks from all branches
                     </p>
-                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
-                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-green-100 text-green-700 border-0">
+                    <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
+                      <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 bg-green-100 text-green-700 border-0">
                         {qualitySummary?.totalSubmissions || 0} today
                       </Badge>
                       {(qualitySummary?.lowScores.length || 0) > 0 && (
-                        <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 text-red-600 border-red-300">
+                        <Badge variant="outline" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0 text-red-600 border-red-300 hidden lg:inline-flex">
                           {qualitySummary?.lowScores.length} alerts
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
