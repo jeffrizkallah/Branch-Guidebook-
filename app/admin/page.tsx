@@ -742,9 +742,9 @@ export default function AdminDashboardPage() {
                 
                 return (
                   <div key={branch.branch} className="flex items-center gap-3 py-1">
-                    {/* Rank */}
+                    {/* Rank - hidden on mobile */}
                     <span className={cn(
-                      "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                      "w-6 h-6 rounded-full items-center justify-center text-xs font-bold shrink-0 hidden xs:flex",
                       idx === 0 ? "bg-yellow-100 text-yellow-700" :
                       idx === 1 ? "bg-gray-100 text-gray-600" :
                       idx === 2 ? "bg-amber-100 text-amber-700" :
@@ -755,7 +755,12 @@ export default function AdminDashboardPage() {
                     
                     {/* Branch name and status */}
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium block truncate">
+                      {/* Mobile: show only last part of branch name */}
+                      <span className="text-sm font-medium block truncate xs:hidden">
+                        {branch.branch.replace(/_/g, ' ').split(' ').pop()}
+                      </span>
+                      {/* Desktop: show full branch name */}
+                      <span className="text-sm font-medium hidden xs:block truncate">
                         {branch.branch.replace(/_/g, ' ')}
                       </span>
                       <span className={cn(
@@ -931,26 +936,26 @@ export default function AdminDashboardPage() {
           {/* Recipes Management */}
           <Link href="/admin/recipes">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-teal-500/10 text-teal-600 group-hover:scale-110 transition-transform duration-300">
-                    <ChefHat className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-teal-500/10 text-teal-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <ChefHat className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Recipe Manager (CK)</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Recipe Manager (CK)</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Full recipes for Central Kitchen with cooking instructions
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
                         {stats?.recipes.total || 0} recipes
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 hidden xs:inline-flex">
                         {Object.keys(stats?.recipes.byCategory || {}).length} categories
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -959,23 +964,23 @@ export default function AdminDashboardPage() {
           {/* Recipe Instructions */}
           <Link href="/admin/recipe-instructions">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300">
-                    <Flame className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <Flame className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Recipe Instructions</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Recipe Instructions</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Reheating & assembly instructions for branches
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
                         {stats?.instructions.total || 0} instructions
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -984,24 +989,24 @@ export default function AdminDashboardPage() {
           {/* Production Schedules */}
           <Link href="/admin/production-schedules">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300">
-                    <Factory className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-blue-500/10 text-blue-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <Factory className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Production Schedules</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Production Schedules</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Weekly production plans for Central Kitchen
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs">
-                        <Clock className="h-3 w-3 mr-1" />
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
+                        <Clock className="h-2.5 w-2.5 xs:h-3 xs:w-3 mr-1" />
                         Weekly plans
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1010,26 +1015,26 @@ export default function AdminDashboardPage() {
           {/* Branch Management */}
           <Link href="/admin/branches">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-600 group-hover:scale-110 transition-transform duration-300">
-                    <Building2 className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-cyan-500/10 text-cyan-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <Building2 className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Branch Management</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Branch Management</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Edit branch information, contacts, and operating hours
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
                         {stats?.branches.total || 0} branches
                       </Badge>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 hidden xs:inline-flex">
                         {Object.keys(stats?.branches.byLocation || {}).length} locations
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1038,28 +1043,28 @@ export default function AdminDashboardPage() {
           {/* Notifications */}
           <Link href="/admin/notifications">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform duration-300">
-                    <Bell className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-amber-500/10 text-amber-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <Bell className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Notifications</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Notifications</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Create announcements, patch notes, and alerts for employees
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2">
                         {stats?.notifications.active || 0} active
                       </Badge>
                       {(stats?.notifications.expiringSoon || 0) > 0 && (
-                        <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
-                          {stats?.notifications.expiringSoon} expiring soon
+                        <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 text-amber-600 border-amber-300 hidden xs:inline-flex">
+                          {stats?.notifications.expiringSoon} expiring
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1068,24 +1073,24 @@ export default function AdminDashboardPage() {
           {/* Sales Analytics */}
           <Link href="/admin/analytics">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300">
-                    <BarChart3 className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <BarChart3 className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Sales Analytics</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Sales Analytics</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Revenue trends, branch performance, and product insights
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs bg-emerald-100 text-emerald-700 border-0">
-                        <DollarSign className="h-3 w-3 mr-1" />
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-emerald-100 text-emerald-700 border-0">
+                        <DollarSign className="h-2.5 w-2.5 xs:h-3 xs:w-3 mr-1" />
                         Live Data
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1094,23 +1099,23 @@ export default function AdminDashboardPage() {
           {/* User Management */}
           <Link href="/admin/users">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-gray-500/10 text-gray-600 group-hover:scale-110 transition-transform duration-300">
-                    <Users className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-gray-500/10 text-gray-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <Users className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">User Management</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">User Management</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Manage user accounts, roles, and permissions
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs bg-indigo-100 text-indigo-700 border-0">
-                        Role-Based Access
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-indigo-100 text-indigo-700 border-0">
+                        Role-Based
                       </Badge>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -1119,28 +1124,28 @@ export default function AdminDashboardPage() {
           {/* Quality Control */}
           <Link href="/admin/quality-control">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300">
-                    <ClipboardCheck className="h-6 w-6" />
+              <CardContent className="pt-4 xs:pt-6">
+                <div className="flex items-start gap-2.5 xs:gap-4">
+                  <div className="p-2 xs:p-3 rounded-lg xs:rounded-xl bg-green-500/10 text-green-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <ClipboardCheck className="h-5 w-5 xs:h-6 xs:w-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground">Quality Control</h3>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                    <h3 className="font-semibold text-sm xs:text-base text-foreground">Quality Control</h3>
+                    <p className="text-xs xs:text-sm text-muted-foreground mt-1 line-clamp-2 hidden xs:block">
                       Monitor food quality checks from all branches
                     </p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-0">
+                    <div className="flex items-center gap-1.5 xs:gap-2 mt-2 xs:mt-3">
+                      <Badge variant="secondary" className="text-[10px] xs:text-xs px-1.5 xs:px-2 bg-green-100 text-green-700 border-0">
                         {qualitySummary?.totalSubmissions || 0} today
                       </Badge>
                       {(qualitySummary?.lowScores.length || 0) > 0 && (
-                        <Badge variant="outline" className="text-xs text-red-600 border-red-300">
+                        <Badge variant="outline" className="text-[10px] xs:text-xs px-1.5 xs:px-2 text-red-600 border-red-300">
                           {qualitySummary?.lowScores.length} alerts
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 xs:h-5 xs:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0" />
                 </div>
               </CardContent>
             </Card>

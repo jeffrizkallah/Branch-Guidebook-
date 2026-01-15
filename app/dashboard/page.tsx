@@ -529,9 +529,9 @@ export default function BranchManagerDashboard() {
                     
                     return (
                       <div key={branch.branch} className="flex items-center gap-3 py-1">
-                        {/* Rank */}
+                        {/* Rank - hidden on mobile */}
                         <span className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0",
+                          "w-6 h-6 rounded-full items-center justify-center text-xs font-bold shrink-0 hidden xs:flex",
                           idx === 0 ? "bg-yellow-100 text-yellow-700" :
                           idx === 1 ? "bg-gray-100 text-gray-600" :
                           idx === 2 ? "bg-amber-100 text-amber-700" :
@@ -542,7 +542,12 @@ export default function BranchManagerDashboard() {
                         
                         {/* Branch name and status */}
                         <div className="flex-1 min-w-0">
-                          <span className="text-sm font-medium block truncate">
+                          {/* Mobile: show only last part of branch name */}
+                          <span className="text-sm font-medium block truncate xs:hidden">
+                            {branch.branch.replace(/_/g, ' ').split(' ').pop()}
+                          </span>
+                          {/* Desktop: show full branch name */}
+                          <span className="text-sm font-medium hidden xs:block truncate">
                             {branch.branch.replace(/_/g, ' ')}
                           </span>
                           <span className={cn(
