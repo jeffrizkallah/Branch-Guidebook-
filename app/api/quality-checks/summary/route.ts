@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const period = searchParams.get('period') || 'today' // today, week, month
     
     const user = session.user
-    const isAdmin = user.role === 'admin' || user.role === 'operations_lead'
+    const isAdmin = user.role === 'admin' || user.role === 'operations_lead' || user.role === 'regional_manager'
     
     // If not admin and no branches, return empty
     if (!isAdmin && (!user.branches || user.branches.length === 0)) {

@@ -16,7 +16,7 @@ export async function GET(
 
     const { id } = await params
     const user = session.user
-    const isAdmin = user.role === 'admin' || user.role === 'operations_lead'
+    const isAdmin = user.role === 'admin' || user.role === 'operations_lead' || user.role === 'regional_manager'
     const isCentralKitchen = user.role === 'central_kitchen'
 
     const result = await sql`

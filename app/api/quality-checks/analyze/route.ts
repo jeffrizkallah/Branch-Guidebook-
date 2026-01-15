@@ -47,10 +47,10 @@ export async function POST(request: Request) {
     }
 
     const user = session.user
-    const isAdmin = user.role === 'admin' || user.role === 'operations_lead'
+    const isAdmin = user.role === 'admin' || user.role === 'operations_lead' || user.role === 'regional_manager'
 
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Only admins can generate analytics' }, { status: 403 })
+      return NextResponse.json({ error: 'Only admins and regional managers can generate analytics' }, { status: 403 })
     }
 
     const body = await request.json()

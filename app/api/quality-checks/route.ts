@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     const user = session.user
-    const isAdmin = user.role === 'admin' || user.role === 'operations_lead'
+    const isAdmin = user.role === 'admin' || user.role === 'operations_lead' || user.role === 'regional_manager'
     const isCentralKitchen = user.role === 'central_kitchen'
 
     // Build the query with filters
