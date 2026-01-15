@@ -668,32 +668,62 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Yesterday's Branch Performance Widget */}
-      {branchHistory.length > 0 && (
-        <Card className="border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-emerald-600" />
-                Yesterday&apos;s Branch Performance
-              </CardTitle>
-              <Link href="/admin/analytics">
-                <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
-                  View Full Analytics
-                  <ArrowRight className="h-3 w-3" />
-                </Button>
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {branchHistory.slice(0, 6).map((branch, idx) => {
+      {/* Yesterday's Branch Performance & Dispatch Widgets */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Yesterday's Branch Performance Widget - Takes 2 columns */}
+        {branchHistory.length > 0 && (
+          <Card className="lg:col-span-2 border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-emerald-600" />
+                  Yesterday&apos;s Branch Performance
+                </CardTitle>
+                <Link href="/admin/analytics">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+                    View Full Analytics
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {branchHistory.slice(0, 6).map((branch, idx) => {
                 // Get yesterday's data (last item in history)
                 const yesterdayData = branch.history[branch.history.length - 1]
                 const yesterdayRevenue = yesterdayData?.revenue || 0
                 const yesterdayOrders = yesterdayData?.orders || 1
                 const aov = yesterdayOrders > 0 ? Math.round(yesterdayRevenue / yesterdayOrders) : 0
-                
+
+                // Calculate week-over-week comparison
+                // History is ordered by date ASC, so:
+                // - history[0] = oldest day (7 days ago if available)
+                // - history[history.length - 1] = yesterday
+                const hasWeekData = branch.history.length >= 2
+                const lastWeekData = hasWeekData ? branch.history[0] : null
+                const lastWeekRevenue = lastWeekData?.revenue || 0
+
+                let weekOverWeekChange = 0
+                let weekOverWeekAmount = 0
+                let hasValidComparison = false
+
+                if (lastWeekRevenue > 0 && yesterdayRevenue > 0) {
+                  weekOverWeekChange = Math.round(((yesterdayRevenue - lastWeekRevenue) / lastWeekRevenue) * 100)
+                  weekOverWeekAmount = yesterdayRevenue - lastWeekRevenue
+                  hasValidComparison = true
+                }
+
+                // Debug logging (remove after testing)
+                if (idx === 0) {
+                  console.log('Branch:', branch.branch)
+                  console.log('History length:', branch.history.length)
+                  console.log('History dates:', branch.history.map(h => h.date))
+                  console.log('Yesterday revenue:', yesterdayRevenue)
+                  console.log('Last week revenue:', lastWeekRevenue)
+                  console.log('WoW change:', weekOverWeekChange)
+                }
+
                 // Calculate trend from history
                 const revenues = branch.history.map(h => h.revenue)
                 const firstHalf = revenues.slice(0, Math.floor(revenues.length / 2))
@@ -752,7 +782,7 @@ export default function AdminDashboardPage() {
                     )}>
                       {idx + 1}
                     </span>
-                    
+
                     {/* Branch name and status */}
                     <div className="flex-1 min-w-0">
                       {/* Mobile: show only last part of branch name */}
@@ -775,13 +805,45 @@ export default function AdminDashboardPage() {
                         {statusLabel}
                       </span>
                     </div>
-                    
+
+                    {/* Week-over-Week Comparison - Hidden on mobile/tablet */}
+                    <div className="hidden lg:flex flex-col items-center justify-center shrink-0 px-4 border-l border-r border-slate-100 min-w-[100px]">
+                      {hasValidComparison ? (
+                        <>
+                          <div className={cn(
+                            "text-sm font-bold flex items-center gap-1",
+                            weekOverWeekChange > 0 ? "text-emerald-600" :
+                            weekOverWeekChange < 0 ? "text-red-600" :
+                            "text-slate-600"
+                          )}>
+                            {weekOverWeekChange > 0 && <TrendingUp className="h-3.5 w-3.5" />}
+                            {weekOverWeekChange < 0 && <TrendingDown className="h-3.5 w-3.5" />}
+                            {weekOverWeekChange > 0 ? '+' : ''}{weekOverWeekChange}%
+                          </div>
+                          <div className="text-[10px] text-muted-foreground text-center whitespace-nowrap">vs last week</div>
+                          <div className={cn(
+                            "text-[10px] font-medium mt-0.5",
+                            weekOverWeekChange > 0 ? "text-emerald-600" :
+                            weekOverWeekChange < 0 ? "text-red-600" :
+                            "text-slate-600"
+                          )}>
+                            {weekOverWeekChange > 0 ? '+' : ''}{formatCurrency(weekOverWeekAmount)}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-xs font-medium text-slate-400">—</div>
+                          <div className="text-[10px] text-muted-foreground text-center">No data</div>
+                        </>
+                      )}
+                    </div>
+
                     {/* Sparkline - weekday bar chart */}
                     <div className="shrink-0 hidden xs:block">
-                      <Sparkline 
+                      <Sparkline
                         data={revenues}
-                        dates={branch.history.map(h => h.date)} 
-                        width={110} 
+                        dates={branch.history.map(h => h.date)}
+                        width={110}
                         height={44}
                         showDayLabels={true}
                         excludeWeekends={true}
@@ -792,7 +854,7 @@ export default function AdminDashboardPage() {
                         }
                       />
                     </div>
-                    
+
                     {/* Revenue and AOV */}
                     <div className="text-right shrink-0 min-w-[80px] xs:min-w-[90px]">
                       <p className="text-sm font-bold">{formatCurrency(yesterdayRevenue)}</p>
@@ -831,7 +893,65 @@ export default function AdminDashboardPage() {
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
+
+        {/* Dispatch Widget - Takes 1 column */}
+        <Card className="border-l-4 border-l-amber-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Truck className="h-4 w-4 text-amber-600" />
+                Dispatch Overview
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Total Dispatches */}
+              <div className="text-center p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
+                <p className="text-3xl font-bold text-amber-900">{stats?.dispatches.total || 0}</p>
+                <p className="text-xs text-amber-700 mt-1">Total Dispatches</p>
+              </div>
+
+              {/* Status Breakdown */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <span className="text-sm font-medium text-yellow-900">Pending</span>
+                  </div>
+                  <span className="text-lg font-bold text-yellow-900">{stats?.dispatches.pending || 0}</span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-sm font-medium text-blue-900">In Progress</span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-900">{stats?.dispatches.inProgress || 0}</span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm font-medium text-green-900">Completed</span>
+                  </div>
+                  <span className="text-lg font-bold text-green-900">{stats?.dispatches.completed || 0}</span>
+                </div>
+              </div>
+
+              {/* Quick Action */}
+              <Link href="/dispatch" className="block">
+                <Button variant="outline" size="sm" className="w-full text-xs gap-2">
+                  <Package className="h-3 w-3" />
+                  Manage Dispatches
+                  <ArrowRight className="h-3 w-3 ml-auto" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Quality Control Widget */}
       {qualitySummary && (
