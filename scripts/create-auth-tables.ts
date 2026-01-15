@@ -21,10 +21,12 @@ async function createAuthTables() {
         phone VARCHAR(50),
         role VARCHAR(50) CHECK (role IN (
           'admin', 
+          'regional_manager',
           'operations_lead', 
           'dispatcher', 
           'central_kitchen', 
-          'branch_manager'
+          'branch_manager',
+          'branch_staff'
         )),
         status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'inactive', 'rejected')),
         approved_by INTEGER REFERENCES users(id),
