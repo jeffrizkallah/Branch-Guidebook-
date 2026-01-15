@@ -20,7 +20,7 @@ A real-time analytics hub showing:
 
 ---
 
-### 2. User Authentication & Role-Based Access (Done)
+**DONE** ### 2. User Authentication & Role-Based Access 
 Currently PIN-protected, but could be expanded to:
 - Individual staff logins (email/password or phone)
 - Role-based permissions (manager sees different admin features than kitchen staff)

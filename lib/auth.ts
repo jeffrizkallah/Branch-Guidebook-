@@ -2,7 +2,7 @@ import { sql } from '@vercel/postgres'
 import bcrypt from 'bcryptjs'
 
 // User roles
-export type UserRole = 'admin' | 'operations_lead' | 'dispatcher' | 'central_kitchen' | 'branch_manager' | 'branch_staff'
+export type UserRole = 'admin' | 'regional_manager' | 'operations_lead' | 'dispatcher' | 'central_kitchen' | 'branch_manager' | 'branch_staff'
 
 // User status
 export type UserStatus = 'pending' | 'active' | 'inactive' | 'rejected'
@@ -33,6 +33,7 @@ export interface UserWithBranches extends User {
 // Role display names
 export const roleDisplayNames: Record<UserRole, string> = {
   admin: 'Admin',
+  regional_manager: 'Regional Manager',
   operations_lead: 'Operations Lead',
   dispatcher: 'Dispatcher',
   central_kitchen: 'Central Kitchen',
@@ -43,6 +44,7 @@ export const roleDisplayNames: Record<UserRole, string> = {
 // Role descriptions
 export const roleDescriptions: Record<UserRole, string> = {
   admin: 'Full system access, user management, and all settings',
+  regional_manager: 'Regional oversight with sales analytics, quality control, and budget management for all branches',
   operations_lead: 'Recipe management, prep instructions, production schedules, and order approval',
   dispatcher: 'Dispatch management and view all branches',
   central_kitchen: 'CK dashboard and recipe viewing',
@@ -53,6 +55,7 @@ export const roleDescriptions: Record<UserRole, string> = {
 // Role landing pages
 export const roleLandingPages: Record<UserRole, string> = {
   admin: '/admin',
+  regional_manager: '/regional',
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
@@ -433,8 +436,8 @@ export async function userHasBranchAccess(userId: number, branchSlug: string): P
     const user = await getUserById(userId)
     if (!user) return false
     
-    // Admin and operations_lead have access to all branches
-    if (user.role === 'admin' || user.role === 'operations_lead') return true
+    // Admin, regional_manager, and operations_lead have access to all branches
+    if (user.role === 'admin' || user.role === 'regional_manager' || user.role === 'operations_lead') return true
     
     // Dispatchers can view all branches
     if (user.role === 'dispatcher') return true

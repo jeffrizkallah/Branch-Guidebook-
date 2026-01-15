@@ -11,15 +11,15 @@ import {
 
 describe('Data Loading Functions', () => {
   describe('loadBranches', () => {
-    it('should load all branches', () => {
-      const branches = loadBranches()
+    it('should load all branches', async () => {
+      const branches = await loadBranches()
       expect(branches).toBeDefined()
       expect(Array.isArray(branches)).toBe(true)
       expect(branches.length).toBe(12)
     })
 
-    it('should have required properties', () => {
-      const branches = loadBranches()
+    it('should have required properties', async () => {
+      const branches = await loadBranches()
       const branch = branches[0]
       expect(branch).toHaveProperty('id')
       expect(branch).toHaveProperty('slug')
@@ -32,14 +32,14 @@ describe('Data Loading Functions', () => {
   })
 
   describe('loadBranch', () => {
-    it('should load a specific branch by slug', () => {
-      const branch = loadBranch('isc-soufouh')
+    it('should load a specific branch by slug', async () => {
+      const branch = await loadBranch('isc-soufouh')
       expect(branch).toBeDefined()
       expect(branch?.name).toBe('ISC Soufouh')
     })
 
-    it('should return undefined for non-existent slug', () => {
-      const branch = loadBranch('non-existent-slug')
+    it('should return undefined for non-existent slug', async () => {
+      const branch = await loadBranch('non-existent-slug')
       expect(branch).toBeUndefined()
     })
   })
@@ -77,8 +77,8 @@ describe('Data Loading Functions', () => {
   })
 
   describe('getUniqueLocations', () => {
-    it('should return unique locations', () => {
-      const locations = getUniqueLocations()
+    it('should return unique locations', async () => {
+      const locations = await getUniqueLocations()
       expect(locations).toBeDefined()
       expect(Array.isArray(locations)).toBe(true)
       expect(locations.length).toBeGreaterThan(0)
@@ -88,16 +88,16 @@ describe('Data Loading Functions', () => {
       expect(uniqueSet.size).toBe(locations.length)
     })
 
-    it('should include known locations', () => {
-      const locations = getUniqueLocations()
+    it('should include known locations', async () => {
+      const locations = await getUniqueLocations()
       expect(locations).toContain('Dubai')
       expect(locations).toContain('Abu Dhabi')
     })
   })
 
   describe('getUniqueManagers', () => {
-    it('should return unique managers', () => {
-      const managers = getUniqueManagers()
+    it('should return unique managers', async () => {
+      const managers = await getUniqueManagers()
       expect(managers).toBeDefined()
       expect(Array.isArray(managers)).toBe(true)
       expect(managers.length).toBe(12) // One manager per branch
@@ -109,32 +109,35 @@ describe('Data Loading Functions', () => {
   })
 
   describe('filterBranches', () => {
-    const allBranches = loadBranches()
-
-    it('should filter by search query', () => {
+    it('should filter by search query', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, 'Soufouh', {})
       expect(filtered.length).toBeGreaterThan(0)
       expect(filtered.some(b => b.name.includes('Soufouh'))).toBe(true)
     })
 
-    it('should filter by location', () => {
+    it('should filter by location', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, '', { location: 'Dubai' })
       expect(filtered.length).toBeGreaterThan(0)
       expect(filtered.every(b => b.location === 'Dubai')).toBe(true)
     })
 
-    it('should filter by manager', () => {
+    it('should filter by manager', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, '', { manager: 'Ahmed Al-Rashid' })
       expect(filtered.length).toBe(1)
       expect(filtered[0].manager).toBe('Ahmed Al-Rashid')
     })
 
-    it('should filter by minimum hygiene score', () => {
+    it('should filter by minimum hygiene score', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, '', { minHygieneScore: 95 })
       expect(filtered.every(b => parseInt(b.kpis.hygieneScore) >= 95)).toBe(true)
     })
 
-    it('should apply multiple filters', () => {
+    it('should apply multiple filters', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, '', {
         location: 'Dubai',
         minHygieneScore: 90,
@@ -143,10 +146,10 @@ describe('Data Loading Functions', () => {
       expect(filtered.every(b => parseInt(b.kpis.hygieneScore) >= 90)).toBe(true)
     })
 
-    it('should return all branches with no filters', () => {
+    it('should return all branches with no filters', async () => {
+      const allBranches = await loadBranches()
       const filtered = filterBranches(allBranches, '', {})
       expect(filtered.length).toBe(allBranches.length)
     })
   })
 })
-

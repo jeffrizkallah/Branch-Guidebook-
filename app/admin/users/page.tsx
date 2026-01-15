@@ -50,6 +50,7 @@ const branchOptions = [
 
 const roleOptions: { value: UserRole; label: string; description: string }[] = [
   { value: 'admin', label: 'Admin', description: 'Full system access' },
+  { value: 'regional_manager', label: 'Regional Manager', description: 'Regional oversight & analytics' },
   { value: 'operations_lead', label: 'Operations Lead', description: 'Recipe & production management' },
   { value: 'dispatcher', label: 'Dispatcher', description: 'Dispatch management' },
   { value: 'central_kitchen', label: 'Central Kitchen', description: 'CK operations' },
@@ -84,7 +85,7 @@ function Modal({ isOpen, onClose, children, title }: ModalProps) {
 }
 
 // Protected roles that only admins can assign
-const PROTECTED_ROLES: UserRole[] = ['admin', 'operations_lead']
+const PROTECTED_ROLES: UserRole[] = ['admin', 'regional_manager', 'operations_lead']
 
 export default function UserManagementPage() {
   const { isAdmin, user, loading: authLoading } = useAuth({ required: true, allowedRoles: ['admin', 'dispatcher'] })
@@ -365,6 +366,7 @@ export default function UserManagementPage() {
     
     const colors: Record<string, string> = {
       admin: 'bg-purple-100 text-purple-700',
+      regional_manager: 'bg-indigo-100 text-indigo-700',
       operations_lead: 'bg-blue-100 text-blue-700',
       dispatcher: 'bg-orange-100 text-orange-700',
       central_kitchen: 'bg-rose-100 text-rose-700',
@@ -693,7 +695,7 @@ export default function UserManagementPage() {
             </select>
             {isDispatcher && selectedUser?.role && PROTECTED_ROLES.includes(selectedUser.role) && (
               <p className="text-xs text-amber-600">
-                Only admins can modify users with Admin or Operations Lead roles.
+                Only admins can modify users with Admin, Regional Manager, or Operations Lead roles.
               </p>
             )}
           </div>

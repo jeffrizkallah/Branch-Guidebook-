@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 // Role-based landing pages
 const roleLandingPages: Record<string, string> = {
   admin: '/admin',
+  regional_manager: '/regional',
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
@@ -26,6 +27,7 @@ const roleRestrictedRoutes: Record<string, string[]> = {
   '/admin/quality-control': ['admin', 'operations_lead'],
   '/admin/users': ['admin', 'dispatcher'],
   '/admin': ['admin'],
+  '/regional': ['admin', 'regional_manager'],
   '/operations': ['admin', 'operations_lead'],
   '/dispatch': ['admin', 'operations_lead', 'dispatcher'],
   '/kitchen': ['admin', 'operations_lead', 'central_kitchen'],
@@ -33,7 +35,7 @@ const roleRestrictedRoutes: Record<string, string[]> = {
 }
 
 // Roles that can access all branches
-const allBranchAccessRoles = ['admin', 'operations_lead', 'dispatcher']
+const allBranchAccessRoles = ['admin', 'regional_manager', 'operations_lead', 'dispatcher']
 
 export default withAuth(
   function middleware(req) {

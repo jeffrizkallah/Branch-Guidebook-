@@ -8,6 +8,7 @@ import type { UserRole } from '@/lib/auth'
 // Role landing pages
 export const roleLandingPages: Record<UserRole, string> = {
   admin: '/admin',
+  regional_manager: '/regional',
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
@@ -65,6 +66,8 @@ export function useAuth(options?: {
     switch (resource) {
       case 'admin':
         return user.role === 'admin'
+      case 'regional':
+        return ['admin', 'regional_manager'].includes(user.role)
       case 'users':
         return ['admin', 'dispatcher'].includes(user.role)
       case 'recipes':
@@ -80,7 +83,11 @@ export function useAuth(options?: {
       case 'operations':
         return ['admin', 'operations_lead'].includes(user.role)
       case 'analytics':
-        return ['admin', 'operations_lead'].includes(user.role)
+        return ['admin', 'regional_manager', 'operations_lead'].includes(user.role)
+      case 'quality_control':
+        return ['admin', 'regional_manager', 'operations_lead'].includes(user.role)
+      case 'budget':
+        return ['admin', 'regional_manager'].includes(user.role)
       default:
         return true
     }
@@ -108,8 +115,8 @@ export function useAuth(options?: {
   const hasBranchAccess = (branchSlug: string) => {
     if (!user) return false
     
-    // Admin and operations_lead have access to all branches
-    if (['admin', 'operations_lead'].includes(user.role || '')) return true
+    // Admin, regional_manager, and operations_lead have access to all branches
+    if (['admin', 'regional_manager', 'operations_lead'].includes(user.role || '')) return true
     
     // Dispatchers can view all branches
     if (user.role === 'dispatcher') return true
@@ -134,6 +141,7 @@ export function useAuth(options?: {
     canEdit,
     hasBranchAccess,
     isAdmin: user?.role === 'admin',
+    isRegionalManager: user?.role === 'regional_manager',
     isOperationsLead: user?.role === 'operations_lead',
     isDispatcher: user?.role === 'dispatcher',
     isCentralKitchen: user?.role === 'central_kitchen',

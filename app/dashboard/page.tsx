@@ -29,7 +29,6 @@ import {
   Flame,
   ChevronDown,
   Star,
-  Boxes,
   Eye,
   Clock
 } from 'lucide-react'
@@ -76,15 +75,6 @@ interface QualityCompliance {
   lunchSubmitted: boolean
 }
 
-interface InventorySummary {
-  totalItems: number
-  totalValue: number
-  syncInfo: {
-    lastSynced: string
-    dataDate: string
-  } | null
-}
-
 export default function BranchManagerDashboard() {
   const { user, loading: authLoading } = useAuth({ 
     required: true, 
@@ -100,7 +90,6 @@ export default function BranchManagerDashboard() {
   const [revenueChange, setRevenueChange] = useState(0)
   const [alertsExpanded, setAlertsExpanded] = useState(false)
   const [qualityCompliance, setQualityCompliance] = useState<QualityCompliance[]>([])
-  const [inventorySummary, setInventorySummary] = useState<InventorySummary | null>(null)
   const [sortBy, setSortBy] = useState<'revenue' | 'name' | 'hygiene'>('revenue')
   const [dispatchesExpanded, setDispatchesExpanded] = useState(false)
 
@@ -204,15 +193,6 @@ export default function BranchManagerDashboard() {
         setQualityCompliance(qualityData.todayCompliance || [])
       } catch (e) {
         console.error('Error fetching quality compliance:', e)
-      }
-
-      // Fetch inventory summary
-      try {
-        const inventoryRes = await fetch('/api/inventory/summary')
-        const inventoryData = await inventoryRes.json()
-        setInventorySummary(inventoryData)
-      } catch (e) {
-        console.error('Error fetching inventory:', e)
       }
 
     } catch (error) {
@@ -386,7 +366,7 @@ export default function BranchManagerDashboard() {
           )}
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 fold:grid-cols-4 md:grid-cols-4 gap-2 xs:gap-3 mb-4 xs:mb-6">
+          <div className="grid grid-cols-3 gap-2 xs:gap-3 mb-4 xs:mb-6">
             {/* Revenue Card */}
             <Card className="hover:shadow-md transition-shadow">
               <CardContent className="pt-3 xs:pt-4 pb-2.5 xs:pb-3 px-3 xs:px-4">
@@ -442,25 +422,12 @@ export default function BranchManagerDashboard() {
               </Card>
             </Link>
 
-            {/* Inventory Card */}
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="pt-3 xs:pt-4 pb-2.5 xs:pb-3 px-3 xs:px-4">
-                <div className="flex items-center gap-1.5 xs:gap-2 mb-1.5 xs:mb-2">
-                  <div className="p-1 xs:p-1.5 rounded-md xs:rounded-lg bg-purple-100">
-                    <Boxes className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-purple-600" />
-                  </div>
-                  <span className="text-[10px] xs:text-xs text-muted-foreground">Inventory</span>
-                </div>
-                <p className="text-base xs:text-lg sm:text-xl font-bold">{inventorySummary?.totalItems || 0}</p>
-                <span className="text-[10px] xs:text-xs text-muted-foreground">Items tracked</span>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid fold:grid-cols-2 lg:grid-cols-3 gap-4 xs:gap-6">
+          <div className="grid fold:grid-cols-1 lg:grid-cols-3 gap-4 xs:gap-6">
             {/* Branches Column - Takes 2/3 */}
-            <div className="fold:col-span-1 lg:col-span-2 space-y-3 xs:space-y-4">
+            <div className="lg:col-span-2 space-y-3 xs:space-y-4">
               {/* Branch Header with Sort */}
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -508,12 +475,7 @@ export default function BranchManagerDashboard() {
                         <CardContent className="py-4">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-lg">{branch.name}</h3>
-                                <Badge className={`${getHygieneColor(hygieneScore)} border-0 text-xs`}>
-                                  {hygieneScore || 'N/A'}
-                                </Badge>
-                              </div>
+                              <h3 className="font-semibold text-lg mb-1">{branch.name}</h3>
                               <p className="text-sm text-muted-foreground flex items-center gap-1">
                                 <MapPin className="h-3 w-3" />
                                 {branch.location}
@@ -604,6 +566,8 @@ export default function BranchManagerDashboard() {
 
             {/* Right Sidebar - Takes 1/3 */}
             <div className="space-y-3 xs:space-y-4">
+              {/* Spacer to align with branch cards */}
+              <div className="h-8"></div>
               {/* Quality Overview Widget */}
               <Card>
                 <CardHeader className="pb-2">
@@ -641,34 +605,6 @@ export default function BranchManagerDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Inventory Widget */}
-              {inventorySummary && (
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Boxes className="h-4 w-4 text-purple-600" />
-                      Inventory Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Total Items</span>
-                        <span className="font-semibold">{inventorySummary.totalItems}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Total Value</span>
-                        <span className="font-semibold">{formatCurrency(inventorySummary.totalValue)}</span>
-                      </div>
-                      {inventorySummary.syncInfo && (
-                        <div className="pt-2 border-t text-xs text-muted-foreground">
-                          Last synced: {new Date(inventorySummary.syncInfo.lastSynced).toLocaleDateString()}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
 
               {/* Recent Dispatches */}
               {dispatches.length > 0 && (

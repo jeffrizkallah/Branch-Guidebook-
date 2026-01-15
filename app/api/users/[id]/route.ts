@@ -5,7 +5,7 @@ import { getUserById, updateUser, resetUserPassword, approveUser, rejectUser, ty
 import { sql } from '@vercel/postgres'
 
 // Protected roles that only admins can assign or modify
-const PROTECTED_ROLES: UserRole[] = ['admin', 'operations_lead']
+const PROTECTED_ROLES: UserRole[] = ['admin', 'regional_manager', 'operations_lead']
 
 // GET - Get single user
 export async function GET(
@@ -69,10 +69,10 @@ export async function PATCH(
     // Check if current user is a dispatcher (not admin)
     const isDispatcher = session.user.role === 'dispatcher'
 
-    // Dispatchers cannot assign protected roles (admin, operations_lead)
+    // Dispatchers cannot assign protected roles (admin, regional_manager, operations_lead)
     if (isDispatcher && role && PROTECTED_ROLES.includes(role)) {
       return NextResponse.json(
-        { error: 'You do not have permission to assign Admin or Operations Lead roles' },
+        { error: 'You do not have permission to assign Admin, Regional Manager, or Operations Lead roles' },
         { status: 403 }
       )
     }
@@ -82,7 +82,7 @@ export async function PATCH(
       const targetUser = await getUserById(userId)
       if (targetUser?.role && PROTECTED_ROLES.includes(targetUser.role as UserRole)) {
         return NextResponse.json(
-          { error: 'You do not have permission to modify users with Admin or Operations Lead roles' },
+          { error: 'You do not have permission to modify users with Admin, Regional Manager, or Operations Lead roles' },
           { status: 403 }
         )
       }
@@ -178,12 +178,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Cannot deactivate your own account' }, { status: 400 })
     }
 
-    // Dispatchers cannot deactivate users with protected roles (admin, operations_lead)
+    // Dispatchers cannot deactivate users with protected roles (admin, regional_manager, operations_lead)
     if (session.user.role === 'dispatcher') {
       const targetUser = await getUserById(userId)
       if (targetUser?.role && PROTECTED_ROLES.includes(targetUser.role as UserRole)) {
         return NextResponse.json(
-          { error: 'You do not have permission to deactivate users with Admin or Operations Lead roles' },
+          { error: 'You do not have permission to deactivate users with Admin, Regional Manager, or Operations Lead roles' },
           { status: 403 }
         )
       }

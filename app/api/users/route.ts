@@ -5,7 +5,7 @@ import { getAllUsers, getPendingUsers, createUser, hashPassword, type UserRole }
 import { sql } from '@vercel/postgres'
 
 // Protected roles that only admins can assign
-const PROTECTED_ROLES: UserRole[] = ['admin', 'operations_lead']
+const PROTECTED_ROLES: UserRole[] = ['admin', 'regional_manager', 'operations_lead']
 
 // GET - List all users or pending users
 export async function GET(request: Request) {
@@ -52,10 +52,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Dispatchers cannot assign protected roles (admin, operations_lead)
+    // Dispatchers cannot assign protected roles (admin, regional_manager, operations_lead)
     if (session.user.role === 'dispatcher' && PROTECTED_ROLES.includes(role)) {
       return NextResponse.json(
-        { error: 'You do not have permission to assign Admin or Operations Lead roles' },
+        { error: 'You do not have permission to assign Admin, Regional Manager, or Operations Lead roles' },
         { status: 403 }
       )
     }

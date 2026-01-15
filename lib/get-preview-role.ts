@@ -47,7 +47,7 @@ export async function getEffectiveRole(): Promise<{
   if (previewCookie?.value) {
     const previewRole = previewCookie.value as UserRole
     // Validate it's a valid role
-    const validRoles: UserRole[] = ['admin', 'operations_lead', 'dispatcher', 'central_kitchen', 'branch_manager', 'branch_staff']
+    const validRoles: UserRole[] = ['admin', 'regional_manager', 'operations_lead', 'dispatcher', 'central_kitchen', 'branch_manager', 'branch_staff']
     if (validRoles.includes(previewRole)) {
       return {
         actualRole,
@@ -87,10 +87,13 @@ export function roleCanAccess(effectiveRole: UserRole | null, resource: string):
       return ['admin', 'operations_lead', 'dispatcher', 'central_kitchen'].includes(effectiveRole)
     
     case 'analytics':
-      return ['admin', 'operations_lead'].includes(effectiveRole)
+      return ['admin', 'regional_manager', 'operations_lead'].includes(effectiveRole)
     
     case 'all_branches':
-      return ['admin', 'operations_lead', 'dispatcher'].includes(effectiveRole)
+      return ['admin', 'regional_manager', 'operations_lead', 'dispatcher'].includes(effectiveRole)
+    
+    case 'regional':
+      return ['admin', 'regional_manager'].includes(effectiveRole)
     
     case 'kitchen':
       return ['admin', 'operations_lead', 'central_kitchen'].includes(effectiveRole)

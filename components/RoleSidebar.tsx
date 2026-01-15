@@ -97,6 +97,23 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
         { href: '/', label: 'Branches', icon: Building2 },
       ]
 
+    case 'regional_manager':
+      return [
+        { href: '/regional', label: 'Home', icon: Home },
+        { href: '/', label: 'Branches', icon: Building2 },
+        { 
+          href: '/regional', 
+          label: 'Management', 
+          icon: BarChart3,
+          subItems: [
+            { href: '/regional', label: 'Dashboard' },
+            { href: '/regional/analytics', label: 'Sales Analytics' },
+            { href: '/regional/quality-control', label: 'Quality Control' },
+            { href: '/regional/budget', label: 'Budget Planner' },
+          ]
+        },
+      ]
+
     case 'branch_manager':
       return [
         { href: '/dashboard', label: 'Home', icon: Home },

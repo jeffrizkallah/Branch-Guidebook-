@@ -9,6 +9,7 @@ import { roleDisplayNames } from '@/lib/auth'
 
 const ALL_ROLES: UserRole[] = [
   'admin',
+  'regional_manager',
   'operations_lead',
   'dispatcher',
   'central_kitchen',

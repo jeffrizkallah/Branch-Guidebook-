@@ -48,6 +48,15 @@ export const roleWelcomeContent: Record<UserRole, WelcomeContent> = {
     ],
     ctaText: "Let's explore your admin tools"
   },
+  regional_manager: {
+    greeting: "You oversee all regional operations",
+    highlights: [
+      "View sales analytics across all branches",
+      "Monitor quality control and compliance",
+      "Plan and optimize budgets with AI assistance"
+    ],
+    ctaText: "Let's view your regional dashboard"
+  },
   operations_lead: {
     greeting: "You oversee all operations",
     highlights: [

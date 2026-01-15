@@ -16,10 +16,12 @@ CHANGES/ADDITIONS
 - **(ONGOING)** Add internal Chat System **(HIDDEN)**
 - **(DONE)** Fix loafing sign to be centered
 - **(DONE)** Remove Branch health widgets from admin dashboard
-- Figure out hwo to digitize the daily recipes and production order for CK
 - **(DONE)** Quality control for Esme
 - Make sure all the color tones of the icons accross all the software are the same (Branch Manager)
 - Add Regional Manager role with its dashbaord and tools
 - Add Ordering section for branches 
 - Breakdown of orders into recipes, sub-recipes, and ingredients
 - Add Inventory System
+- Figure out hwo to digitize the daily recipes and production order for CK
+- Add a way where suzan can from a submissions give a note which will arrive the branch manager dashboard where they can see notes and tips on their submissions
+- Fix the Branch Manager dashboard page
