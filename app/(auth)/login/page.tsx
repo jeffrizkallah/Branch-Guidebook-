@@ -11,6 +11,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label'
 import { Mail, Lock, AlertCircle, Loader2, LogIn } from 'lucide-react'
 
+// Role-based landing pages (must match middleware.ts)
+const roleLandingPages: Record<string, string> = {
+  admin: '/admin',
+  regional_manager: '/regional',
+  operations_lead: '/operations',
+  dispatcher: '/dispatch',
+  central_kitchen: '/kitchen',
+  branch_manager: '/dashboard',
+  branch_staff: '/branch', // Will be replaced with specific branch
+}
+
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -54,8 +65,13 @@ function LoginForm() {
         } else if (status === 'pending' || status === 'rejected') {
           redirectUrl = '/pending'
         } else if (role) {
-          // All roles go to home page
-          redirectUrl = '/'
+          // Get the role-specific landing page
+          if (role === 'branch_staff' && branches && branches.length > 0) {
+            // Branch staff goes to their first assigned branch
+            redirectUrl = `/branch/${branches[0]}`
+          } else {
+            redirectUrl = roleLandingPages[role] || '/'
+          }
         }
       }
 

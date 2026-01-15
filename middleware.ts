@@ -1,15 +1,15 @@
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
 
-// Role-based landing pages - all roles redirect to home page
+// Role-based landing pages
 const roleLandingPages: Record<string, string> = {
-  admin: '/',
-  regional_manager: '/',
-  operations_lead: '/',
-  dispatcher: '/',
-  central_kitchen: '/',
-  branch_manager: '/',
-  branch_staff: '/',
+  admin: '/admin',
+  regional_manager: '/regional',
+  operations_lead: '/operations',
+  dispatcher: '/dispatch',
+  central_kitchen: '/kitchen',
+  branch_manager: '/dashboard',
+  branch_staff: '/branch', // Will redirect to their specific branch
 }
 
 // Public routes that don't require authentication
@@ -65,9 +65,9 @@ export default withAuth(
       const role = token.role as string
       const branches = (token.branches as string[]) || []
       
-      // Branch staff goes to home page
-      if (role === 'branch_staff') {
-        return NextResponse.redirect(new URL('/', req.url))
+      // Branch staff goes directly to their branch
+      if (role === 'branch_staff' && branches.length > 0) {
+        return NextResponse.redirect(new URL(`/branch/${branches[0]}`, req.url))
       }
       
       const landingPage = roleLandingPages[role] || '/'
@@ -79,8 +79,8 @@ export default withAuth(
 
     // Branch staff special handling - can only access their assigned branch
     if (userRole === 'branch_staff') {
-      // Allow home page and profile page
-      if (path === '/' || path === '/profile') {
+      // Allow profile page
+      if (path === '/profile') {
         return NextResponse.next()
       }
       
@@ -105,8 +105,13 @@ export default withAuth(
         }
       }
       
-      // Redirect to home page
-      return NextResponse.redirect(new URL('/', req.url))
+      // Redirect to their branch
+      if (userBranches.length > 0) {
+        return NextResponse.redirect(new URL(`/branch/${userBranches[0]}`, req.url))
+      }
+      
+      // No branches assigned - show error or redirect to pending
+      return NextResponse.redirect(new URL('/pending', req.url))
     }
 
     // Central kitchen special handling - can only access kitchen-related pages
@@ -130,14 +135,14 @@ export default withAuth(
         }
       }
       
-      // Redirect to home page
-      return NextResponse.redirect(new URL('/', req.url))
+      // Redirect to kitchen dashboard
+      return NextResponse.redirect(new URL('/kitchen', req.url))
     }
 
     // Branch manager special handling - can access dashboard and assigned branches
     if (userRole === 'branch_manager') {
-      // Allow home page, dashboard, profile
-      if (path === '/' || path === '/dashboard' || path === '/profile') {
+      // Allow dashboard, profile
+      if (path === '/dashboard' || path === '/profile') {
         return NextResponse.next()
       }
       
@@ -147,8 +152,8 @@ export default withAuth(
         if (userBranches.includes(branchSlug)) {
           return NextResponse.next()
         }
-        // Redirect to home page if trying to access other branches
-        return NextResponse.redirect(new URL('/', req.url))
+        // Redirect to dashboard if trying to access other branches
+        return NextResponse.redirect(new URL('/dashboard', req.url))
       }
       
       // Allow dispatch pages for their assigned branches (packing/receiving)
@@ -162,12 +167,12 @@ export default withAuth(
             return NextResponse.next()
           }
         }
-        // Redirect to home page if trying to access other branches' dispatches
-        return NextResponse.redirect(new URL('/', req.url))
+        // Redirect to dashboard if trying to access other branches' dispatches
+        return NextResponse.redirect(new URL('/dashboard', req.url))
       }
       
-      // All other pages - redirect to home page
-      return NextResponse.redirect(new URL('/', req.url))
+      // All other pages - redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
     // Check role-based access for protected routes
