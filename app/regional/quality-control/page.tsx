@@ -38,6 +38,7 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { QualityAnalytics } from '@/components/QualityAnalytics'
 import { QualityCheckDetailModal } from '@/components/QualityCheckDetailModal'
+import { FeedbackTrackingWidget } from '@/components/FeedbackTrackingWidget'
 
 interface QualityCheck {
   id: number
@@ -705,6 +706,13 @@ export default function RegionalQualityControlPage() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Feedback Tracking Widget */}
+          {canGiveFeedback && (
+            <FeedbackTrackingWidget 
+              onViewQualityCheck={(id) => setSelectedSubmissionId(id)}
+            />
           )}
         </div>
       )}

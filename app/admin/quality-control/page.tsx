@@ -39,6 +39,7 @@ import Link from 'next/link'
 import { QualityImportModal } from '@/components/QualityImportModal'
 import { QualityAnalytics } from '@/components/QualityAnalytics'
 import { QualityCheckDetailModal } from '@/components/QualityCheckDetailModal'
+import { FeedbackTrackingWidget } from '@/components/FeedbackTrackingWidget'
 
 interface QualityCheck {
   id: number
@@ -708,6 +709,13 @@ export default function QualityControlPage() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Feedback Tracking Widget */}
+            {canGiveFeedback && (
+              <FeedbackTrackingWidget 
+                onViewQualityCheck={(id) => setSelectedSubmissionId(id)}
+              />
             )}
           </div>
         )}
