@@ -182,7 +182,7 @@ export default function AdminDashboardPage() {
 
   const fetchBranchHistory = async () => {
     try {
-      const response = await fetch('/api/analytics/branches/history?days=7')
+      const response = await fetch('/api/analytics/branches/history?days=8')
       if (response.ok) {
         const data = await response.json()
         setBranchHistory(data.branches || [])
@@ -699,12 +699,26 @@ export default function AdminDashboardPage() {
                 const aov = yesterdayOrders > 0 ? Math.round(yesterdayRevenue / yesterdayOrders) : 0
 
                 // Calculate week-over-week comparison
-                // History is ordered by date ASC, so:
-                // - history[0] = oldest day (7 days ago if available)
-                // - history[history.length - 1] = yesterday
-                const hasWeekData = branch.history.length >= 2
-                const lastWeekData = hasWeekData ? branch.history[0] : null
-                const lastWeekRevenue = lastWeekData?.revenue || 0
+                // Find the exact date from 7 days ago to compare with yesterday
+                const yesterdayDate = yesterdayData?.date ? new Date(yesterdayData.date) : null
+                let lastWeekData = null
+                let lastWeekRevenue = 0
+                
+                if (yesterdayDate) {
+                  // Calculate the date exactly 7 days before yesterday
+                  const lastWeekDate = new Date(yesterdayDate)
+                  lastWeekDate.setDate(lastWeekDate.getDate() - 7)
+                  const lastWeekDateStr = lastWeekDate.toISOString().split('T')[0]
+                  
+                  // Find that specific date in history
+                  lastWeekData = branch.history.find(h => {
+                    const historyDateStr = typeof h.date === 'string' 
+                      ? h.date.split('T')[0] 
+                      : new Date(h.date).toISOString().split('T')[0]
+                    return historyDateStr === lastWeekDateStr
+                  })
+                  lastWeekRevenue = lastWeekData?.revenue || 0
+                }
 
                 let weekOverWeekChange = 0
                 let weekOverWeekAmount = 0
@@ -714,16 +728,6 @@ export default function AdminDashboardPage() {
                   weekOverWeekChange = Math.round(((yesterdayRevenue - lastWeekRevenue) / lastWeekRevenue) * 100)
                   weekOverWeekAmount = yesterdayRevenue - lastWeekRevenue
                   hasValidComparison = true
-                }
-
-                // Debug logging (remove after testing)
-                if (idx === 0) {
-                  console.log('Branch:', branch.branch)
-                  console.log('History length:', branch.history.length)
-                  console.log('History dates:', branch.history.map(h => h.date))
-                  console.log('Yesterday revenue:', yesterdayRevenue)
-                  console.log('Last week revenue:', lastWeekRevenue)
-                  console.log('WoW change:', weekOverWeekChange)
                 }
 
                 // Calculate trend from history
