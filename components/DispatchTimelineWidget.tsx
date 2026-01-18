@@ -9,8 +9,7 @@ import {
   Package, 
   Truck, 
   ArrowRight,
-  CheckCircle2,
-  Clock
+  CheckCircle2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -54,15 +53,16 @@ function formatDate(dateStr: string): string {
   })
 }
 
-// Mini progress bar for timeline
-function MiniProgressBar({ percentage, status }: { percentage: number; status: 'not-started' | 'in-progress' | 'completed' }) {
+// Compact horizontal progress bar for list view
+function CompactProgressBar({ percentage, status }: { percentage: number; status: 'not-started' | 'in-progress' | 'completed' | 'dispatched' }) {
   return (
-    <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+    <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden min-w-[40px]">
       <div 
         className={cn(
           "h-full rounded-full transition-all duration-300",
           status === 'completed' ? 'bg-green-500' :
           status === 'in-progress' ? 'bg-blue-500' :
+          status === 'dispatched' ? 'bg-amber-500' :
           'bg-gray-300'
         )}
         style={{ width: `${percentage}%` }}
@@ -75,7 +75,7 @@ export function DispatchTimelineWidget({
   dispatches, 
   className,
   showManageButton = true,
-  maxBranches = 12
+  maxBranches = 20
 }: DispatchTimelineWidgetProps) {
   // Get the most recent active dispatch
   const activeDispatch = useMemo(() => {
@@ -207,34 +207,61 @@ export function DispatchTimelineWidget({
           </span>
         </div>
         
-        {/* Timeline grid - compact view for 12 branches */}
-        <div className="grid grid-cols-4 gap-1 mb-3">
+        {/* Compact list view - handles high branch counts */}
+        <div className="space-y-0.5 mb-3 max-h-[280px] overflow-y-auto pr-1">
           {branchProgress.slice(0, maxBranches).map(branch => {
             const isActive = branch.status === 'packing' || branch.status === 'receiving'
             const isCompleted = branch.status === 'completed'
-            const progressStatus = isCompleted ? 'completed' : isActive ? 'in-progress' : 'not-started'
+            const isDispatched = branch.status === 'dispatched'
+            const progressStatus = isCompleted ? 'completed' : isActive ? 'in-progress' : isDispatched ? 'dispatched' : 'not-started'
             
             return (
               <div 
                 key={branch.name}
                 className={cn(
-                  "p-1.5 rounded text-center border",
-                  isCompleted ? "bg-green-50 border-green-200" :
-                  isActive ? "bg-blue-50 border-blue-200" :
-                  branch.status === 'dispatched' ? "bg-amber-50 border-amber-200" :
-                  "bg-gray-50 border-gray-200"
+                  "flex items-center gap-2 px-2 py-1 rounded-md transition-colors",
+                  isCompleted ? "bg-green-50/50" :
+                  isActive ? "bg-blue-50/50" :
+                  isDispatched ? "bg-amber-50/50" :
+                  "bg-muted/30"
                 )}
               >
-                <div className="text-[9px] font-medium truncate mb-1" title={branch.name}>
-                  {branch.shortName}
+                {/* Status indicator dot */}
+                <div className={cn(
+                  "w-1.5 h-1.5 rounded-full shrink-0",
+                  isCompleted ? "bg-green-500" :
+                  isActive ? "bg-blue-500" :
+                  isDispatched ? "bg-amber-500" :
+                  "bg-gray-300"
+                )}>
+                  {isActive && (
+                    <span className="absolute inline-flex h-1.5 w-1.5 rounded-full bg-blue-400 opacity-75 animate-ping"></span>
+                  )}
                 </div>
-                <MiniProgressBar percentage={branch.percentage} status={progressStatus} />
-                <div className="text-[8px] mt-0.5">
+                
+                {/* Branch name */}
+                <span className={cn(
+                  "text-[10px] font-medium truncate min-w-[60px] max-w-[80px]",
+                  isActive ? "text-blue-700" :
+                  isCompleted ? "text-green-700" :
+                  "text-foreground"
+                )} title={branch.name}>
+                  {branch.shortName}
+                </span>
+                
+                {/* Progress bar */}
+                <CompactProgressBar percentage={branch.percentage} status={progressStatus} />
+                
+                {/* Percentage or checkmark */}
+                <div className="w-8 text-right shrink-0">
                   {isCompleted ? (
-                    <CheckCircle2 className="h-2.5 w-2.5 text-green-500 mx-auto" />
+                    <CheckCircle2 className="h-3 w-3 text-green-500 ml-auto" />
                   ) : (
                     <span className={cn(
-                      isActive ? "text-blue-600 font-medium" : "text-muted-foreground"
+                      "text-[10px] font-medium",
+                      isActive ? "text-blue-600" : 
+                      isDispatched ? "text-amber-600" :
+                      "text-muted-foreground"
                     )}>
                       {branch.percentage}%
                     </span>
@@ -245,24 +272,12 @@ export function DispatchTimelineWidget({
           })}
         </div>
         
-        {/* Status legend */}
-        <div className="flex items-center justify-center gap-3 text-[9px] text-muted-foreground mb-3 border-t pt-2">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-gray-300"></div>
-            <span>Pending</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-blue-500"></div>
-            <span>Active</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-amber-400"></div>
-            <span>Dispatched</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-green-500"></div>
-            <span>Done</span>
-          </div>
+        {/* Compact inline legend */}
+        <div className="flex items-center justify-center gap-2 text-[8px] text-muted-foreground mb-2">
+          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>Pending</span>
+          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Active</span>
+          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>In Transit</span>
+          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Done</span>
         </div>
         
         {/* Action button */}

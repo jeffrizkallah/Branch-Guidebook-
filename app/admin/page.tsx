@@ -678,7 +678,7 @@ export default function AdminDashboardPage() {
       </Card>
 
       {/* Yesterday's Branch Performance & Dispatch Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xs:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xs:gap-4 items-start">
         {/* Yesterday's Branch Performance Widget - Takes 2 columns */}
         {branchHistory.length > 0 && (
           <Card className="lg:col-span-2 border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
