@@ -247,7 +247,6 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
           flex flex-col
           ${isPreviewMode ? 'top-10 h-[calc(100vh-40px)]' : 'top-0 h-screen'}
           ${className || ''}
-          safe-bottom
         `}
       >
         {/* Logo Section */}

@@ -221,6 +221,16 @@ export interface DispatchItem {
   addedAt?: string              // ISO timestamp when added
   addedBy?: string              // Who added it (Dispatcher name/email)
   addedReason?: string          // Reason for late addition
+  
+  // Follow-up resolution tracking (for items with issues)
+  resolutionStatus?: 'unresolved' | 'scheduled' | 'resolved'
+  resolvedByDispatchId?: string   // Which follow-up dispatch resolved this issue
+  resolvedAt?: string             // ISO timestamp when resolved
+  
+  // For follow-up items - link back to original
+  originalDispatchId?: string     // Parent dispatch this item is resolving
+  originalItemId?: string         // Original item ID this is a follow-up for
+  originalIssue?: string          // What the original issue was
 }
 
 export interface BranchDispatch {
@@ -248,6 +258,11 @@ export interface Dispatch {
   deliveryDate: string
   createdBy: string
   branchDispatches: BranchDispatch[]
+  
+  // Follow-up dispatch relationship
+  type: 'primary' | 'follow_up'
+  parentDispatchId?: string       // Only for follow-ups - links to original dispatch
+  followUpDispatchIds?: string[]  // List of follow-up dispatches created from this
 }
 
 // Helper to convert database row to Branch type

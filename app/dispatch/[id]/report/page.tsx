@@ -10,6 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AddItemModal } from '@/components/AddItemModal'
+import { FollowUpModal } from '@/components/FollowUpModal'
+import { PackingProgressOverview } from '@/components/PackingProgressOverview'
 import { useAuth } from '@/hooks/useAuth'
 import { 
   ArrowLeft, 
@@ -25,7 +27,10 @@ import {
   ChevronDown,
   ChevronUp,
   FileSpreadsheet,
-  Plus
+  Plus,
+  RefreshCw,
+  ExternalLink,
+  CalendarClock
 } from 'lucide-react'
 import type { Dispatch, BranchDispatch, DispatchItem } from '@/lib/data'
 
@@ -40,6 +45,7 @@ interface ReportPageProps {
 
 export default function DispatchReportPage({ params, searchParams }: ReportPageProps) {
   const [dispatch, setDispatch] = useState<Dispatch | null>(null)
+  const [allDispatches, setAllDispatches] = useState<Dispatch[]>([])
   const [loading, setLoading] = useState(true)
   const [filterIssueType, setFilterIssueType] = useState<'all' | 'missing' | 'damaged' | 'partial' | 'shortage'>('all')
   const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
@@ -47,6 +53,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const [completeDetailsFilter, setCompleteDetailsFilter] = useState<'all' | 'issues'>('all')
   const [addItemModalOpen, setAddItemModalOpen] = useState(false)
   const [addItemPreselectedBranch, setAddItemPreselectedBranch] = useState<string | undefined>(undefined)
+  const [followUpModalOpen, setFollowUpModalOpen] = useState(false)
   const router = useRouter()
   const isPrintMode = searchParams.print === '1'
   const { canEdit } = useAuth()
@@ -60,6 +67,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     try {
       const response = await fetch('/api/dispatch')
       const dispatches = await response.json()
+      setAllDispatches(dispatches)
       const foundDispatch = dispatches.find((d: Dispatch) => d.id === params.id)
       setDispatch(foundDispatch || null)
       setLoading(false)
@@ -68,6 +76,25 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
       setLoading(false)
     }
   }
+
+  // Get follow-up dispatches for this dispatch
+  const followUpDispatches = allDispatches.filter(
+    d => dispatch?.followUpDispatchIds?.includes(d.id)
+  )
+
+  // Get parent dispatch if this is a follow-up
+  const parentDispatch = dispatch?.parentDispatchId 
+    ? allDispatches.find(d => d.id === dispatch.parentDispatchId)
+    : null
+
+  // Count unresolved issues (items that could go into a follow-up)
+  const unresolvedIssueCount = dispatch?.branchDispatches.reduce((count, bd) => {
+    return count + bd.items.filter(item => 
+      item.issue && 
+      item.resolutionStatus !== 'resolved' &&
+      (item.orderedQty - (item.receivedQty ?? 0)) > 0
+    ).length
+  }, 0) ?? 0
 
   const handlePrint = () => {
     window.print()
@@ -325,16 +352,45 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-4xl font-bold mb-2">Dispatch Report</h1>
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-4xl font-bold">
+                    {dispatch.type === 'follow_up' ? 'Follow-Up Dispatch Report' : 'Dispatch Report'}
+                  </h1>
+                  {dispatch.type === 'follow_up' && (
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-sm px-3 py-1">
+                      <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                      FOLLOW-UP
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-lg text-muted-foreground">
                   Delivery Date: {formatDate(dispatch.deliveryDate)}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Created: {formatDate(dispatch.createdDate)} by {dispatch.createdBy}
                 </p>
+                {/* Show parent dispatch link if this is a follow-up */}
+                {parentDispatch && (
+                  <p className="text-sm text-amber-600 mt-1">
+                    <Link href={`/dispatch/${parentDispatch.id}/report`} className="flex items-center gap-1 hover:underline">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Resolving issues from {formatDate(parentDispatch.deliveryDate)} dispatch
+                    </Link>
+                  </p>
+                )}
               </div>
               {!isPrintMode && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {/* Create Follow-Up Button - Only for primary dispatches with unresolved issues */}
+                  {dispatch.type !== 'follow_up' && unresolvedIssueCount > 0 && canAddItems && (
+                    <Button
+                      onClick={() => setFollowUpModalOpen(true)}
+                      className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      Create Follow-Up ({unresolvedIssueCount})
+                    </Button>
+                  )}
                   {canAddItems && (
                     <Button
                       onClick={() => {
@@ -372,6 +428,41 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                 </div>
               )}
             </div>
+
+            {/* Follow-Up Dispatches Section */}
+            {followUpDispatches.length > 0 && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <h3 className="font-semibold text-amber-800 flex items-center gap-2 mb-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Follow-Up Dispatches ({followUpDispatches.length})
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {followUpDispatches.map(fu => {
+                    const isCompleted = fu.branchDispatches.every(bd => bd.status === 'completed')
+                    return (
+                      <Link key={fu.id} href={`/dispatch/${fu.id}/report`}>
+                        <Badge 
+                          variant="outline" 
+                          className={`cursor-pointer hover:bg-amber-100 transition-colors ${
+                            isCompleted ? 'bg-green-100 border-green-300 text-green-800' : 'bg-amber-100 border-amber-300 text-amber-800'
+                          }`}
+                        >
+                          <CalendarClock className="h-3 w-3 mr-1" />
+                          {formatDate(fu.deliveryDate)}
+                          {isCompleted ? (
+                            <CheckCircle2 className="h-3 w-3 ml-1 text-green-600" />
+                          ) : (
+                            <span className="ml-1 text-xs">
+                              ({fu.branchDispatches.filter(bd => bd.status === 'completed').length}/{fu.branchDispatches.length})
+                            </span>
+                          )}
+                        </Badge>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Summary Statistics */}
@@ -428,6 +519,14 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
               </CardContent>
             </Card>
           </div>
+
+          {/* Packing Progress Overview - Not shown in print mode */}
+          {!isPrintMode && (
+            <PackingProgressOverview 
+              branchDispatches={dispatch.branchDispatches} 
+              className="mb-6"
+            />
+          )}
 
           {/* Issue Type Filter */}
           {itemsWithIssues.length > 0 && !isPrintMode && (
@@ -637,6 +736,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                   <th className="text-center p-3 font-medium">Still to Send</th>
                                   <th className="text-center p-3 font-medium">Unit</th>
                                   <th className="text-center p-3 font-medium">Issue Type</th>
+                                  <th className="text-center p-3 font-medium">Resolution</th>
                                   <th className="text-left p-3 font-medium">Notes</th>
                                 </tr>
                               </thead>
@@ -647,6 +747,11 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                   const stillToSend = item.orderedQty - receivedQty
                                   const packingIssue = item.orderedQty !== packedQty
                                   const transitIssue = packedQty !== receivedQty
+                                  
+                                  // Find the follow-up dispatch if scheduled
+                                  const followUpDispatch = item.resolvedByDispatchId 
+                                    ? allDispatches.find(d => d.id === item.resolvedByDispatchId)
+                                    : null
                                   
                                   return (
                                     <tr key={item.id} className="border-t hover:bg-muted/50">
@@ -686,6 +791,28 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                       <td className="p-3 text-center text-sm text-muted-foreground">{item.orderedQty > 150 ? 'unit' : 'KG'}</td>
                                       <td className="p-3 text-center">
                                         {item.issue && getIssueTypeBadge(item.issue)}
+                                      </td>
+                                      <td className="p-3 text-center">
+                                        {item.resolutionStatus === 'resolved' ? (
+                                          <Badge className="bg-green-100 text-green-700 border-green-200">
+                                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                                            Resolved
+                                          </Badge>
+                                        ) : item.resolutionStatus === 'scheduled' && followUpDispatch ? (
+                                          <Link href={`/dispatch/${followUpDispatch.id}/report`}>
+                                            <Badge className="bg-amber-100 text-amber-700 border-amber-200 cursor-pointer hover:bg-amber-200">
+                                              <CalendarClock className="h-3 w-3 mr-1" />
+                                              {formatDate(followUpDispatch.deliveryDate)}
+                                            </Badge>
+                                          </Link>
+                                        ) : stillToSend > 0 ? (
+                                          <Badge variant="outline" className="text-red-600 border-red-300">
+                                            <AlertTriangle className="h-3 w-3 mr-1" />
+                                            Unresolved
+                                          </Badge>
+                                        ) : (
+                                          <span className="text-muted-foreground text-xs">—</span>
+                                        )}
                                       </td>
                                       <td className="p-3 text-sm">
                                         {item.notes || <span className="text-muted-foreground italic">No notes</span>}
@@ -964,6 +1091,16 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           branchDispatches={dispatch.branchDispatches}
           preSelectedBranch={addItemPreselectedBranch}
           onItemAdded={fetchDispatch}
+        />
+      )}
+
+      {/* Follow-Up Modal */}
+      {dispatch && (
+        <FollowUpModal
+          isOpen={followUpModalOpen}
+          onClose={() => setFollowUpModalOpen(false)}
+          dispatch={dispatch}
+          onFollowUpCreated={fetchDispatch}
         />
       )}
     </div>

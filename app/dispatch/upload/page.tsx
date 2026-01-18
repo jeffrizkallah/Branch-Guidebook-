@@ -437,6 +437,8 @@ export default function DispatchUploadPage() {
         createdDate: new Date().toISOString(),
         deliveryDate: formattedDate,
         createdBy: 'Head Office',
+        type: 'primary' as const,
+        followUpDispatchIds: [],
         branchDispatches: parsedData.branches.map(branch => ({
           branchSlug: branch.branchSlug,
           branchName: branch.branchName,

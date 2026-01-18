@@ -34,6 +34,7 @@ import {
   Sun,
 } from 'lucide-react'
 import { Sparkline } from '@/components/Sparkline'
+import { DispatchTimelineWidget } from '@/components/DispatchTimelineWidget'
 import { cn } from '@/lib/utils'
 
 interface Branch {
@@ -68,7 +69,12 @@ interface Dispatch {
   branchDispatches: {
     branchSlug: string
     branchName: string
-    status: string
+    status: 'pending' | 'packing' | 'dispatched' | 'receiving' | 'completed'
+    items: Array<{
+      packedChecked: boolean
+      receivedChecked: boolean
+    }>
+    packingStartedAt: string | null
   }[]
 }
 
@@ -167,6 +173,7 @@ interface BranchHistoryData {
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [branches, setBranches] = useState<Branch[]>([])
+  const [dispatches, setDispatches] = useState<Dispatch[]>([])
   const [salesData, setSalesData] = useState<SalesData | null>(null)
   const [qualitySummary, setQualitySummary] = useState<QualitySummary | null>(null)
   const [branchHistory, setBranchHistory] = useState<BranchHistoryData[]>([])
@@ -278,6 +285,7 @@ export default function AdminDashboardPage() {
       const notificationsData = notificationsRes.ok ? await (notificationsRes as Response).json() : { notifications: [] }
 
       setBranches(branchesData)
+      setDispatches(dispatchesData)
 
       // Calculate stats
       const serviceBranches = branchesData.filter(b => b.branchType !== 'production')
@@ -902,61 +910,11 @@ export default function AdminDashboardPage() {
         )}
 
         {/* Dispatch Widget - Takes 1 column */}
-        <Card className="border-l-4 border-l-amber-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
-          <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2">
-                <Truck className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-amber-600" />
-                <span>Dispatch Overview</span>
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
-            <div className="space-y-3 xs:space-y-4">
-              {/* Total Dispatches */}
-              <div className="text-center p-3 xs:p-4 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg">
-                <p className="text-2xl xs:text-3xl font-bold text-amber-900">{stats?.dispatches.total || 0}</p>
-                <p className="text-[10px] xs:text-xs text-amber-700 mt-0.5 xs:mt-1">Total Dispatches</p>
-              </div>
-
-              {/* Status Breakdown */}
-              <div className="space-y-1.5 xs:space-y-2">
-                <div className="flex items-center justify-between p-2 xs:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                  <div className="flex items-center gap-1.5 xs:gap-2">
-                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-yellow-500"></div>
-                    <span className="text-xs xs:text-sm font-medium text-yellow-900">Pending</span>
-                  </div>
-                  <span className="text-base xs:text-lg font-bold text-yellow-900">{stats?.dispatches.pending || 0}</span>
-                </div>
-
-                <div className="flex items-center justify-between p-2 xs:p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-1.5 xs:gap-2">
-                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-blue-500"></div>
-                    <span className="text-xs xs:text-sm font-medium text-blue-900">In Progress</span>
-                  </div>
-                  <span className="text-base xs:text-lg font-bold text-blue-900">{stats?.dispatches.inProgress || 0}</span>
-                </div>
-
-                <div className="flex items-center justify-between p-2 xs:p-3 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex items-center gap-1.5 xs:gap-2">
-                    <div className="w-1.5 h-1.5 xs:w-2 xs:h-2 rounded-full bg-green-500"></div>
-                    <span className="text-xs xs:text-sm font-medium text-green-900">Completed</span>
-                  </div>
-                  <span className="text-base xs:text-lg font-bold text-green-900">{stats?.dispatches.completed || 0}</span>
-                </div>
-              </div>
-
-              {/* Quick Action */}
-              <Link href="/dispatch" className="block">
-                <Button variant="outline" size="sm" className="w-full text-[10px] xs:text-xs gap-1.5 xs:gap-2 h-8 xs:h-9">
-                  <Package className="h-3 w-3 xs:h-3.5 xs:w-3.5" />
-                  Manage Dispatches
-                  <ArrowRight className="h-3 w-3 xs:h-3.5 xs:w-3.5 ml-auto" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        <DispatchTimelineWidget 
+          dispatches={dispatches}
+          className="animate-slide-up opacity-0 stagger-6"
+          maxBranches={12}
+        />
       </div>
 
       {/* Quality Control Widget */}
@@ -1297,24 +1255,6 @@ export default function AdminDashboardPage() {
           */}
         </div>
       </div>
-
-      {/* Footer Info */}
-      <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-dashed">
-        <CardContent className="py-4">
-          <div className="flex items-center gap-4">
-            <div className="p-2.5 rounded-xl bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-sm">Need Help?</h3>
-              <p className="text-xs text-muted-foreground">
-                Contact your system administrator for additional features or support. More management tools are under development.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Quality Check Detail Modal */}
       <QualityCheckDetailModal
         submissionId={selectedSubmissionId}

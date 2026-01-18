@@ -31,6 +31,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 import { Sparkline } from '@/components/Sparkline'
+import { DispatchTimelineWidget } from '@/components/DispatchTimelineWidget'
 
 interface Branch {
   id: string
@@ -103,8 +104,12 @@ interface Dispatch {
   branchDispatches: {
     branchSlug: string
     branchName: string
-    status: string
-    items: any[]
+    status: 'pending' | 'packing' | 'dispatched' | 'receiving' | 'completed'
+    items: Array<{
+      packedChecked: boolean
+      receivedChecked: boolean
+    }>
+    packingStartedAt: string | null
   }[]
 }
 
@@ -680,64 +685,10 @@ export default function RegionalDashboardPage() {
           </Card>
 
           {/* Dispatch Widget */}
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Truck className="h-4 w-4 text-blue-600" />
-                Dispatch Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                <div className="text-center p-3 bg-amber-50 rounded-lg">
-                  <p className="text-xl font-bold text-amber-700">{dispatchStats.pending}</p>
-                  <p className="text-xs text-amber-600">Pending</p>
-                </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <p className="text-xl font-bold text-blue-700">{dispatchStats.active}</p>
-                  <p className="text-xs text-blue-600">Active</p>
-                </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <p className="text-xl font-bold text-green-700">{dispatchStats.completed}</p>
-                  <p className="text-xs text-green-600">Done</p>
-                </div>
-              </div>
-
-              {dispatches.length > 0 ? (
-                <div className="space-y-2">
-                  {dispatches.slice(0, 3).map(dispatch => {
-                    const pendingCount = dispatch.branchDispatches.filter(bd => bd.status !== 'completed').length
-                    return (
-                      <div key={dispatch.id} className="flex items-center justify-between p-2 bg-muted/50 rounded-lg text-sm">
-                        <div>
-                          <p className="font-medium">
-                            {new Date(dispatch.deliveryDate).toLocaleDateString('en-US', {
-                              weekday: 'short',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{dispatch.branchDispatches.length} branches</p>
-                        </div>
-                        {pendingCount > 0 ? (
-                          <Badge variant="secondary" className="text-amber-600 bg-amber-100">
-                            {pendingCount} pending
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="text-green-600 bg-green-100">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Complete
-                          </Badge>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">No recent dispatches</p>
-              )}
-            </CardContent>
-          </Card>
+          <DispatchTimelineWidget 
+            dispatches={dispatches}
+            maxBranches={12}
+          />
 
           {/* Budget Quick Access */}
           <Card className="border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50">
