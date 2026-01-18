@@ -134,14 +134,15 @@ const FILE_CONFIGS = {
     tableName: 'odoo_recipe',
     fileName: 'recipe.xlsx',
     columns: [
-      'category', 'product_group', 'ingredient_name', 'quantity', 'unit',
+      'category', 'product_group', 'item', 'ingredient_name', 'quantity', 'unit',
       'unit_cost', 'ingredient_total_cost', 'recipe_total_cost', 'notes', 'barcode'
     ],
     transform: (row) => ({
       category: row['Category'] ? String(row['Category']).trim() : null,
       product_group: row['Group'] ? String(row['Group']).trim() : null,
+      item: row['Item'] ? String(row['Item']).trim() : null,
       ingredient_name: row['Ingredient Name'] ? String(row['Ingredient Name']).trim() : null,
-      quantity: parseFloat(row['Quantity']) || 0,
+      quantity: parseFloat(row['Qty']) || 0,
       unit: row['Unit'] ? String(row['Unit']).trim() : null,
       unit_cost: parseFloat(row['Unit Cost']) || 0,
       ingredient_total_cost: parseFloat(row['Ingredient Total Cost']) || 0,

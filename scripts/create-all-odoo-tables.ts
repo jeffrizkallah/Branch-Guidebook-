@@ -97,6 +97,7 @@ async function createAllOdooTables() {
         id SERIAL PRIMARY KEY,
         category VARCHAR(100),
         product_group VARCHAR(100),
+        item VARCHAR(255),
         ingredient_name VARCHAR(255),
         quantity DECIMAL(12, 3),
         unit VARCHAR(50),
@@ -109,6 +110,8 @@ async function createAllOdooTables() {
       )
     `
     await sql`CREATE INDEX IF NOT EXISTS idx_recipe_category ON odoo_recipe(category)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_recipe_product_group ON odoo_recipe(product_group)`
+    await sql`CREATE INDEX IF NOT EXISTS idx_recipe_item ON odoo_recipe(item)`
     await sql`CREATE INDEX IF NOT EXISTS idx_recipe_ingredient ON odoo_recipe(ingredient_name)`
     await sql`CREATE INDEX IF NOT EXISTS idx_recipe_barcode ON odoo_recipe(barcode)`
     console.log('✓ odoo_recipe table created\n')
