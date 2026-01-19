@@ -1017,8 +1017,8 @@ export default function AdminDashboardPage() {
           Quick Management
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-3">
-          {/* Recipes Management */}
-          <Link href="/admin/recipes">
+          {/* Recipe Instructions Management */}
+          <Link href="/admin/recipe-instructions">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
                 <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">

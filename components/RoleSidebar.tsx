@@ -56,8 +56,8 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
           subItems: [
             { href: '/admin', label: 'Dashboard' },
             { href: '/admin/users', label: 'User Management' },
-            { href: '/admin/recipes', label: 'Recipes' },
-            { href: '/admin/recipe-instructions', label: 'Prep Instructions' },
+            { href: '/recipes', label: 'Recipes' },
+            { href: '/admin/recipe-instructions', label: 'Recipe Instructions' },
             { href: '/admin/production-schedules', label: 'Production Schedules' },
             { href: '/admin/branches', label: 'Branch Settings' },
             { href: '/admin/notifications', label: 'Notifications' },
@@ -73,12 +73,12 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
         { href: '/', label: 'Branches', icon: Building2 },
         { href: '/branch/central-kitchen', label: 'Central Kitchen', icon: Factory },
         { 
-          href: '/admin/recipes', 
+          href: '/recipes', 
           label: 'Recipes', 
           icon: ChefHat,
           subItems: [
-            { href: '/admin/recipes', label: 'Recipe Manager' },
-            { href: '/admin/recipe-instructions', label: 'Reheating & Assembly' },
+            { href: '/recipes', label: 'All Recipes' },
+            { href: '/admin/recipe-instructions', label: 'Recipe Instructions' },
           ]
         },
       ]
@@ -93,7 +93,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
     case 'central_kitchen':
       return [
         { href: '/kitchen', label: 'Home', icon: Home },
-        { href: '/branch/central-kitchen/recipes', label: 'Recipes', icon: ChefHat },
+        { href: '/recipes', label: 'Recipes', icon: ChefHat },
         { href: '/', label: 'Branches', icon: Building2 },
       ]
 

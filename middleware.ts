@@ -21,7 +21,7 @@ const publicRoutes = [
 
 // Routes that require specific roles
 const roleRestrictedRoutes: Record<string, string[]> = {
-  '/admin/recipes': ['admin', 'operations_lead'],
+  '/recipes': ['admin', 'operations_lead', 'central_kitchen'],
   '/admin/recipe-instructions': ['admin', 'operations_lead'],
   '/admin/production-schedules': ['admin', 'operations_lead'],
   '/admin/quality-control': ['admin', 'operations_lead'],
@@ -120,6 +120,7 @@ export default withAuth(
       if (path === '/' ||
           path === '/kitchen' || 
           path === '/profile' || 
+          path.startsWith('/recipes') ||
           path.startsWith('/branch/central-kitchen') ||
           path.startsWith('/branch/')) {
         return NextResponse.next()

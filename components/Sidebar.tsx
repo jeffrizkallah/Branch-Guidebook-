@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { NotificationDropdown } from '@/components/NotificationDropdown'
-import { Home, Package, Settings, ChevronLeft, ChevronRight, Search, Menu, X, Factory } from 'lucide-react'
+import { Home, Package, Settings, ChevronLeft, ChevronRight, Search, Menu, X, Factory, ChefHat } from 'lucide-react'
 
 interface SidebarProps {
   onSearch?: (query: string) => void
@@ -26,6 +26,7 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
   const navItems = [
     { href: '/', label: 'Branches', icon: Home },
     { href: '/branch/central-kitchen', label: 'Central Kitchen', icon: Factory },
+    { href: '/recipes', label: 'Recipes', icon: ChefHat },
     { href: '/dispatch', label: 'Dispatch', icon: Package },
     { href: '/admin', label: 'Admin', icon: Settings },
   ]

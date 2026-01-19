@@ -333,7 +333,7 @@ export default function OperationsDashboardPage() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* CK Recipes */}
-              <Link href="/admin/recipes">
+              <Link href="/recipes">
                 <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">

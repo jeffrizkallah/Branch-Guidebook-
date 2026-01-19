@@ -2,104 +2,105 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, Save, ArrowLeft, Loader2, Flame, GripVertical, ChefHat } from 'lucide-react'
-import type { RecipeInstruction, InstructionComponent, Recipe } from '@/lib/data'
-import { ImageUpload } from '@/components/ImageUpload'
+import { Plus, Trash2, Save, ArrowLeft, Loader2 } from 'lucide-react'
+import type { Recipe, Ingredient, PreparationStep } from '@/lib/data'
+import { SubRecipeEditor } from '@/components/SubRecipeEditor'
+import { MainIngredientsEditor } from '@/components/MainIngredientsEditor'
+import { MachineToolEditor } from '@/components/MachineToolEditor'
+import { QualitySpecsEditor } from '@/components/QualitySpecsEditor'
+import { PackingLabelingEditor } from '@/components/PackingLabelingEditor'
+
+const EMPTY_RECIPE: Recipe = {
+  recipeId: '',
+  name: '',
+  category: 'Main Course',
+  station: '',
+  recipeCode: '',
+  yield: '',
+  daysAvailable: [],
+  prepTime: '',
+  cookTime: '',
+  servings: '',
+  ingredients: [],
+  mainIngredients: [],
+  subRecipes: [],
+  preparation: [],
+  requiredMachinesTools: [],
+  qualitySpecifications: [],
+  packingLabeling: {
+    packingType: '',
+    serviceItems: [],
+    labelRequirements: '',
+    storageCondition: '',
+    shelfLife: ''
+  },
+  presentation: {
+    description: '',
+    instructions: [],
+    photos: []
+  },
+  sops: {
+    foodSafetyAndHygiene: [],
+    cookingStandards: [],
+    storageAndHolding: [],
+    qualityStandards: []
+  },
+  troubleshooting: [],
+  allergens: [],
+  storageInstructions: ''
+}
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const EMPTY_COMPONENT: InstructionComponent = {
-  componentId: '',
-  subRecipeName: '',
-  servingPerPortion: 0,
-  unit: 'Gr',
-  reheatingSteps: ['', '', ''],
-  quantityControlNotes: '',
-  presentationGuidelines: ''
-}
-
-const EMPTY_INSTRUCTION: RecipeInstruction = {
-  instructionId: '',
-  dishName: '',
-  linkedRecipeId: '',
-  category: 'Main Course',
-  daysAvailable: [],
-  components: [],
-  visualPresentation: [],
-  branchManagerFeedback: ''
-}
-
-export default function RecipeInstructionEditorPage({ params }: { params: { id: string } }) {
+export default function RecipeInstructionsEditorPage({ params }: { params: { id: string } }) {
   const isNew = params.id === 'new'
   const router = useRouter()
-  const [instruction, setInstruction] = useState<RecipeInstruction>(EMPTY_INSTRUCTION)
-  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [recipe, setRecipe] = useState<Recipe>(EMPTY_RECIPE)
   const [isLoading, setIsLoading] = useState(!isNew)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('basic')
 
   useEffect(() => {
-    fetchRecipes()
     if (!isNew) {
-      fetchInstruction()
+      fetchRecipe()
     }
   }, [params.id])
 
-  const fetchInstruction = async () => {
+  const fetchRecipe = async () => {
     try {
-      const res = await fetch(`/api/recipe-instructions/${params.id}`)
-      if (res.ok) {
-        const data = await res.json()
-        setInstruction(data)
+      const res = await fetch('/api/recipes')
+      const data = await res.json()
+      const found = data.find((r: Recipe) => r.recipeId === params.id)
+      if (found) {
+        setRecipe(found)
       } else {
-        alert('Instruction not found')
+        alert('Recipe instructions not found')
         router.push('/admin/recipe-instructions')
       }
     } catch (error) {
-      console.error('Failed to fetch instruction', error)
+      console.error('Failed to fetch recipe', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const fetchRecipes = async () => {
-    try {
-      const res = await fetch('/api/recipes')
-      const data = await res.json()
-      setRecipes(data)
-    } catch (error) {
-      console.error('Failed to fetch recipes', error)
-    }
-  }
-
-  const saveInstruction = async () => {
-    if (!instruction.dishName.trim()) {
-      alert('Please enter a dish name')
-      return
-    }
-    if (!instruction.instructionId.trim()) {
-      alert('Please enter an instruction ID')
-      return
-    }
-
+  const saveRecipe = async () => {
     setIsSaving(true)
     try {
       const method = isNew ? 'POST' : 'PUT'
-      const url = isNew ? '/api/recipe-instructions' : `/api/recipe-instructions/${params.id}`
-
+      const url = isNew ? '/api/recipes' : `/api/recipes/${params.id}`
+      
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(instruction)
+        body: JSON.stringify(recipe)
       })
 
       if (!res.ok) {
@@ -116,12 +117,12 @@ export default function RecipeInstructionEditorPage({ params }: { params: { id: 
     }
   }
 
-  const updateField = (field: keyof RecipeInstruction, value: any) => {
-    setInstruction(prev => ({ ...prev, [field]: value }))
+  const updateField = (field: keyof Recipe, value: any) => {
+    setRecipe(prev => ({ ...prev, [field]: value }))
   }
 
   const toggleDay = (day: string) => {
-    setInstruction(prev => {
+    setRecipe(prev => {
       const days = prev.daysAvailable.includes(day)
         ? prev.daysAvailable.filter(d => d !== day)
         : [...prev.daysAvailable, day]
@@ -129,77 +130,66 @@ export default function RecipeInstructionEditorPage({ params }: { params: { id: 
     })
   }
 
-  // Component management
-  const addComponent = () => {
-    const newComponent: InstructionComponent = {
-      ...EMPTY_COMPONENT,
-      componentId: `component-${Date.now()}`
-    }
-    setInstruction(prev => ({
+  // Helper for array fields (ingredients, prep steps)
+  const addIngredient = () => {
+    setRecipe(prev => ({
       ...prev,
-      components: [...prev.components, newComponent]
+      ingredients: [...prev.ingredients, { item: '', quantity: '', notes: '' }]
     }))
   }
 
-  const updateComponent = (index: number, field: keyof InstructionComponent, value: any) => {
-    const newComponents = [...instruction.components]
-    newComponents[index] = { ...newComponents[index], [field]: value }
-    setInstruction(prev => ({ ...prev, components: newComponents }))
+  const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
+    const newIngredients = [...recipe.ingredients]
+    newIngredients[index] = { ...newIngredients[index], [field]: value }
+    setRecipe(prev => ({ ...prev, ingredients: newIngredients }))
   }
 
-  const updateReheatingStep = (componentIndex: number, stepIndex: number, value: string) => {
-    const newComponents = [...instruction.components]
-    const newSteps = [...newComponents[componentIndex].reheatingSteps]
-    newSteps[stepIndex] = value
-    newComponents[componentIndex] = { ...newComponents[componentIndex], reheatingSteps: newSteps }
-    setInstruction(prev => ({ ...prev, components: newComponents }))
-  }
-
-  const addReheatingStep = (componentIndex: number) => {
-    const newComponents = [...instruction.components]
-    newComponents[componentIndex] = {
-      ...newComponents[componentIndex],
-      reheatingSteps: [...newComponents[componentIndex].reheatingSteps, '']
-    }
-    setInstruction(prev => ({ ...prev, components: newComponents }))
-  }
-
-  const removeReheatingStep = (componentIndex: number, stepIndex: number) => {
-    const newComponents = [...instruction.components]
-    const newSteps = newComponents[componentIndex].reheatingSteps.filter((_, i) => i !== stepIndex)
-    newComponents[componentIndex] = { ...newComponents[componentIndex], reheatingSteps: newSteps }
-    setInstruction(prev => ({ ...prev, components: newComponents }))
-  }
-
-  const removeComponent = (index: number) => {
-    setInstruction(prev => ({
+  const removeIngredient = (index: number) => {
+    setRecipe(prev => ({
       ...prev,
-      components: prev.components.filter((_, i) => i !== index)
+      ingredients: prev.ingredients.filter((_, i) => i !== index)
     }))
   }
 
-  const moveComponent = (index: number, direction: 'up' | 'down') => {
-    const newIndex = direction === 'up' ? index - 1 : index + 1
-    if (newIndex < 0 || newIndex >= instruction.components.length) return
-
-    const newComponents = [...instruction.components]
-    const temp = newComponents[index]
-    newComponents[index] = newComponents[newIndex]
-    newComponents[newIndex] = temp
-    setInstruction(prev => ({ ...prev, components: newComponents }))
+  const addPrepStep = () => {
+    setRecipe(prev => ({
+      ...prev,
+      preparation: [...prev.preparation, {
+        step: prev.preparation.length + 1,
+        instruction: '',
+        time: '',
+        critical: false,
+        hint: ''
+      }]
+    }))
   }
 
-  // Generate slug from dish name
-  const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+  const updatePrepStep = (index: number, field: keyof PreparationStep, value: any) => {
+    const newSteps = [...recipe.preparation]
+    newSteps[index] = { ...newSteps[index], [field]: value }
+    setRecipe(prev => ({ ...prev, preparation: newSteps }))
+  }
+
+  const removePrepStep = (index: number) => {
+    setRecipe(prev => ({
+      ...prev,
+      preparation: prev.preparation.filter((_, i) => i !== index)
+    }))
+  }
+
+  // Helper to handle array of strings via textarea (split by newline)
+  const handleStringArrayChange = (field: keyof typeof recipe.sops, value: string) => {
+    setRecipe(prev => ({
+      ...prev,
+      sops: {
+        ...prev.sops,
+        [field]: value.split('\n').filter(line => line.trim() !== '')
+      }
+    }))
   }
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-      </div>
-    )
+    return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>
   }
 
   return (
@@ -209,108 +199,127 @@ export default function RecipeInstructionEditorPage({ params }: { params: { id: 
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Flame className="h-6 w-6 text-orange-500" />
-              {isNew ? 'Create Recipe Instruction' : `Edit: ${instruction.dishName}`}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Define reheating and assembly instructions for branch staff
-            </p>
-          </div>
+          <h1 className="text-2xl font-bold">{isNew ? 'Create Recipe Instructions' : `Edit: ${recipe.name}`}</h1>
         </div>
-        <Button onClick={saveInstruction} disabled={isSaving} className="gap-2 bg-orange-500 hover:bg-orange-600">
+        <Button onClick={saveRecipe} disabled={isSaving} className="gap-2">
           {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save Instruction
+          Save Instructions
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 gap-1">
-          <TabsTrigger value="basic">Basic Info</TabsTrigger>
-          <TabsTrigger value="components">
-            Components
-            <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-700">
-              {instruction.components.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="presentation">Presentation</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 gap-1">
+          <TabsTrigger value="basic">Basic</TabsTrigger>
+          <TabsTrigger value="main-ingredients">Main Ingr.</TabsTrigger>
+          <TabsTrigger value="sub-recipes">Sub-Recipes</TabsTrigger>
+          <TabsTrigger value="preparation">Prep</TabsTrigger>
+          <TabsTrigger value="machines">Machines</TabsTrigger>
+          <TabsTrigger value="quality">Quality</TabsTrigger>
+          <TabsTrigger value="packing">Packing</TabsTrigger>
+          <TabsTrigger value="sops">SOPs</TabsTrigger>
+          <TabsTrigger value="media">Media</TabsTrigger>
         </TabsList>
 
         <TabsContent value="basic" className="space-y-4 mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>General Information</CardTitle>
-              <CardDescription>Basic details about this recipe instruction</CardDescription>
-            </CardHeader>
+            <CardHeader><CardTitle>General Information</CardTitle></CardHeader>
             <CardContent className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Dish Name *</Label>
-                  <Input
-                    value={instruction.dishName}
-                    onChange={e => {
-                      updateField('dishName', e.target.value)
-                      if (isNew) {
-                        updateField('instructionId', generateSlug(e.target.value))
-                      }
-                    }}
-                    placeholder="e.g. Hm Oriental Chicken with Rice"
+                  <Label>Recipe Name *</Label>
+                  <Input 
+                    value={recipe.name} 
+                    onChange={e => updateField('name', e.target.value)} 
+                    placeholder="e.g. Fish Fillet w/ Creamy Dill Sauce"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Instruction ID (Slug) *</Label>
-                  <Input
-                    value={instruction.instructionId}
-                    onChange={e => updateField('instructionId', e.target.value)}
-                    placeholder="e.g. hm-oriental-chicken-rice"
+                  <Label>Recipe ID (Slug) *</Label>
+                  <Input 
+                    value={recipe.recipeId} 
+                    onChange={e => updateField('recipeId', e.target.value)} 
+                    placeholder="e.g. fish-fillet-creamy-dill"
                     disabled={!isNew}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Station</Label>
+                  <Input 
+                    value={recipe.station || ''} 
+                    onChange={e => updateField('station', e.target.value)}
+                    placeholder="e.g. Hot Section / Butchery / Pantry"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Recipe Code</Label>
+                  <Input 
+                    value={recipe.recipeCode || ''} 
+                    onChange={e => updateField('recipeCode', e.target.value)}
+                    placeholder="e.g. CK-001"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Yield</Label>
+                  <Input 
+                    value={recipe.yield || ''} 
+                    onChange={e => updateField('yield', e.target.value)}
+                    placeholder="e.g. 1 portion"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Input 
+                    value={recipe.category} 
+                    onChange={e => updateField('category', e.target.value)} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Servings</Label>
+                  <Input 
+                    value={recipe.servings} 
+                    onChange={e => updateField('servings', e.target.value)} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Storage Instructions</Label>
+                  <Input 
+                    value={recipe.storageInstructions} 
+                    onChange={e => updateField('storageInstructions', e.target.value)} 
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Category</Label>
-                  <select
-                    value={instruction.category}
-                    onChange={e => updateField('category', e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    <option value="Main Course">Main Course</option>
-                    <option value="Side">Side</option>
-                    <option value="Soup">Soup</option>
-                    <option value="Appetizer">Appetizer</option>
-                    <option value="Dessert">Dessert</option>
-                    <option value="Beverage">Beverage</option>
-                    <option value="Salad">Salad</option>
-                  </select>
+                  <Label>Prep Time</Label>
+                  <Input 
+                    value={recipe.prepTime} 
+                    onChange={e => updateField('prepTime', e.target.value)} 
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label>Linked Recipe (Central Kitchen)</Label>
-                  <select
-                    value={instruction.linkedRecipeId || ''}
-                    onChange={e => updateField('linkedRecipeId', e.target.value || undefined)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  >
-                    <option value="">No linked recipe</option>
-                    {recipes.map(recipe => (
-                      <option key={recipe.recipeId} value={recipe.recipeId}>
-                        {recipe.name}
-                      </option>
-                    ))}
-                  </select>
+                  <Label>Cook Time</Label>
+                  <Input 
+                    value={recipe.cookTime} 
+                    onChange={e => updateField('cookTime', e.target.value)} 
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Days Available</Label>
-                <div className="flex flex-wrap gap-4 p-4 border rounded-md bg-muted/30">
+                <div className="flex flex-wrap gap-4 p-4 border rounded-md">
                   {DAYS.map(day => (
                     <div key={day} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`day-${day}`}
-                        checked={instruction.daysAvailable.includes(day)}
+                      <Checkbox 
+                        id={`day-${day}`} 
+                        checked={recipe.daysAvailable.includes(day)}
                         onCheckedChange={() => toggleDay(day)}
                       />
                       <label htmlFor={`day-${day}`} className="text-sm cursor-pointer">{day}</label>
@@ -318,215 +327,239 @@ export default function RecipeInstructionEditorPage({ params }: { params: { id: 
                   ))}
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label>Allergens (Comma separated)</Label>
+                <Input 
+                  value={recipe.allergens.join(', ')} 
+                  onChange={e => updateField('allergens', e.target.value.split(',').map(s => s.trim()))} 
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="components" className="space-y-4 mt-4">
+        <TabsContent value="main-ingredients" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Main Ingredients</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Top-level ingredients for this recipe. Link to sub-recipes for detailed breakdowns.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <MainIngredientsEditor
+                mainIngredients={recipe.mainIngredients || []}
+                subRecipes={recipe.subRecipes || []}
+                onChange={(mainIngredients) => updateField('mainIngredients', mainIngredients)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sub-recipes" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sub-Recipes</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Define detailed ingredient breakdowns for components used in this recipe.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <SubRecipeEditor
+                subRecipes={recipe.subRecipes || []}
+                onChange={(subRecipes) => updateField('subRecipes', subRecipes)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ingredients" className="mt-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <ChefHat className="h-5 w-5" />
-                  Components
-                </CardTitle>
-                <CardDescription>
-                  Each component is an ingredient/item with its own reheating instructions
-                </CardDescription>
-              </div>
-              <Button onClick={addComponent} className="gap-2 bg-orange-500 hover:bg-orange-600">
-                <Plus className="h-4 w-4" />
-                Add Component
-              </Button>
+              <CardTitle>Legacy Ingredients</CardTitle>
+              <Button size="sm" onClick={addIngredient}><Plus className="h-4 w-4 mr-2" />Add Ingredient</Button>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {instruction.components.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                  <ChefHat className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>No components added yet.</p>
-                  <p className="text-sm">Click "Add Component" to add ingredients with reheating instructions.</p>
+            <CardContent className="space-y-4">
+              {recipe.ingredients.map((ing, idx) => (
+                <div key={idx} className="flex gap-3 items-start">
+                  <div className="flex-1 space-y-1">
+                    <Input 
+                      placeholder="Item" 
+                      value={ing.item} 
+                      onChange={e => updateIngredient(idx, 'item', e.target.value)}
+                    />
+                  </div>
+                  <div className="w-32 space-y-1">
+                    <Input 
+                      placeholder="Qty" 
+                      value={ing.quantity} 
+                      onChange={e => updateIngredient(idx, 'quantity', e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <Input 
+                      placeholder="Notes" 
+                      value={ing.notes || ''} 
+                      onChange={e => updateIngredient(idx, 'notes', e.target.value)}
+                    />
+                  </div>
+                  <Button variant="ghost" size="icon" className="text-red-500" onClick={() => removeIngredient(idx)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-              )}
+              ))}
+              {recipe.ingredients.length === 0 && <div className="text-center text-muted-foreground py-4">No ingredients added</div>}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-              {instruction.components.map((component, idx) => (
-                <Card key={component.componentId || idx} className="border-2 border-orange-100">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
-                        <Badge variant="outline" className="bg-orange-50 text-orange-700">
-                          Component {idx + 1}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveComponent(idx, 'up')}
-                          disabled={idx === 0}
-                        >
-                          ↑
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => moveComponent(idx, 'down')}
-                          disabled={idx === instruction.components.length - 1}
-                        >
-                          ↓
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                          onClick={() => removeComponent(idx)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Sub-Recipe / Ingredient Name</Label>
-                        <Input
-                          value={component.subRecipeName}
-                          onChange={e => updateComponent(idx, 'subRecipeName', e.target.value)}
-                          placeholder="e.g. Chicken Stuffed For Oriental Chicken 1 KG"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Component ID</Label>
-                        <Input
-                          value={component.componentId}
-                          onChange={e => updateComponent(idx, 'componentId', e.target.value)}
-                          placeholder="e.g. chicken-stuffed"
-                        />
-                      </div>
-                    </div>
+        <TabsContent value="machines" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Required Machines & Tools</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MachineToolEditor
+                machinesTools={recipe.requiredMachinesTools || []}
+                onChange={(machinesTools) => updateField('requiredMachinesTools', machinesTools)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Serving Per Portion</Label>
-                        <Input
-                          type="number"
-                          value={component.servingPerPortion}
-                          onChange={e => updateComponent(idx, 'servingPerPortion', parseFloat(e.target.value) || 0)}
-                          placeholder="e.g. 120"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Unit</Label>
-                        <select
-                          value={component.unit}
-                          onChange={e => updateComponent(idx, 'unit', e.target.value)}
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                        >
-                          <option value="Gr">Gram (Gr)</option>
-                          <option value="KG">Kilogram (KG)</option>
-                          <option value="Unit">Unit</option>
-                          <option value="ML">Milliliter (ML)</option>
-                          <option value="L">Liter (L)</option>
-                          <option value="Pcs">Pieces (Pcs)</option>
-                        </select>
-                      </div>
-                    </div>
+        <TabsContent value="quality" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Quality Specifications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <QualitySpecsEditor
+                qualitySpecs={recipe.qualitySpecifications || []}
+                onChange={(qualitySpecs) => updateField('qualitySpecifications', qualitySpecs)}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Reheating Steps</Label>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addReheatingStep(idx)}
-                          className="gap-1"
-                        >
-                          <Plus className="h-3 w-3" />
-                          Add Step
-                        </Button>
-                      </div>
-                      <div className="space-y-2">
-                        {component.reheatingSteps.map((step, stepIdx) => (
-                          <div key={stepIdx} className="flex gap-2 items-start">
-                            <span className="flex-shrink-0 w-6 h-8 flex items-center justify-center text-sm font-medium text-muted-foreground">
-                              {stepIdx + 1}.
-                            </span>
-                            <Textarea
-                              value={step}
-                              onChange={e => updateReheatingStep(idx, stepIdx, e.target.value)}
-                              placeholder={`Step ${stepIdx + 1}...`}
-                              rows={2}
-                              className="flex-1"
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="flex-shrink-0 text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8"
-                              onClick={() => removeReheatingStep(idx, stepIdx)}
-                              disabled={component.reheatingSteps.length <= 1}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+        <TabsContent value="packing" className="mt-4">
+          <PackingLabelingEditor
+            packingLabeling={recipe.packingLabeling || {
+              packingType: '',
+              serviceItems: [],
+              labelRequirements: '',
+              storageCondition: '',
+              shelfLife: ''
+            }}
+            onChange={(packingLabeling) => updateField('packingLabeling', packingLabeling)}
+          />
+        </TabsContent>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Quantity Control Notes</Label>
-                        <Textarea
-                          value={component.quantityControlNotes}
-                          onChange={e => updateComponent(idx, 'quantityControlNotes', e.target.value)}
-                          placeholder="Notes about portion control, consistency, etc."
-                          rows={3}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Presentation Guidelines</Label>
-                        <Textarea
-                          value={component.presentationGuidelines}
-                          onChange={e => updateComponent(idx, 'presentationGuidelines', e.target.value)}
-                          placeholder="How to present this component visually"
-                          rows={3}
-                        />
-                      </div>
+        <TabsContent value="preparation" className="mt-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Preparation Steps</CardTitle>
+              <Button size="sm" onClick={addPrepStep}><Plus className="h-4 w-4 mr-2" />Add Step</Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recipe.preparation.map((step, idx) => (
+                <div key={idx} className="border p-4 rounded-md space-y-3">
+                  <div className="flex justify-between">
+                    <span className="font-bold">Step {idx + 1}</span>
+                    <Button variant="ghost" size="icon" className="text-red-500 h-6 w-6" onClick={() => removePrepStep(idx)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <Textarea 
+                    placeholder="Instruction" 
+                    value={step.instruction}
+                    onChange={e => updatePrepStep(idx, 'instruction', e.target.value)}
+                  />
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <Input 
+                        placeholder="Time (e.g. 10 mins)" 
+                        value={step.time}
+                        onChange={e => updatePrepStep(idx, 'time', e.target.value)}
+                      />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="flex-1">
+                      <Input 
+                        placeholder="Hint/Tip" 
+                        value={step.hint || ''}
+                        onChange={e => updatePrepStep(idx, 'hint', e.target.value)}
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 pt-2">
+                      <Checkbox 
+                        checked={step.critical}
+                        onCheckedChange={(checked) => updatePrepStep(idx, 'critical', !!checked)}
+                      />
+                      <label className="text-sm">Critical Step</label>
+                    </div>
+                  </div>
+                </div>
               ))}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="presentation" className="space-y-4 mt-4">
+        <TabsContent value="sops" className="mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Visual Presentation</CardTitle>
-              <CardDescription>Add reference images for the final dish presentation</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ImageUpload
-                images={instruction.visualPresentation}
-                onImagesChange={(images) => updateField('visualPresentation', images)}
-                maxImages={10}
-              />
+            <CardHeader><CardTitle>Standard Operating Procedures</CardTitle></CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label>Food Safety & Hygiene (One per line)</Label>
+                <Textarea 
+                  className="min-h-[150px]"
+                  value={recipe.sops.foodSafetyAndHygiene.join('\n')}
+                  onChange={e => handleStringArrayChange('foodSafetyAndHygiene', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Cooking Standards (One per line)</Label>
+                <Textarea 
+                  className="min-h-[150px]"
+                  value={recipe.sops.cookingStandards.join('\n')}
+                  onChange={e => handleStringArrayChange('cookingStandards', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Storage & Holding (One per line)</Label>
+                <Textarea 
+                  className="min-h-[150px]"
+                  value={recipe.sops.storageAndHolding.join('\n')}
+                  onChange={e => handleStringArrayChange('storageAndHolding', e.target.value)}
+                />
+              </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
+        <TabsContent value="media" className="mt-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Branch Manager Feedback</CardTitle>
-              <CardDescription>Notes or feedback from branch managers about this dish</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={instruction.branchManagerFeedback}
-                onChange={e => updateField('branchManagerFeedback', e.target.value)}
-                placeholder="Any feedback, concerns, or suggestions from branch managers..."
-                rows={4}
-              />
+            <CardHeader><CardTitle>Presentation & Media</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Presentation Description</Label>
+                <Textarea 
+                  value={recipe.presentation.description}
+                  onChange={e => setRecipe(prev => ({ ...prev, presentation: { ...prev.presentation, description: e.target.value } }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Photo URLs (One per line)</Label>
+                <Textarea 
+                  value={recipe.presentation.photos.join('\n')}
+                  onChange={e => setRecipe(prev => ({ 
+                    ...prev, 
+                    presentation: { 
+                      ...prev.presentation, 
+                      photos: e.target.value.split('\n').filter(l => l.trim()) 
+                    } 
+                  }))}
+                />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -534,4 +567,3 @@ export default function RecipeInstructionEditorPage({ params }: { params: { id: 
     </div>
   )
 }
-

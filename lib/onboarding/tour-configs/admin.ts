@@ -67,7 +67,7 @@ export const adminTours: PageTour[] = [
   {
     tourId: 'admin-recipes',
     roles: ['admin'],
-    pathPattern: '/admin/recipes',
+    pathPattern: '/admin/recipe-instructions',
     priority: 3,
     steps: [
       {
