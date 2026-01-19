@@ -288,7 +288,7 @@ export default function RecipeDetailPage() {
         <Card>
           <CardContent className="p-4">
             {recipe.linked_instructions ? (
-              <Link href={`/admin/recipe-instructions/${recipe.linked_instructions.recipe_id}`}>
+              <Link href={`/branch/central-kitchen/recipes/${recipe.linked_instructions.recipe_id}`}>
                 <Button className="w-full gap-2" size="lg">
                   <BookOpen className="h-5 w-5" />
                   View Instructions
