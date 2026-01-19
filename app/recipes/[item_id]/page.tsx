@@ -13,7 +13,6 @@ import {
   Loader2, 
   ChefHat, 
   Package,
-  DollarSign,
   BookOpen,
   Plus,
   AlertCircle
@@ -113,9 +112,9 @@ function IngredientRow({ ingredient, depth = 0 }: IngredientRowProps) {
         </div>
 
         {/* Cost */}
-        <div className="w-20 text-right flex-shrink-0 text-muted-foreground text-sm hidden md:block">
+        <div className="w-24 text-right flex-shrink-0 text-muted-foreground text-sm hidden md:block">
           {ingredient.ingredient_total_cost > 0 
-            ? `${ingredient.ingredient_total_cost.toFixed(2)}` 
+            ? `AED ${ingredient.ingredient_total_cost.toFixed(2)}` 
             : '—'
           }
         </div>
@@ -270,7 +269,9 @@ export default function RecipeDetailPage() {
           </Card>
           <Card className="col-span-2 md:col-span-2">
             <CardContent className="p-4 flex items-center gap-3">
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600 dark:text-green-400 font-bold text-sm">
+                AED
+              </div>
               <div>
                 <p className="text-2xl font-bold">
                   {recipe.recipe_total_cost > 0 
@@ -333,7 +334,7 @@ export default function RecipeDetailPage() {
               <div className="w-6 flex-shrink-0"></div>
               <div className="flex-1">Item</div>
               <div className="w-24 text-right flex-shrink-0">Qty</div>
-              <div className="w-20 text-right flex-shrink-0 hidden md:block">Cost</div>
+              <div className="w-24 text-right flex-shrink-0 hidden md:block">Cost</div>
             </div>
             
             {/* Ingredients */}

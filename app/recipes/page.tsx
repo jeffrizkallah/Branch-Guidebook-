@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Search, Loader2, ChefHat, X, DollarSign, Package } from 'lucide-react'
+import { Search, Loader2, ChefHat, X, Package } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface OdooRecipe {
@@ -204,7 +204,7 @@ export default function RecipesPage() {
                       </span>
                       {recipe.recipe_total_cost > 0 && (
                         <span className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
+                          <span className="text-xs font-medium">AED</span>
                           {recipe.recipe_total_cost.toFixed(2)}
                         </span>
                       )}
