@@ -89,11 +89,14 @@ async function ensureRecipeColumns() {
 async function syncItemIds() {
   console.log('\n🔄 Syncing item IDs...');
   
-  // Get all unique items from the recipe table
+  // Get all unique items from the recipe table (excluding B&G, CA, HL prefixes)
   const itemsResult = await pool.query(`
     SELECT DISTINCT item 
     FROM odoo_recipe 
     WHERE item IS NOT NULL AND item != ''
+      AND item NOT LIKE 'B&G%'
+      AND item NOT LIKE 'CA%'
+      AND item NOT LIKE 'HL%'
     ORDER BY item
   `);
   
@@ -142,12 +145,15 @@ async function syncItemIds() {
 async function updateItemIds() {
   console.log('\n🔄 Updating item_id values in odoo_recipe...');
   
-  // Update all rows with their corresponding item_id
+  // Update all rows with their corresponding item_id (excluding B&G, CA, HL prefixes)
   const updateResult = await pool.query(`
     UPDATE odoo_recipe r
     SET item_id = l.item_id
     FROM recipe_items_lookup l
     WHERE r.item = l.item_name
+      AND r.item NOT LIKE 'B&G%'
+      AND r.item NOT LIKE 'CA%'
+      AND r.item NOT LIKE 'HL%'
   `);
   
   console.log(`   ✓ Updated ${updateResult.rowCount} rows with item_id`);
@@ -157,7 +163,7 @@ async function updateItemIds() {
 async function updateItemTypes() {
   console.log('\n🔄 Updating item_type values in odoo_recipe...');
   
-  // Update item_type for all rows:
+  // Update item_type for all rows (excluding B&G, CA, HL prefixes):
   // - If ingredient_name exists in the item column -> 'subrecipe'
   // - Otherwise -> 'ingredient'
   const updateResult = await pool.query(`
@@ -169,6 +175,9 @@ async function updateItemTypes() {
       ) THEN 'subrecipe'
       ELSE 'ingredient'
     END
+    WHERE r.item NOT LIKE 'B&G%'
+      AND r.item NOT LIKE 'CA%'
+      AND r.item NOT LIKE 'HL%'
   `);
   
   console.log(`   ✓ Updated ${updateResult.rowCount} rows with item_type`);
