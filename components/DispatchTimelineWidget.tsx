@@ -56,7 +56,7 @@ function formatDate(dateStr: string): string {
 // Compact horizontal progress bar for list view
 function CompactProgressBar({ percentage, status }: { percentage: number; status: 'not-started' | 'in-progress' | 'completed' | 'dispatched' }) {
   return (
-    <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden min-w-[40px]">
+    <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden min-w-[40px]">
       <div 
         className={cn(
           "h-full rounded-full transition-all duration-300",
@@ -182,7 +182,7 @@ export function DispatchTimelineWidget({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="px-3 pb-3">
+      <CardContent className="px-3 pb-4">
         {/* Summary row */}
         <div className="flex items-center justify-between mb-3 text-xs">
           <div className="flex items-center gap-3">
@@ -208,7 +208,7 @@ export function DispatchTimelineWidget({
         </div>
         
         {/* Compact list view - handles high branch counts */}
-        <div className="space-y-0.5 mb-3 max-h-[280px] overflow-y-auto pr-1">
+        <div className="space-y-1 mb-3 max-h-[540px] overflow-y-auto pr-1">
           {branchProgress.slice(0, maxBranches).map(branch => {
             const isActive = branch.status === 'packing' || branch.status === 'receiving'
             const isCompleted = branch.status === 'completed'
@@ -219,7 +219,7 @@ export function DispatchTimelineWidget({
               <div 
                 key={branch.name}
                 className={cn(
-                  "flex items-center gap-2 px-2 py-1 rounded-md transition-colors",
+                  "flex items-center gap-2 px-2 py-1.5 rounded-md transition-colors",
                   isCompleted ? "bg-green-50/50" :
                   isActive ? "bg-blue-50/50" :
                   isDispatched ? "bg-amber-50/50" :
@@ -241,7 +241,7 @@ export function DispatchTimelineWidget({
                 
                 {/* Branch name */}
                 <span className={cn(
-                  "text-[10px] font-medium truncate min-w-[60px] max-w-[80px]",
+                  "text-[11px] font-medium truncate min-w-[60px] max-w-[80px]",
                   isActive ? "text-blue-700" :
                   isCompleted ? "text-green-700" :
                   "text-foreground"
@@ -255,10 +255,10 @@ export function DispatchTimelineWidget({
                 {/* Percentage or checkmark */}
                 <div className="w-8 text-right shrink-0">
                   {isCompleted ? (
-                    <CheckCircle2 className="h-3 w-3 text-green-500 ml-auto" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500 ml-auto" />
                   ) : (
                     <span className={cn(
-                      "text-[10px] font-medium",
+                      "text-[11px] font-medium",
                       isActive ? "text-blue-600" : 
                       isDispatched ? "text-amber-600" :
                       "text-muted-foreground"
@@ -273,17 +273,17 @@ export function DispatchTimelineWidget({
         </div>
         
         {/* Compact inline legend */}
-        <div className="flex items-center justify-center gap-2 text-[8px] text-muted-foreground mb-2">
-          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>Pending</span>
-          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Active</span>
-          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>In Transit</span>
-          <span className="flex items-center gap-0.5"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>Done</span>
+        <div className="flex items-center justify-center gap-3 text-[9px] text-muted-foreground mb-2 py-1">
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-gray-300"></span>Pending</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500"></span>Active</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span>In Transit</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500"></span>Done</span>
         </div>
         
         {/* Action button */}
         {showManageButton && (
           <Link href={`/dispatch/${activeDispatch.id}/report`} className="block">
-            <Button variant="outline" size="sm" className="w-full text-xs gap-2 h-8">
+            <Button variant="outline" size="sm" className="w-full text-xs gap-2 h-9">
               <Package className="h-3.5 w-3.5" />
               View Full Report
               <ArrowRight className="h-3.5 w-3.5 ml-auto" />
