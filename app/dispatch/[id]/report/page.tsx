@@ -48,6 +48,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const [allDispatches, setAllDispatches] = useState<Dispatch[]>([])
   const [loading, setLoading] = useState(true)
   const [filterIssueType, setFilterIssueType] = useState<'all' | 'missing' | 'damaged' | 'partial' | 'shortage'>('all')
+  const [issueViewFilter, setIssueViewFilter] = useState<'real' | 'all'>('real')
   const [expandedBranches, setExpandedBranches] = useState<Set<string>>(new Set())
   const [expandedIssueBranches, setExpandedIssueBranches] = useState<Set<string>>(new Set())
   const [completeDetailsFilter, setCompleteDetailsFilter] = useState<'all' | 'issues'>('all')
@@ -87,11 +88,12 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     ? allDispatches.find(d => d.id === dispatch.parentDispatchId)
     : null
 
-  // Count unresolved issues (items that could go into a follow-up)
+  // Count unresolved real issues (items that could go into a follow-up, excluding packaging variances)
   const unresolvedIssueCount = dispatch?.branchDispatches.reduce((count, bd) => {
     return count + bd.items.filter(item => 
       item.issue && 
       item.resolutionStatus !== 'resolved' &&
+      !item.expectedVariance &&
       (item.orderedQty - (item.receivedQty ?? 0)) > 0
     ).length
   }, 0) ?? 0
@@ -252,6 +254,8 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     bd.items.map(item => ({ ...item, branchName: bd.branchName, branchSlug: bd.branchSlug }))
   )
   const itemsWithIssues = allItems.filter(item => item.issue !== null)
+  const realIssues = itemsWithIssues.filter(item => !item.expectedVariance)
+  const packagingVariances = itemsWithIssues.filter(item => item.expectedVariance === true)
   const missingItems = itemsWithIssues.filter(item => item.issue === 'missing')
   const damagedItems = itemsWithIssues.filter(item => item.issue === 'damaged')
   const partialItems = itemsWithIssues.filter(item => item.issue === 'partial')
@@ -260,15 +264,25 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     bd.items.some(item => item.issue !== null)
   )
 
-  // Filtered items based on issue type
+  // Filtered items based on issue type and view filter (real issues vs all)
   const filteredBranchesWithIssues = dispatch.branchDispatches
     .map(bd => ({
       ...bd,
-      items: bd.items.filter(item => 
-        filterIssueType === 'all' 
+      items: bd.items.filter(item => {
+        // First filter by issue type
+        const matchesIssueType = filterIssueType === 'all' 
           ? item.issue !== null 
           : item.issue === filterIssueType
-      )
+        
+        if (!matchesIssueType) return false
+        
+        // Then filter by real issues vs all
+        if (issueViewFilter === 'real') {
+          return !item.expectedVariance
+        }
+        
+        return true
+      })
     }))
     .filter(bd => bd.items.length > 0)
 
@@ -484,10 +498,23 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
               <CardContent className="pt-6">
                 <div className="text-center">
                   <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                  <div className="text-3xl font-bold text-red-600">{itemsWithIssues.length}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Total Issues</div>
+                  <div className="text-3xl font-bold text-red-600">{realIssues.length}</div>
+                  <div className="text-sm text-muted-foreground mt-1">Real Issues</div>
                   <div className="text-xs text-muted-foreground mt-2">
-                    Across {branchesWithIssues.length} branches
+                    Requires investigation
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <Package className="h-8 w-8 mx-auto mb-2 text-amber-600" />
+                  <div className="text-3xl font-bold text-amber-600">{packagingVariances.length}</div>
+                  <div className="text-sm text-muted-foreground mt-1">Packaging</div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Expected variances
                   </div>
                 </div>
               </CardContent>
@@ -532,16 +559,45 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           {itemsWithIssues.length > 0 && !isPrintMode && (
             <Card className="mb-6">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium">Filter by Issue Type:</span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={filterIssueType === 'all' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilterIssueType('all')}
-                    >
-                      All Issues ({itemsWithIssues.length})
-                    </Button>
+                <div className="space-y-4">
+                  {/* View Toggle: Real Issues vs All */}
+                  <div className="flex items-center gap-4 pb-4 border-b">
+                    <span className="text-sm font-medium">View:</span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={issueViewFilter === 'real' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setIssueViewFilter('real')}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        🔴 Real Issues Only ({realIssues.length})
+                      </Button>
+                      <Button
+                        variant={issueViewFilter === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setIssueViewFilter('all')}
+                      >
+                        Show All ({itemsWithIssues.length})
+                      </Button>
+                    </div>
+                    {packagingVariances.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        ⓘ {packagingVariances.length} packaging variance{packagingVariances.length !== 1 ? 's' : ''} {issueViewFilter === 'real' ? 'excluded' : 'included'}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {/* Issue Type Filter */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium">Filter by Type:</span>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant={filterIssueType === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilterIssueType('all')}
+                      >
+                        All Types ({issueViewFilter === 'real' ? realIssues.length : itemsWithIssues.length})
+                      </Button>
                     <Button
                       variant={filterIssueType === 'missing' ? 'default' : 'outline'}
                       size="sm"
@@ -570,6 +626,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                     >
                       Shortage ({shortageItems.length})
                     </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>

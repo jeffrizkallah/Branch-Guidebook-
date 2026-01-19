@@ -56,8 +56,8 @@ export function FollowUpModal({
       
       dispatch.branchDispatches.forEach(bd => {
         bd.items.forEach(item => {
-          // Only include items with issues that are unresolved
-          if (item.issue && item.resolutionStatus !== 'resolved') {
+          // Only include items with real issues (not packaging variances) that are unresolved
+          if (item.issue && item.resolutionStatus !== 'resolved' && !item.expectedVariance) {
             const receivedQty = item.receivedQty ?? 0
             const stillToSend = item.orderedQty - receivedQty
             
@@ -104,6 +104,24 @@ export function FollowUpModal({
 
   const selectedItems = unresolvedItems.filter(i => i.selected)
   const selectedBranches = new Set(selectedItems.map(i => i.branchSlug))
+  
+  // Calculate excluded packaging variances
+  const excludedPackagingCount = useMemo(() => {
+    if (!dispatch) return 0
+    let count = 0
+    dispatch.branchDispatches.forEach(bd => {
+      bd.items.forEach(item => {
+        if (item.issue && item.resolutionStatus !== 'resolved' && item.expectedVariance === true) {
+          const receivedQty = item.receivedQty ?? 0
+          const stillToSend = item.orderedQty - receivedQty
+          if (stillToSend > 0) {
+            count++
+          }
+        }
+      })
+    })
+    return count
+  }, [dispatch])
 
   const toggleBranch = (branchSlug: string) => {
     setExpandedBranches(prev => {
@@ -335,7 +353,7 @@ export function FollowUpModal({
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold flex items-center gap-2">
                     <Package className="h-4 w-4" />
-                    Items to Send ({unresolvedItems.length} items with issues)
+                    Items to Send ({unresolvedItems.length} items with real issues)
                   </h3>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={handleSelectAll}>
@@ -346,6 +364,15 @@ export function FollowUpModal({
                     </Button>
                   </div>
                 </div>
+                
+                {/* Packaging Variances Info */}
+                {excludedPackagingCount > 0 && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+                    <p className="text-amber-800">
+                      ⓘ <strong>{excludedPackagingCount}</strong> packaging variance{excludedPackagingCount !== 1 ? 's' : ''} excluded (expected due to whole units only)
+                    </p>
+                  </div>
+                )}
 
                 {/* Grouped by Branch */}
                 <div className="space-y-3">

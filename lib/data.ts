@@ -215,6 +215,7 @@ export interface DispatchItem {
   receivedChecked: boolean      // Checked during receiving
   notes: string
   issue: 'missing' | 'damaged' | 'partial' | 'shortage' | null
+  expectedVariance?: boolean        // True if variance is due to packaging constraints (not a real issue)
   
   // Late addition fields (for items added after dispatch creation)
   addedLate?: boolean           // Flag for items added after dispatch creation

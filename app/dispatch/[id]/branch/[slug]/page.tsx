@@ -124,6 +124,8 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
           return {
             ...item,
             issue,
+            // Reset expectedVariance when issue is cleared or changed to non-partial
+            expectedVariance: issue === 'partial' ? item.expectedVariance : undefined,
             // Keep packedChecked state independent - don't auto-uncheck when issue is set
             packedChecked: item.packedChecked,
             // Only auto-set quantity for missing (0) or when clearing issue (full qty)
@@ -133,6 +135,8 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
           return {
             ...item,
             issue,
+            // Reset expectedVariance when issue is cleared or changed to non-partial
+            expectedVariance: issue === 'partial' ? item.expectedVariance : undefined,
             // Keep receivedChecked state independent - don't auto-uncheck when issue is set
             receivedChecked: item.receivedChecked,
             // Only auto-set quantity for missing (0) or when clearing issue (full qty)
@@ -183,6 +187,22 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     const updatedItems = branchDispatch.items.map(item => {
       if (item.id === itemId) {
         return { ...item, notes }
+      }
+      return item
+    })
+
+    setBranchDispatch({
+      ...branchDispatch,
+      items: updatedItems
+    })
+  }
+
+  const handleExpectedVariance = (itemId: string, isExpected: boolean) => {
+    if (!branchDispatch) return
+
+    const updatedItems = branchDispatch.items.map(item => {
+      if (item.id === itemId) {
+        return { ...item, expectedVariance: isExpected }
       }
       return item
     })
@@ -533,19 +553,54 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
 
                           {/* Partial Quantity Input */}
                           {item.issue === 'partial' && (
-                            <div className="mb-2">
-                              <label className="text-xs md:text-sm font-medium mb-1 block">
-                                {mode === 'packing' ? 'Packed' : 'Received'} Quantity:
-                              </label>
-                              <div className="flex items-center gap-2">
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  value={(mode === 'packing' ? item.packedQty : item.receivedQty) || ''}
-                                  onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                                  className="w-24 md:w-32 h-9 text-sm"
-                                />
-                                <span className="text-xs md:text-sm text-muted-foreground">{item.unit}</span>
+                            <div className="mb-2 space-y-2">
+                              <div>
+                                <label className="text-xs md:text-sm font-medium mb-1 block">
+                                  {mode === 'packing' ? 'Packed' : 'Received'} Quantity:
+                                </label>
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="number"
+                                    step="0.1"
+                                    value={(mode === 'packing' ? item.packedQty : item.receivedQty) || ''}
+                                    onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                    className="w-24 md:w-32 h-9 text-sm"
+                                  />
+                                  <span className="text-xs md:text-sm text-muted-foreground">{item.unit}</span>
+                                </div>
+                              </div>
+                              
+                              {/* Packaging Constraint Toggle */}
+                              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <label className="text-xs md:text-sm font-medium mb-2 flex items-center gap-2">
+                                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                                  Is this due to packaging?
+                                </label>
+                                <div className="flex items-center gap-3 mt-2">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={item.expectedVariance === false || item.expectedVariance === undefined ? "default" : "outline"}
+                                    onClick={() => handleExpectedVariance(item.id, false)}
+                                    className="flex-1 h-9 text-xs"
+                                  >
+                                    No - Real Issue
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant={item.expectedVariance === true ? "default" : "outline"}
+                                    onClick={() => handleExpectedVariance(item.id, true)}
+                                    className="flex-1 h-9 text-xs bg-amber-600 hover:bg-amber-700 border-amber-600"
+                                  >
+                                    Yes - Packaging
+                                  </Button>
+                                </div>
+                                {item.expectedVariance === true && (
+                                  <p className="text-xs text-amber-700 mt-2 italic">
+                                    ↳ Can't cut items - sent whole units only
+                                  </p>
+                                )}
                               </div>
                             </div>
                           )}
