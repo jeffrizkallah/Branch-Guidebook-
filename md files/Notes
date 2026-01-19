@@ -25,3 +25,11 @@ CHANGES/ADDITIONS
 - Figure out hwo to digitize the daily recipes and production order for CK
 - Add a way where suzan can from a submissions give a note which will arrive the branch manager dashboard where they can see notes and tips on their submissions
 - Fix the Branch Manager dashboard page
+
+
+# Dispatch Fixes
+- Add a way to delete a branch on the follow up dispatch model, because there are some branches we dont deliver to in the next dispatch
+
+- I have a small issue, so when the staff is packing the orders for example a branch orderd 2.4 kg of Loaf English Cake White but they will probably only send them 2 loafs of cake they wont cut a loaf and give then an extra 400 grams from it. this shows as a partial issue, how can we fix that problem. becuase we wouldnt consider this and issue. i want to seperate these things to actually know where the real issues are
+
+- create somehting for arraj to be able to have the whole dispatch order visable to make it easier to fill out the items, becuase now he uses a paper

@@ -15,7 +15,8 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react'
 import type { Dispatch, BranchDispatch, DispatchItem } from '@/lib/data'
 
@@ -144,6 +145,15 @@ export function FollowUpModal({
     setUnresolvedItems(prev => prev.map(ui => 
       ui.branchSlug === branchSlug ? { ...ui, selected } : ui
     ))
+  }
+
+  const handleDeleteBranch = (branchSlug: string) => {
+    setUnresolvedItems(prev => prev.filter(ui => ui.branchSlug !== branchSlug))
+    setExpandedBranches(prev => {
+      const next = new Set(prev)
+      next.delete(branchSlug)
+      return next
+    })
   }
 
   const getIssueLabel = (issue: string) => {
@@ -365,11 +375,25 @@ export function FollowUpModal({
                               {selectedCount}/{items.length} selected
                             </Badge>
                           </div>
-                          {isExpanded ? (
-                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                          )}
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 hover:bg-red-100 hover:text-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteBranch(branchSlug)
+                              }}
+                              title={`Remove ${branchName} from follow-up`}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </div>
                         </div>
 
                         {/* Items List */}
