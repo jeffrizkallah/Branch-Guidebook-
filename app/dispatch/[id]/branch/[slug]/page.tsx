@@ -582,7 +582,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                                     size="sm"
                                     variant={item.expectedVariance === false || item.expectedVariance === undefined ? "default" : "outline"}
                                     onClick={() => handleExpectedVariance(item.id, false)}
-                                    className="flex-1 h-9 text-xs"
+                                    className={`flex-1 h-9 text-xs ${item.expectedVariance === false || item.expectedVariance === undefined ? 'bg-rose-400 hover:bg-rose-500 border-rose-400 text-white' : ''}`}
                                   >
                                     No - Real Issue
                                   </Button>
@@ -591,7 +591,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                                     size="sm"
                                     variant={item.expectedVariance === true ? "default" : "outline"}
                                     onClick={() => handleExpectedVariance(item.id, true)}
-                                    className="flex-1 h-9 text-xs bg-amber-600 hover:bg-amber-700 border-amber-600"
+                                    className={`flex-1 h-9 text-xs ${item.expectedVariance === true ? 'bg-amber-400 hover:bg-amber-500 border-amber-400 text-white' : ''}`}
                                   >
                                     Yes - Packaging
                                   </Button>
