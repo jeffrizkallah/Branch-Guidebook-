@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Search, Loader2, ChefHat, X, Package } from 'lucide-react'
+import { Search, Loader2, ChefHat, X, Package, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface OdooRecipe {
@@ -24,6 +25,7 @@ interface FiltersData {
 }
 
 export default function RecipesPage() {
+  const router = useRouter()
   const [recipes, setRecipes] = useState<OdooRecipe[]>([])
   const [filters, setFilters] = useState<FiltersData>({ categories: [], productGroups: [] })
   const [isLoading, setIsLoading] = useState(true)
@@ -83,14 +85,24 @@ export default function RecipesPage() {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-primary flex items-center gap-2">
-                <ChefHat className="h-7 w-7" />
-                Recipes
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {filteredRecipes.length} of {recipes.length} recipes
-              </p>
+            <div className="flex items-start gap-3">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => router.back()}
+                className="flex-shrink-0 mt-1"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-primary flex items-center gap-2">
+                  <ChefHat className="h-7 w-7" />
+                  Recipes
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {filteredRecipes.length} of {recipes.length} recipes
+                </p>
+              </div>
             </div>
           </div>
         </div>
