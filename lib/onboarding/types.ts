@@ -84,6 +84,24 @@ export const roleWelcomeContent: Record<UserRole, WelcomeContent> = {
     ],
     ctaText: "Let's see what's cooking"
   },
+  head_chef: {
+    greeting: "You lead the kitchen operations",
+    highlights: [
+      "Delegate production tasks to stations",
+      "Monitor real-time progress across all stations",
+      "Access recipes and production schedules"
+    ],
+    ctaText: "Let's manage your stations"
+  },
+  station_staff: {
+    greeting: "You're part of the production team",
+    highlights: [
+      "View your assigned tasks for the day",
+      "Access scaled recipes for production",
+      "Track your progress on each item"
+    ],
+    ctaText: "Let's see your tasks"
+  },
   branch_manager: {
     greeting: "You manage your branch operations",
     highlights: [

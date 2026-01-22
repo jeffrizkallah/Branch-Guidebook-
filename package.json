@@ -19,7 +19,10 @@
     "sync:all": "node scripts/sync-all-sharepoint.js",
     "migrate:onboarding": "tsx scripts/add-onboarding-fields.ts",
     "setup:chat": "tsx scripts/create-chat-tables.ts",
-    "setup:quality-analytics": "tsx scripts/create-quality-analytics-table.ts"
+    "setup:quality-analytics": "tsx scripts/create-quality-analytics-table.ts",
+    "diagnose:brownies": "tsx scripts/diagnose-brownies-link.ts",
+    "fix:brownies": "tsx scripts/fix-brownies-linking.ts",
+    "test:brownies-api": "tsx scripts/test-brownies-api.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

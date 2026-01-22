@@ -97,6 +97,18 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
         { href: '/', label: 'Branches', icon: Building2 },
       ]
 
+    case 'head_chef':
+      return [
+        { href: '/kitchen/head-chef', label: 'Home', icon: Home },
+        { href: '/recipes', label: 'Recipes', icon: ChefHat },
+      ]
+
+    case 'station_staff':
+      return [
+        { href: '/kitchen/station', label: 'Home', icon: Home },
+        { href: '/recipes', label: 'Recipes', icon: ChefHat },
+      ]
+
     case 'regional_manager':
       return [
         { href: '/regional', label: 'Home', icon: Home },

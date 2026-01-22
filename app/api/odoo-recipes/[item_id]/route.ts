@@ -111,6 +111,10 @@ async function findLinkedInstructions(itemName: string): Promise<{ recipe_id: st
       .replace(/\s+/g, ' ')
       .trim()
 
+    console.log('[DEBUG] findLinkedInstructions called with:', itemName)
+    console.log('[DEBUG] Normalized name:', normalizedName)
+    console.log('[DEBUG] POSTGRES_URL exists:', !!process.env.POSTGRES_URL)
+
     // Try exact match first
     const exactResult = await sql`
       SELECT recipe_id, recipe_data->>'name' as name
@@ -118,6 +122,8 @@ async function findLinkedInstructions(itemName: string): Promise<{ recipe_id: st
       WHERE LOWER(recipe_data->>'name') = ${normalizedName}
       LIMIT 1
     `
+
+    console.log('[DEBUG] Exact match rows:', exactResult.rows.length, exactResult.rows)
 
     if (exactResult.rows.length > 0) {
       return {
@@ -202,6 +208,9 @@ export async function GET(
 
     // Find linked recipe instructions
     const linkedInstructions = await findLinkedInstructions(recipe.item)
+    
+    console.log('[DEBUG] Recipe item:', recipe.item)
+    console.log('[DEBUG] Linked instructions:', linkedInstructions)
 
     const recipeDetail: RecipeDetail = {
       item_id: recipe.item_id,

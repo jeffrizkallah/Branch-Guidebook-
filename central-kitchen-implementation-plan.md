@@ -31,7 +31,7 @@ Design and implement a task delegation and production workflow system for a cent
 - Can reassign items if needed
 - Monitors actual vs. target quantities
 
-- Add a section for photos for hygiene for the whole kitchen 
+- Add a section for photos for hygiene 
 
 ## Technical Implementation
 

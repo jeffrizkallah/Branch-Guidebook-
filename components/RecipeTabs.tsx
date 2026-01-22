@@ -13,7 +13,8 @@ import {
   Link as LinkIcon,
   Tag,
   Thermometer,
-  ListChecks
+  ListChecks,
+  Image as ImageIcon
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -40,7 +41,7 @@ export function RecipeTabs({ recipe, yieldMultiplier = 1 }: RecipeTabsProps) {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-      <TabsList className="w-full inline-flex md:grid md:grid-cols-8 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start">
+      <TabsList className="w-full inline-flex md:grid md:grid-cols-9 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] justify-start">
         {hasSubRecipes && (
           <TabsTrigger value="workflow" className="flex-shrink-0 whitespace-nowrap ml-1 md:ml-0">
             Workflow
@@ -51,6 +52,7 @@ export function RecipeTabs({ recipe, yieldMultiplier = 1 }: RecipeTabsProps) {
         <TabsTrigger value="equipment" className="flex-shrink-0 whitespace-nowrap">Equipment</TabsTrigger>
         <TabsTrigger value="quality" className="flex-shrink-0 whitespace-nowrap">Quality</TabsTrigger>
         <TabsTrigger value="packing" className="flex-shrink-0 whitespace-nowrap">Packing</TabsTrigger>
+        <TabsTrigger value="presentation" className="flex-shrink-0 whitespace-nowrap">Photos</TabsTrigger>
         <TabsTrigger value="sops" className="flex-shrink-0 whitespace-nowrap">SOPs</TabsTrigger>
         <TabsTrigger value="troubleshooting" className="flex-shrink-0 whitespace-nowrap">Troubleshooting</TabsTrigger>
       </TabsList>
@@ -281,6 +283,65 @@ export function RecipeTabs({ recipe, yieldMultiplier = 1 }: RecipeTabsProps) {
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
               No packing and labeling information specified for this recipe.
+            </CardContent>
+          </Card>
+        )}
+      </TabsContent>
+
+      {/* Presentation Tab */}
+      <TabsContent value="presentation">
+        {recipe.presentation?.photos && recipe.presentation.photos.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ImageIcon className="h-5 w-5" />
+                Recipe Photos
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Visual reference for the finished dish
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recipe.presentation.photos.map((photo, idx) => (
+                  <div
+                    key={idx}
+                    className="relative aspect-video rounded-lg overflow-hidden border border-border bg-muted group cursor-pointer"
+                    onClick={() => window.open(photo, '_blank')}
+                  >
+                    <img
+                      src={photo}
+                      alt={`${recipe.name} photo ${idx + 1}`}
+                      className="object-cover w-full h-full transition-transform group-hover:scale-105"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Image+Not+Available'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute top-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {idx + 1}
+                    </div>
+                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        Click to enlarge
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {recipe.presentation.description && (
+                <div className="mt-6 p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">Presentation Notes</h4>
+                  <p className="text-sm text-muted-foreground">{recipe.presentation.description}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              <ImageIcon className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p>No photos available for this recipe.</p>
             </CardContent>
           </Card>
         )}

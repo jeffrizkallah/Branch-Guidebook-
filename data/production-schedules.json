@@ -1,5 +1,211 @@
 [
   {
+    "scheduleId": "week-2026-01-19",
+    "weekStart": "2026-01-19",
+    "weekEnd": "2026-01-24",
+    "createdBy": "Admin",
+    "createdAt": "2026-01-18T08:00:00Z",
+    "days": [
+      {
+        "date": "2026-01-19",
+        "dayName": "Monday",
+        "items": [
+          {
+            "itemId": "prod-w3-001",
+            "recipeName": "Beef Burger 1 KG (80 grams)",
+            "quantity": 12,
+            "unit": "Kg",
+            "station": "Butchery",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-002",
+            "recipeName": "Chicken Fajitas 1 KG",
+            "quantity": 45,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "date": "2026-01-20",
+        "dayName": "Tuesday",
+        "items": [
+          {
+            "itemId": "prod-w3-003",
+            "recipeName": "Brownies 1 KG",
+            "quantity": 50,
+            "unit": "Kg",
+            "station": "Desserts",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-004",
+            "recipeName": "Mac & Cheese 1 KG",
+            "quantity": 30,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "dayName": "Wednesday",
+        "items": [
+          {
+            "itemId": "prod-w3-005",
+            "recipeName": "Chicken Fajitas 1 KG",
+            "quantity": 55.6,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": true,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:16:51.820Z",
+            "startedAt": "2026-01-21T06:17:25.194Z",
+            "actualQuantity": 55.6,
+            "actualUnit": "Kg",
+            "completedAt": "2026-01-21T06:18:02.195Z"
+          },
+          {
+            "itemId": "prod-w3-006",
+            "recipeName": "Beef Paupiette 1 KG",
+            "quantity": 7,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:16:51.820Z"
+          },
+          {
+            "itemId": "prod-w3-007",
+            "recipeName": "Beef Philadelphia Kg",
+            "quantity": 11.3,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:16:51.820Z"
+          },
+          {
+            "itemId": "prod-w3-008",
+            "recipeName": "Creamy Mushroom Sauce Kg",
+            "quantity": 8,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-009",
+            "recipeName": "Brownies 1 KG",
+            "quantity": 40,
+            "unit": "Kg",
+            "station": "Desserts",
+            "notes": "",
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "1",
+            "assignedAt": "2026-01-21T07:38:47.173Z",
+            "startedAt": "2026-01-21T07:52:20.570Z"
+          },
+          {
+            "itemId": "prod-w3-010",
+            "recipeName": "Beef Burger 1 KG (80 grams)",
+            "quantity": 15,
+            "unit": "Kg",
+            "station": "Butchery",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-011",
+            "recipeName": "Lemon Juice Fresh",
+            "quantity": 20,
+            "unit": "Liter",
+            "station": "Pantry",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-012",
+            "recipeName": "Mashed Potato 1 KG",
+            "quantity": 35,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "date": "2026-01-22",
+        "dayName": "Thursday",
+        "items": [
+          {
+            "itemId": "prod-w3-013",
+            "recipeName": "Fish Curry Kg",
+            "quantity": 12,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          },
+          {
+            "itemId": "prod-w3-014",
+            "recipeName": "Chicken Kiev Kg",
+            "quantity": 8,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "date": "2026-01-23",
+        "dayName": "Friday",
+        "items": [
+          {
+            "itemId": "prod-w3-015",
+            "recipeName": "Potato Wedges 1 KG",
+            "quantity": 50,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "date": "2026-01-24",
+        "dayName": "Saturday",
+        "items": [
+          {
+            "itemId": "prod-w3-016",
+            "recipeName": "Steamed White Rice 1 KG",
+            "quantity": 40,
+            "unit": "Kg",
+            "station": "Hot Section",
+            "notes": "",
+            "completed": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "scheduleId": "week-2024-12-01",
     "weekStart": "2024-12-01",
     "weekEnd": "2024-12-05",
@@ -362,7 +568,10 @@
             "unit": "Kg",
             "station": "Butchery",
             "notes": "",
-            "completed": false
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:10:04.245Z"
           },
           {
             "itemId": "prod-1",
@@ -371,7 +580,10 @@
             "unit": "Kg",
             "station": "Butchery",
             "notes": "",
-            "completed": false
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:10:13.386Z"
           },
           {
             "itemId": "prod-2",
@@ -380,7 +592,10 @@
             "unit": "Kg",
             "station": "Hot Section",
             "notes": "",
-            "completed": false
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:10:26.111Z"
           },
           {
             "itemId": "prod-3",
@@ -389,7 +604,10 @@
             "unit": "Kg",
             "station": "Hot Section",
             "notes": "",
-            "completed": false
+            "completed": false,
+            "assignedTo": "Hot Section",
+            "assignedBy": "38",
+            "assignedAt": "2026-01-21T06:10:26.111Z"
           },
           {
             "itemId": "prod-4",

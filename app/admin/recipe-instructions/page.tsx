@@ -201,46 +201,59 @@ export default function AdminRecipeInstructionsPage() {
                   <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Name</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Category</th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Linked Recipe</th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Days</th>
                     <th className="h-12 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredRecipes.map((recipe) => (
-                    <tr key={recipe.recipeId} className="border-b transition-colors hover:bg-muted/50">
-                      <td className="p-4 align-middle font-medium">{recipe.name}</td>
-                      <td className="p-4 align-middle">{recipe.category}</td>
-                      <td className="p-4 align-middle">
-                        <div className="flex gap-1 flex-wrap">
-                          {recipe.daysAvailable.map(day => (
-                            <span key={day} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                              {day.slice(0, 3)}
+                  {filteredRecipes.map((recipe) => {
+                    const linkedRecipe = recipe.linkedRecipeId ? recipes.find(r => r.recipeId === recipe.linkedRecipeId) : null
+                    return (
+                      <tr key={recipe.recipeId} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{recipe.name}</td>
+                        <td className="p-4 align-middle">{recipe.category}</td>
+                        <td className="p-4 align-middle">
+                          {linkedRecipe ? (
+                            <span className="text-xs text-muted-foreground">
+                              🔗 {linkedRecipe.name}
                             </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4 align-middle text-right">
-                        <div className="flex justify-end gap-2">
-                          <Link href={`/admin/recipe-instructions/${recipe.recipeId}`}>
-                            <Button variant="ghost" size="icon">
-                              <Pencil className="h-4 w-4" />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">-</span>
+                          )}
+                        </td>
+                        <td className="p-4 align-middle">
+                          <div className="flex gap-1 flex-wrap">
+                            {recipe.daysAvailable.map(day => (
+                              <span key={day} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
+                                {day.slice(0, 3)}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="p-4 align-middle text-right">
+                          <div className="flex justify-end gap-2">
+                            <Link href={`/admin/recipe-instructions/${recipe.recipeId}`}>
+                              <Button variant="ghost" size="icon">
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => deleteRecipe(recipe.recipeId)}
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          </Link>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => deleteRecipe(recipe.recipeId)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
                   {filteredRecipes.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                      <td colSpan={5} className="p-8 text-center text-muted-foreground">
                         No recipe instructions found.
                       </td>
                     </tr>

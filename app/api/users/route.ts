@@ -42,12 +42,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { email, password, firstName, lastName, nationality, phone, role, branches } = body
+    const { email, password, firstName, lastName, nationality, phone, role, branches, stationAssignment } = body
 
     // Validation
     if (!email || !password || !firstName || !lastName || !role) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Station staff must have a station assignment
+    if (role === 'station_staff' && !stationAssignment) {
+      return NextResponse.json(
+        { error: 'Station staff must be assigned to a station' },
         { status: 400 }
       )
     }
@@ -65,18 +73,19 @@ export async function POST(request: Request) {
 
     // Create user with active status (admin creating directly)
     const result = await sql`
-      INSERT INTO users (email, password_hash, first_name, last_name, nationality, phone, role, status, approved_by, approved_at)
+      INSERT INTO users (email, password_hash, first_name, last_name, nationality, phone, role, status, approved_by, approved_at, station_assignment)
       VALUES (
-        ${email.toLowerCase()}, 
-        ${passwordHash}, 
-        ${firstName}, 
-        ${lastName}, 
-        ${nationality || null}, 
+        ${email.toLowerCase()},
+        ${passwordHash},
+        ${firstName},
+        ${lastName},
+        ${nationality || null},
         ${phone || null},
         ${role},
         'active',
         ${session.user.id},
-        CURRENT_TIMESTAMP
+        CURRENT_TIMESTAMP,
+        ${(role === 'station_staff' || role === 'head_chef') ? stationAssignment : null}
       )
       RETURNING id
     `

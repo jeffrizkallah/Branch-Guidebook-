@@ -64,7 +64,7 @@ export async function PATCH(
     }
 
     const body = await request.json()
-    const { action, role, status, branches, reason, newPassword } = body
+    const { action, role, status, branches, reason, newPassword, stationAssignment } = body
 
     // Check if current user is a dispatcher (not admin)
     const isDispatcher = session.user.role === 'dispatcher'
@@ -108,7 +108,14 @@ export async function PATCH(
         if (!role) {
           return NextResponse.json({ error: 'Role is required for approval' }, { status: 400 })
         }
-        const approveResult = await approveUser(userId, role, session.user.id, branches)
+        // Validate that station_staff must have a station assignment
+        if (role === 'station_staff' && !stationAssignment) {
+          return NextResponse.json(
+            { error: 'Station staff must be assigned to a station' },
+            { status: 400 }
+          )
+        }
+        const approveResult = await approveUser(userId, role, session.user.id, branches, stationAssignment)
         if (!approveResult.success) {
           return NextResponse.json({ error: approveResult.error }, { status: 400 })
         }
@@ -136,7 +143,14 @@ export async function PATCH(
         return NextResponse.json({ success: true, message: 'Password reset successfully' })
 
       case 'update':
-        const updateResult = await updateUser(userId, { role, status, branches }, session.user.id)
+        // Validate that station_staff must have a station assignment
+        if (role === 'station_staff' && !stationAssignment) {
+          return NextResponse.json(
+            { error: 'Station staff must be assigned to a station' },
+            { status: 400 }
+          )
+        }
+        const updateResult = await updateUser(userId, { role, status, branches, stationAssignment }, session.user.id)
         if (!updateResult.success) {
           return NextResponse.json({ error: updateResult.error }, { status: 400 })
         }
@@ -144,7 +158,14 @@ export async function PATCH(
 
       default:
         // Default update without action
-        const defaultResult = await updateUser(userId, { role, status, branches }, session.user.id)
+        // Validate that station_staff must have a station assignment
+        if (role === 'station_staff' && !stationAssignment) {
+          return NextResponse.json(
+            { error: 'Station staff must be assigned to a station' },
+            { status: 400 }
+          )
+        }
+        const defaultResult = await updateUser(userId, { role, status, branches, stationAssignment }, session.user.id)
         if (!defaultResult.success) {
           return NextResponse.json({ error: defaultResult.error }, { status: 400 })
         }

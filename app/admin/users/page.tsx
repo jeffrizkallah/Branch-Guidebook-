@@ -27,6 +27,7 @@ import {
   Globe,
   AlertCircle,
   Loader2,
+  ChefHat,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { roleDisplayNames, type UserRole, type UserWithBranches } from '@/lib/auth'
@@ -54,8 +55,17 @@ const roleOptions: { value: UserRole; label: string; description: string }[] = [
   { value: 'operations_lead', label: 'Operations Lead', description: 'Recipe & production management' },
   { value: 'dispatcher', label: 'Dispatcher', description: 'Dispatch management' },
   { value: 'central_kitchen', label: 'Central Kitchen', description: 'CK operations' },
+  { value: 'head_chef', label: 'Head Chef', description: 'Delegates tasks to kitchen stations' },
+  { value: 'station_staff', label: 'Station Staff', description: 'Works at assigned kitchen station' },
   { value: 'branch_manager', label: 'Branch Manager', description: 'Multi-branch dashboard access' },
   { value: 'branch_staff', label: 'Branch Staff', description: 'Access to assigned branches' },
+]
+
+const stationOptions = [
+  { value: 'Hot Section', label: 'Hot Section' },
+  { value: 'Cold Section', label: 'Cold Section' },
+  { value: 'Baker', label: 'Baker' },
+  { value: 'Butcher', label: 'Butcher' },
 ]
 
 interface ModalProps {
@@ -112,6 +122,7 @@ export default function UserManagementPage() {
   const [formRole, setFormRole] = useState<UserRole | ''>('')
   const [formBranches, setFormBranches] = useState<string[]>([])
   const [formStatus, setFormStatus] = useState<string>('active')
+  const [formStation, setFormStation] = useState<string>('')
   const [newPassword, setNewPassword] = useState('')
   const [newUserData, setNewUserData] = useState({
     email: '',
@@ -121,7 +132,8 @@ export default function UserManagementPage() {
     nationality: '',
     phone: '',
     role: '' as UserRole | '',
-    branches: [] as string[]
+    branches: [] as string[],
+    stationAssignment: '' as string
   })
   const [formError, setFormError] = useState('')
   const [formLoading, setFormLoading] = useState(false)
@@ -163,7 +175,8 @@ export default function UserManagementPage() {
         body: JSON.stringify({
           action: 'approve',
           role: formRole,
-          branches: (formRole === 'branch_manager' || formRole === 'branch_staff') ? formBranches : undefined
+          branches: (formRole === 'branch_manager' || formRole === 'branch_staff') ? formBranches : undefined,
+          stationAssignment: (formRole === 'station_staff' || formRole === 'head_chef') ? (formStation || null) : undefined
         })
       })
       
@@ -176,6 +189,7 @@ export default function UserManagementPage() {
       setSelectedUser(null)
       setFormRole('')
       setFormBranches([])
+      setFormStation('')
       fetchUsers()
     } catch (error: any) {
       setFormError(error.message)
@@ -216,7 +230,8 @@ export default function UserManagementPage() {
           action: 'update',
           role: formRole || undefined,
           status: formStatus,
-          branches: (formRole === 'branch_manager' || formRole === 'branch_staff') ? formBranches : undefined
+          branches: (formRole === 'branch_manager' || formRole === 'branch_staff') ? formBranches : undefined,
+          stationAssignment: (formRole === 'station_staff' || formRole === 'head_chef') ? (formStation || null) : null
         })
       })
       
@@ -289,7 +304,8 @@ export default function UserManagementPage() {
         nationality: '',
         phone: '',
         role: '',
-        branches: []
+        branches: [],
+        stationAssignment: ''
       })
       fetchUsers()
     } catch (error: any) {
@@ -315,6 +331,7 @@ export default function UserManagementPage() {
     setSelectedUser(user)
     setFormRole('')
     setFormBranches([])
+    setFormStation('')
     setFormError('')
     setApproveModalOpen(true)
   }
@@ -324,6 +341,7 @@ export default function UserManagementPage() {
     setFormRole(user.role || '')
     setFormBranches(user.branches || [])
     setFormStatus(user.status)
+    setFormStation(user.stationAssignment || '')
     setFormError('')
     setEditModalOpen(true)
   }
@@ -370,6 +388,8 @@ export default function UserManagementPage() {
       operations_lead: 'bg-blue-100 text-blue-700',
       dispatcher: 'bg-orange-100 text-orange-700',
       central_kitchen: 'bg-rose-100 text-rose-700',
+      head_chef: 'bg-amber-100 text-amber-700',
+      station_staff: 'bg-cyan-100 text-cyan-700',
       branch_manager: 'bg-green-100 text-green-700',
       branch_staff: 'bg-teal-100 text-teal-700',
     }
@@ -509,9 +529,17 @@ export default function UserManagementPage() {
                     <div className="flex items-center gap-1 mt-1">
                       <Building2 className="h-3 w-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {user.branches.map(slug => 
+                        {user.branches.map(slug =>
                           branchOptions.find(b => b.slug === slug)?.name || slug
                         ).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                  {(user.role === 'station_staff' || user.role === 'head_chef') && user.stationAssignment && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <ChefHat className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {user.stationAssignment}
                       </span>
                     </div>
                   )}
@@ -646,7 +674,25 @@ export default function UserManagementPage() {
               </div>
             </div>
           )}
-          
+
+          {(formRole === 'station_staff' || formRole === 'head_chef') && (
+            <div className="space-y-2">
+              <Label>Assign Station {formRole === 'station_staff' ? '*' : '(Optional)'}</Label>
+              <select
+                value={formStation}
+                onChange={(e) => setFormStation(e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">Select a station</option>
+                {stationOptions.map(station => (
+                  <option key={station.value} value={station.value}>
+                    {station.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {formError && (
             <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
               <AlertCircle className="h-4 w-4" />
@@ -711,7 +757,25 @@ export default function UserManagementPage() {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          
+
+          {(formRole === 'station_staff' || formRole === 'head_chef') && (
+            <div className="space-y-2">
+              <Label>Assigned Station {formRole === 'station_staff' ? '*' : '(Optional)'}</Label>
+              <select
+                value={formStation}
+                onChange={(e) => setFormStation(e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">Select a station</option>
+                {stationOptions.map(station => (
+                  <option key={station.value} value={station.value}>
+                    {station.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {formRole === 'branch_manager' && (
             <div className="space-y-2">
               <Label>Assigned Branches</Label>
@@ -909,7 +973,25 @@ export default function UserManagementPage() {
               </p>
             )}
           </div>
-          
+
+          {(newUserData.role === 'station_staff' || newUserData.role === 'head_chef') && (
+            <div className="space-y-2">
+              <Label>Assign Station {newUserData.role === 'station_staff' ? '*' : '(Optional)'}</Label>
+              <select
+                value={newUserData.stationAssignment}
+                onChange={(e) => setNewUserData({...newUserData, stationAssignment: e.target.value})}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">Select a station</option>
+                {stationOptions.map(station => (
+                  <option key={station.value} value={station.value}>
+                    {station.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {newUserData.role === 'branch_manager' && (
             <div className="space-y-2">
               <Label>Assign Branches</Label>

@@ -178,6 +178,7 @@ export interface Recipe {
   station?: string
   recipeCode?: string
   yield?: string
+  linkedRecipeId?: string  // Links to another recipe if this is a variation/related recipe
   daysAvailable: string[]
   prepTime: string
   cookTime: string
@@ -695,7 +696,46 @@ export function getUniqueInstructionCategories(): string[] {
 // Production Schedule (Central Kitchen)
 // ==========================================
 
-export type ProductionStation = 'Butchery' | 'Hot Section' | 'Pantry' | 'Desserts'
+// New station types (backward compatible with old names)
+export type ProductionStation =
+  | 'Hot Section'
+  | 'Cold Section'
+  | 'Baker'
+  | 'Butcher'
+  // Legacy station names (for backward compatibility)
+  | 'Butchery'
+  | 'Pantry'
+  | 'Desserts'
+
+// Map old station names to new ones
+export const stationNameMapping: Record<string, ProductionStation> = {
+  'Butchery': 'Butcher',
+  'Desserts': 'Baker',
+  'Pantry': 'Cold Section',
+  'Hot Section': 'Hot Section',
+  // New names map to themselves
+  'Butcher': 'Butcher',
+  'Baker': 'Baker',
+  'Cold Section': 'Cold Section',
+}
+
+// Get normalized station name (handles legacy names)
+export function normalizeStationName(station: string): ProductionStation {
+  return stationNameMapping[station] || station as ProductionStation
+}
+
+// Get all active stations (new names only)
+export function getActiveStations(): ProductionStation[] {
+  return ['Hot Section', 'Cold Section', 'Baker', 'Butcher']
+}
+
+// Sub-recipe progress tracking for production items
+export interface SubRecipeProgress {
+  [subRecipeId: string]: {
+    completed: boolean
+    completedAt?: string | null
+  }
+}
 
 export interface ProductionItem {
   itemId: string
@@ -705,6 +745,25 @@ export interface ProductionItem {
   station: ProductionStation
   notes: string
   completed: boolean
+
+  // Task delegation fields
+  assignedTo?: ProductionStation | null    // Station name (normalized)
+  assignedBy?: string | null               // Head chef user ID
+  assignedAt?: string | null               // ISO timestamp
+
+  // Actual quantity tracking
+  actualQuantity?: number | null
+  actualUnit?: string | null
+
+  // Time tracking
+  startedAt?: string | null
+  completedAt?: string | null
+
+  // Sub-recipe progress tracking
+  subRecipeProgress?: SubRecipeProgress
+
+  // Link to recipe for scaling
+  recipeId?: string | null
 }
 
 export interface ProductionDay {
@@ -777,9 +836,17 @@ export function getProductionItemsByStation(date: string, station: ProductionSta
 
 /**
  * Get all unique stations from production schedules
+ * Returns the new station names for display
  */
 export function getUniqueStations(): ProductionStation[] {
-  return ['Butchery', 'Hot Section', 'Pantry', 'Desserts']
+  return getActiveStations()
+}
+
+/**
+ * Get all station names including legacy (for filtering existing data)
+ */
+export function getAllStationNames(): ProductionStation[] {
+  return ['Hot Section', 'Cold Section', 'Baker', 'Butcher', 'Butchery', 'Pantry', 'Desserts']
 }
 
 /**

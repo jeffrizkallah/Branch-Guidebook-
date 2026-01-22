@@ -12,6 +12,8 @@ export const roleLandingPages: Record<UserRole, string> = {
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
+  head_chef: '/kitchen/head-chef',
+  station_staff: '/kitchen/station',
   branch_manager: '/dashboard',
   branch_staff: '/branch', // Redirected to specific branch by middleware
 }
@@ -62,7 +64,7 @@ export function useAuth(options?: {
 
   const canAccess = (resource: string) => {
     if (!user?.role) return false
-    
+
     switch (resource) {
       case 'admin':
         return user.role === 'admin'
@@ -77,7 +79,11 @@ export function useAuth(options?: {
       case 'dispatch':
         return ['admin', 'operations_lead', 'dispatcher'].includes(user.role)
       case 'kitchen':
-        return ['admin', 'operations_lead', 'central_kitchen'].includes(user.role)
+        return ['admin', 'operations_lead', 'central_kitchen', 'head_chef', 'station_staff'].includes(user.role)
+      case 'head_chef':
+        return ['admin', 'operations_lead', 'head_chef'].includes(user.role)
+      case 'station':
+        return ['admin', 'station_staff'].includes(user.role)
       case 'dashboard':
         return ['admin', 'operations_lead', 'branch_manager'].includes(user.role)
       case 'operations':
@@ -114,21 +120,27 @@ export function useAuth(options?: {
 
   const hasBranchAccess = (branchSlug: string) => {
     if (!user) return false
-    
+
     // Admin, regional_manager, and operations_lead have access to all branches
     if (['admin', 'regional_manager', 'operations_lead'].includes(user.role || '')) return true
-    
+
     // Dispatchers can view all branches
     if (user.role === 'dispatcher') return true
-    
+
     // Central kitchen only has access to central-kitchen
     if (user.role === 'central_kitchen') return branchSlug === 'central-kitchen'
-    
+
+    // Head chef only has access to central-kitchen
+    if (user.role === 'head_chef') return branchSlug === 'central-kitchen'
+
+    // Station staff only has access to central-kitchen
+    if (user.role === 'station_staff') return branchSlug === 'central-kitchen'
+
     // Branch managers and staff only have access to assigned branches
     if (user.role === 'branch_manager' || user.role === 'branch_staff') {
       return user.branches?.includes(branchSlug) || false
     }
-    
+
     return false
   }
 
@@ -145,6 +157,8 @@ export function useAuth(options?: {
     isOperationsLead: user?.role === 'operations_lead',
     isDispatcher: user?.role === 'dispatcher',
     isCentralKitchen: user?.role === 'central_kitchen',
+    isHeadChef: user?.role === 'head_chef',
+    isStationStaff: user?.role === 'station_staff',
     isBranchManager: user?.role === 'branch_manager',
     isBranchStaff: user?.role === 'branch_staff',
   }

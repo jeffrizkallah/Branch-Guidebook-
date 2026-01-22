@@ -24,12 +24,15 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-const STATIONS: ProductionStation[] = ['Butchery', 'Hot Section', 'Pantry', 'Desserts']
+const STATIONS: ProductionStation[] = ['Butchery', 'Hot Section', 'Pantry', 'Desserts', 'Cold Section', 'Baker', 'Butcher']
 const STATION_COLORS: Record<ProductionStation, string> = {
   'Butchery': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   'Hot Section': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   'Pantry': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
   'Desserts': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+  'Cold Section': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  'Baker': 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
+  'Butcher': 'bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200',
 }
 
 interface ProductionSchedulePageProps {

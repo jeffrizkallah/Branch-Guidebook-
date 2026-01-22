@@ -8,6 +8,8 @@ const roleLandingPages: Record<string, string> = {
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
+  head_chef: '/kitchen/head-chef',
+  station_staff: '/kitchen/station',
   branch_manager: '/dashboard',
   branch_staff: '/branch', // Will redirect to their specific branch
 }
@@ -21,7 +23,7 @@ const publicRoutes = [
 
 // Routes that require specific roles
 const roleRestrictedRoutes: Record<string, string[]> = {
-  '/recipes': ['admin', 'operations_lead', 'central_kitchen'],
+  '/recipes': ['admin', 'operations_lead', 'central_kitchen', 'head_chef', 'station_staff'],
   '/admin/recipe-instructions': ['admin', 'operations_lead'],
   '/admin/production-schedules': ['admin', 'operations_lead'],
   '/admin/quality-control': ['admin', 'operations_lead'],
@@ -30,7 +32,9 @@ const roleRestrictedRoutes: Record<string, string[]> = {
   '/regional': ['admin', 'regional_manager'],
   '/operations': ['admin', 'operations_lead'],
   '/dispatch': ['admin', 'operations_lead', 'dispatcher'],
-  '/kitchen': ['admin', 'operations_lead', 'central_kitchen'],
+  '/kitchen/head-chef': ['admin', 'operations_lead', 'head_chef'],
+  '/kitchen/station': ['admin', 'station_staff'],
+  '/kitchen': ['admin', 'operations_lead', 'central_kitchen', 'head_chef', 'station_staff'],
   '/dashboard': ['admin', 'operations_lead', 'branch_manager'],
 }
 
@@ -116,16 +120,20 @@ export default withAuth(
 
     // Central kitchen special handling - can only access kitchen-related pages
     if (userRole === 'central_kitchen') {
+      // Redirect root to kitchen dashboard
+      if (path === '/') {
+        return NextResponse.redirect(new URL('/kitchen', req.url))
+      }
+
       // Allow their pages
-      if (path === '/' ||
-          path === '/kitchen' || 
-          path === '/profile' || 
+      if (path === '/kitchen' ||
+          path === '/profile' ||
           path.startsWith('/recipes') ||
           path.startsWith('/branch/central-kitchen') ||
           path.startsWith('/branch/')) {
         return NextResponse.next()
       }
-      
+
       // Allow dispatch pages for packing (central kitchen packs items for all branches)
       // Path format: /dispatch/[id]/branch/[slug]
       if (path.startsWith('/dispatch/')) {
@@ -135,9 +143,46 @@ export default withAuth(
           return NextResponse.next()
         }
       }
-      
+
       // Redirect to kitchen dashboard
       return NextResponse.redirect(new URL('/kitchen', req.url))
+    }
+
+    // Head chef special handling - can only access head chef dashboard and related pages
+    if (userRole === 'head_chef') {
+      // Redirect root to head chef dashboard
+      if (path === '/') {
+        return NextResponse.redirect(new URL('/kitchen/head-chef', req.url))
+      }
+
+      // Allow their pages
+      if (path === '/kitchen/head-chef' ||
+          path === '/kitchen' ||
+          path === '/profile' ||
+          path.startsWith('/recipes')) {
+        return NextResponse.next()
+      }
+
+      // Redirect to head chef dashboard
+      return NextResponse.redirect(new URL('/kitchen/head-chef', req.url))
+    }
+
+    // Station staff special handling - can only access station tablet page
+    if (userRole === 'station_staff') {
+      // Redirect root to station page
+      if (path === '/') {
+        return NextResponse.redirect(new URL('/kitchen/station', req.url))
+      }
+
+      // Allow their pages
+      if (path === '/kitchen/station' ||
+          path === '/profile' ||
+          path.startsWith('/recipes')) {
+        return NextResponse.next()
+      }
+
+      // Redirect to station page
+      return NextResponse.redirect(new URL('/kitchen/station', req.url))
     }
 
     // Branch manager special handling - can access dashboard and assigned branches

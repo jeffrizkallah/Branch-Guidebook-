@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node scripts/run-migration.js:*)",
+      "Bash(node scripts/migrate-station-assignment.mjs:*)"
+    ]
+  }
+}

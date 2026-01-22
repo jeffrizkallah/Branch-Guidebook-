@@ -19,12 +19,15 @@ import {
 } from 'lucide-react'
 import type { ProductionSchedule, ProductionDay, ProductionItem, ProductionStation } from '@/lib/data'
 
-const STATIONS: ProductionStation[] = ['Butchery', 'Hot Section', 'Pantry', 'Desserts']
+const STATIONS: ProductionStation[] = ['Butchery', 'Hot Section', 'Pantry', 'Desserts', 'Cold Section', 'Baker', 'Butcher']
 const STATION_COLORS: Record<ProductionStation, string> = {
   'Butchery': 'bg-red-100 text-red-800',
   'Hot Section': 'bg-orange-100 text-orange-800',
   'Pantry': 'bg-green-100 text-green-800',
   'Desserts': 'bg-purple-100 text-purple-800',
+  'Cold Section': 'bg-blue-100 text-blue-800',
+  'Baker': 'bg-amber-100 text-amber-800',
+  'Butcher': 'bg-rose-100 text-rose-800',
 }
 
 interface ParsedItem {

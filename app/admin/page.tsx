@@ -678,10 +678,10 @@ export default function AdminDashboardPage() {
       </Card>
 
       {/* Yesterday's Branch Performance & Dispatch Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xs:gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 xs:gap-4 lg:items-stretch">
         {/* Yesterday's Branch Performance Widget - Takes 2 columns */}
         {branchHistory.length > 0 && (
-          <Card className="lg:col-span-2 border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6" style={{ animationFillMode: 'forwards' }}>
+          <Card className="lg:col-span-2 border-l-4 border-l-emerald-500 animate-slide-up opacity-0 stagger-6 flex flex-col" style={{ animationFillMode: 'forwards' }}>
             <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
               <div className="flex items-center justify-between gap-2">
                 <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2 min-w-0 flex-1">
@@ -697,8 +697,8 @@ export default function AdminDashboardPage() {
                 </Link>
               </div>
             </CardHeader>
-            <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
-              <div className="space-y-2 xs:space-y-3">
+            <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6 flex-1 flex flex-col">
+              <div className="space-y-2 xs:space-y-3 flex-1">
                 {branchHistory.slice(0, 6).map((branch, idx) => {
                 // Get yesterday's data (last item in history)
                 const yesterdayData = branch.history[branch.history.length - 1]
@@ -1017,7 +1017,7 @@ export default function AdminDashboardPage() {
           Quick Management
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 xs:gap-3">
-          {/* Recipe Instructions Management */}
+          {/* Recipe Instructions (CK Cooking) */}
           <Link href="/admin/recipe-instructions">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
@@ -1026,9 +1026,9 @@ export default function AdminDashboardPage() {
                     <ChefHat className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
                   <div className="flex-1 min-w-0 w-full">
-                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Recipe Manager (CK)</h3>
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Recipe Instructions</h3>
                     <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
-                      Full recipes for Central Kitchen with cooking instructions
+                      Full cooking instructions for Central Kitchen
                     </p>
                     <div className="flex flex-wrap items-center gap-1 xs:gap-1.5 mt-1.5 xs:mt-2">
                       <Badge variant="secondary" className="text-[8px] xs:text-[9px] sm:text-[10px] px-1 xs:px-1.5 py-0">
@@ -1045,16 +1045,16 @@ export default function AdminDashboardPage() {
             </Card>
           </Link>
 
-          {/* Recipe Instructions */}
-          <Link href="/admin/recipe-instructions">
+          {/* Reheating Instructions (Branch) */}
+          <Link href="/admin/reheating-instructions">
             <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
               <CardContent className="pt-3 xs:pt-4 px-2.5 xs:px-4 pb-3 xs:pb-4">
                 <div className="flex flex-col xs:flex-row items-start gap-2 xs:gap-3">
-                  <div className="p-2 xs:p-2.5 rounded-lg bg-blue-500/10 text-blue-600 shrink-0">
+                  <div className="p-2 xs:p-2.5 rounded-lg bg-orange-500/10 text-orange-600 group-hover:scale-110 transition-transform duration-300 shrink-0">
                     <Flame className="h-4 w-4 xs:h-5 xs:w-5" />
                   </div>
                   <div className="flex-1 min-w-0 w-full">
-                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Recipe Instructions</h3>
+                    <h3 className="font-semibold text-xs xs:text-sm text-foreground leading-tight">Reheating Instructions</h3>
                     <p className="text-[9px] xs:text-[10px] sm:text-xs text-muted-foreground mt-0.5 xs:mt-1 line-clamp-2 hidden sm:block">
                       Reheating & assembly instructions for branches
                     </p>
@@ -1064,6 +1064,7 @@ export default function AdminDashboardPage() {
                       </Badge>
                     </div>
                   </div>
+                  <ArrowRight className="h-3 w-3 xs:h-4 xs:w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300 shrink-0 hidden xs:block" />
                 </div>
               </CardContent>
             </Card>

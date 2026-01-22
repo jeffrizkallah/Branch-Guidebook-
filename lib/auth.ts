@@ -1,8 +1,9 @@
 import { sql } from '@vercel/postgres'
 import bcrypt from 'bcryptjs'
+import type { ProductionStation } from './data'
 
 // User roles
-export type UserRole = 'admin' | 'regional_manager' | 'operations_lead' | 'dispatcher' | 'central_kitchen' | 'branch_manager' | 'branch_staff'
+export type UserRole = 'admin' | 'regional_manager' | 'operations_lead' | 'dispatcher' | 'central_kitchen' | 'head_chef' | 'station_staff' | 'branch_manager' | 'branch_staff'
 
 // User status
 export type UserStatus = 'pending' | 'active' | 'inactive' | 'rejected'
@@ -23,6 +24,8 @@ export interface User {
   createdAt: Date
   updatedAt: Date
   lastLogin: Date | null
+  // Station assignment for head_chef and station_staff roles
+  stationAssignment: ProductionStation | null
 }
 
 // User with branch access
@@ -37,6 +40,8 @@ export const roleDisplayNames: Record<UserRole, string> = {
   operations_lead: 'Operations Lead',
   dispatcher: 'Dispatcher',
   central_kitchen: 'Central Kitchen',
+  head_chef: 'Head Chef',
+  station_staff: 'Station Staff',
   branch_manager: 'Branch Manager',
   branch_staff: 'Branch Staff',
 }
@@ -48,6 +53,8 @@ export const roleDescriptions: Record<UserRole, string> = {
   operations_lead: 'Recipe management, prep instructions, production schedules, and order approval',
   dispatcher: 'Dispatch management and view all branches',
   central_kitchen: 'CK dashboard and recipe viewing',
+  head_chef: 'Delegates production tasks to kitchen stations and monitors progress',
+  station_staff: 'Works on assigned production tasks at kitchen station',
   branch_manager: 'Branch dashboard for assigned branches',
   branch_staff: 'Access to assigned branches only',
 }
@@ -59,6 +66,8 @@ export const roleLandingPages: Record<UserRole, string> = {
   operations_lead: '/operations',
   dispatcher: '/dispatch',
   central_kitchen: '/kitchen',
+  head_chef: '/kitchen/head-chef',
+  station_staff: '/kitchen/station',
   branch_manager: '/dashboard',
   branch_staff: '/branch', // Will be redirected to /branch/[assigned-slug]
 }
@@ -77,10 +86,10 @@ export async function verifyPassword(password: string, hashedPassword: string): 
 export async function getUserByEmail(email: string): Promise<User | null> {
   try {
     const result = await sql`
-      SELECT 
-        id, 
-        email, 
-        first_name as "firstName", 
+      SELECT
+        id,
+        email,
+        first_name as "firstName",
         last_name as "lastName",
         nationality,
         phone,
@@ -91,8 +100,9 @@ export async function getUserByEmail(email: string): Promise<User | null> {
         rejected_reason as "rejectedReason",
         created_at as "createdAt",
         updated_at as "updatedAt",
-        last_login as "lastLogin"
-      FROM users 
+        last_login as "lastLogin",
+        station_assignment as "stationAssignment"
+      FROM users
       WHERE email = ${email.toLowerCase()}
     `
     return result.rows[0] as User || null
@@ -106,10 +116,10 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 export async function getUserById(id: number): Promise<User | null> {
   try {
     const result = await sql`
-      SELECT 
-        id, 
-        email, 
-        first_name as "firstName", 
+      SELECT
+        id,
+        email,
+        first_name as "firstName",
         last_name as "lastName",
         nationality,
         phone,
@@ -120,8 +130,9 @@ export async function getUserById(id: number): Promise<User | null> {
         rejected_reason as "rejectedReason",
         created_at as "createdAt",
         updated_at as "updatedAt",
-        last_login as "lastLogin"
-      FROM users 
+        last_login as "lastLogin",
+        station_assignment as "stationAssignment"
+      FROM users
       WHERE id = ${id}
     `
     return result.rows[0] as User || null
@@ -193,19 +204,19 @@ export async function createUser(data: {
 }
 
 // Authenticate user (login)
-export async function authenticateUser(email: string, password: string): Promise<{ 
-  success: boolean; 
-  error?: string; 
-  user?: User 
+export async function authenticateUser(email: string, password: string): Promise<{
+  success: boolean;
+  error?: string;
+  user?: User
 }> {
   try {
     // Get user with password hash
     const result = await sql`
-      SELECT 
-        id, 
-        email, 
+      SELECT
+        id,
+        email,
         password_hash,
-        first_name as "firstName", 
+        first_name as "firstName",
         last_name as "lastName",
         nationality,
         phone,
@@ -216,8 +227,9 @@ export async function authenticateUser(email: string, password: string): Promise
         rejected_reason as "rejectedReason",
         created_at as "createdAt",
         updated_at as "updatedAt",
-        last_login as "lastLogin"
-      FROM users 
+        last_login as "lastLogin",
+        station_assignment as "stationAssignment"
+      FROM users
       WHERE email = ${email.toLowerCase()}
     `
 
@@ -226,7 +238,7 @@ export async function authenticateUser(email: string, password: string): Promise
     }
 
     const user = result.rows[0]
-    
+
     // Verify password
     const isValid = await verifyPassword(password, user.password_hash)
     if (!isValid) {
@@ -240,7 +252,7 @@ export async function authenticateUser(email: string, password: string): Promise
 
     // Remove password_hash from returned user
     const { password_hash, ...userWithoutPassword } = user
-    
+
     return { success: true, user: userWithoutPassword as User }
   } catch (error) {
     console.error('Error authenticating user:', error)
@@ -252,10 +264,10 @@ export async function authenticateUser(email: string, password: string): Promise
 export async function getAllUsers(): Promise<UserWithBranches[]> {
   try {
     const result = await sql`
-      SELECT 
-        u.id, 
-        u.email, 
-        u.first_name as "firstName", 
+      SELECT
+        u.id,
+        u.email,
+        u.first_name as "firstName",
         u.last_name as "lastName",
         u.nationality,
         u.phone,
@@ -267,8 +279,9 @@ export async function getAllUsers(): Promise<UserWithBranches[]> {
         u.created_at as "createdAt",
         u.updated_at as "updatedAt",
         u.last_login as "lastLogin",
+        u.station_assignment as "stationAssignment",
         COALESCE(
-          array_agg(uba.branch_slug) FILTER (WHERE uba.branch_slug IS NOT NULL), 
+          array_agg(uba.branch_slug) FILTER (WHERE uba.branch_slug IS NOT NULL),
           ARRAY[]::VARCHAR[]
         ) as branches
       FROM users u
@@ -287,17 +300,18 @@ export async function getAllUsers(): Promise<UserWithBranches[]> {
 export async function getPendingUsers(): Promise<User[]> {
   try {
     const result = await sql`
-      SELECT 
-        id, 
-        email, 
-        first_name as "firstName", 
+      SELECT
+        id,
+        email,
+        first_name as "firstName",
         last_name as "lastName",
         nationality,
         phone,
         role,
         status,
-        created_at as "createdAt"
-      FROM users 
+        created_at as "createdAt",
+        station_assignment as "stationAssignment"
+      FROM users
       WHERE status = 'pending'
       ORDER BY created_at ASC
     `
@@ -310,21 +324,23 @@ export async function getPendingUsers(): Promise<User[]> {
 
 // Approve user (admin)
 export async function approveUser(
-  userId: number, 
-  role: UserRole, 
+  userId: number,
+  role: UserRole,
   approvedBy: number,
-  branches?: string[]
+  branches?: string[],
+  stationAssignment?: string | null
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Update user status and role
     await sql`
-      UPDATE users 
-      SET 
-        status = 'active', 
-        role = ${role}, 
-        approved_by = ${approvedBy}, 
+      UPDATE users
+      SET
+        status = 'active',
+        role = ${role},
+        approved_by = ${approvedBy},
         approved_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
+        updated_at = CURRENT_TIMESTAMP,
+        station_assignment = ${stationAssignment || null}
       WHERE id = ${userId}
     `
 
@@ -375,26 +391,45 @@ export async function updateUser(
     role?: UserRole
     status?: UserStatus
     branches?: string[]
+    stationAssignment?: string | null
   },
   updatedBy: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    if (data.role || data.status) {
-      await sql`
-        UPDATE users 
-        SET 
-          role = COALESCE(${data.role || null}, role),
-          status = COALESCE(${data.status || null}, status),
-          updated_at = CURRENT_TIMESTAMP
-        WHERE id = ${userId}
-      `
+    // Update role, status, and station_assignment together to avoid constraint violations
+    // This is important because the database has a check constraint that requires
+    // station_assignment to be set for head_chef and station_staff roles
+    if (data.role || data.status || data.stationAssignment !== undefined) {
+      // Build the update query based on what's provided
+      if (data.stationAssignment !== undefined) {
+        // Update all three fields together
+        await sql`
+          UPDATE users
+          SET
+            role = COALESCE(${data.role || null}, role),
+            status = COALESCE(${data.status || null}, status),
+            station_assignment = ${data.stationAssignment},
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${userId}
+        `
+      } else {
+        // Only update role and status
+        await sql`
+          UPDATE users
+          SET
+            role = COALESCE(${data.role || null}, role),
+            status = COALESCE(${data.status || null}, status),
+            updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${userId}
+        `
+      }
     }
 
     // Update branch access if provided
     if (data.branches !== undefined) {
       // Remove existing branch access
       await sql`DELETE FROM user_branch_access WHERE user_id = ${userId}`
-      
+
       // Add new branch access
       for (const branchSlug of data.branches) {
         await sql`
@@ -435,25 +470,31 @@ export async function userHasBranchAccess(userId: number, branchSlug: string): P
   try {
     const user = await getUserById(userId)
     if (!user) return false
-    
+
     // Admin, regional_manager, and operations_lead have access to all branches
     if (user.role === 'admin' || user.role === 'regional_manager' || user.role === 'operations_lead') return true
-    
+
     // Dispatchers can view all branches
     if (user.role === 'dispatcher') return true
-    
+
     // Central kitchen has access to central-kitchen only
     if (user.role === 'central_kitchen') return branchSlug === 'central-kitchen'
-    
+
+    // Head chef has access to central-kitchen only
+    if (user.role === 'head_chef') return branchSlug === 'central-kitchen'
+
+    // Station staff has access to central-kitchen only (they work in central kitchen)
+    if (user.role === 'station_staff') return branchSlug === 'central-kitchen'
+
     // Branch managers and branch staff have access to assigned branches
     if (user.role === 'branch_manager' || user.role === 'branch_staff') {
       const result = await sql`
-        SELECT 1 FROM user_branch_access 
+        SELECT 1 FROM user_branch_access
         WHERE user_id = ${userId} AND branch_slug = ${branchSlug}
       `
       return result.rows.length > 0
     }
-    
+
     return false
   } catch (error) {
     console.error('Error checking branch access:', error)

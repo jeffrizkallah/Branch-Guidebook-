@@ -1,6 +1,7 @@
 import { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { authenticateUser, getUserWithBranches, type UserRole } from '@/lib/auth'
+import type { ProductionStation } from '@/lib/data'
 
 // Extend the built-in session types
 declare module 'next-auth' {
@@ -13,9 +14,10 @@ declare module 'next-auth' {
       role: UserRole | null
       status: string
       branches: string[]
+      stationAssignment: ProductionStation | null
     }
   }
-  
+
   interface User {
     id: number
     email: string
@@ -24,6 +26,7 @@ declare module 'next-auth' {
     role: UserRole | null
     status: string
     branches?: string[]
+    stationAssignment?: ProductionStation | null
   }
 }
 
@@ -36,6 +39,7 @@ declare module 'next-auth/jwt' {
     role: UserRole | null
     status: string
     branches: string[]
+    stationAssignment: ProductionStation | null
   }
 }
 
@@ -53,7 +57,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const result = await authenticateUser(credentials.email, credentials.password)
-        
+
         if (!result.success || !result.user) {
           throw new Error(result.error || 'Invalid credentials')
         }
@@ -70,7 +74,8 @@ export const authOptions: NextAuthOptions = {
           lastName: user.lastName,
           role: user.role,
           status: user.status,
-          branches: userWithBranches?.branches || []
+          branches: userWithBranches?.branches || [],
+          stationAssignment: user.stationAssignment || null
         }
       }
     })
@@ -85,6 +90,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role as UserRole | null
         token.status = user.status as string
         token.branches = (user.branches as string[]) || []
+        token.stationAssignment = user.stationAssignment || null
       }
       return token
     },
@@ -96,7 +102,8 @@ export const authOptions: NextAuthOptions = {
         lastName: token.lastName,
         role: token.role,
         status: token.status,
-        branches: token.branches
+        branches: token.branches,
+        stationAssignment: token.stationAssignment
       }
       return session
     }

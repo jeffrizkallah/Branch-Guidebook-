@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,13 +9,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, Trash2, Save, ArrowLeft, Loader2 } from 'lucide-react'
-import type { Recipe, Ingredient, PreparationStep } from '@/lib/data'
+import { Plus, Trash2, Save, ArrowLeft, Loader2, Link2, Search, X, Download } from 'lucide-react'
+import type { Recipe, Ingredient, PreparationStep, MainIngredient, SubRecipe } from '@/lib/data'
 import { SubRecipeEditor } from '@/components/SubRecipeEditor'
 import { MainIngredientsEditor } from '@/components/MainIngredientsEditor'
 import { MachineToolEditor } from '@/components/MachineToolEditor'
 import { QualitySpecsEditor } from '@/components/QualitySpecsEditor'
 import { PackingLabelingEditor } from '@/components/PackingLabelingEditor'
+import { ImageUpload } from '@/components/ImageUpload'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
+} from '@/components/ui/dialog'
+import { useToast, ToastContainer } from '@/components/ui/toast'
 
 const EMPTY_RECIPE: Recipe = {
   recipeId: '',
@@ -24,6 +34,7 @@ const EMPTY_RECIPE: Recipe = {
   station: '',
   recipeCode: '',
   yield: '',
+  linkedRecipeId: undefined,
   daysAvailable: [],
   prepTime: '',
   cookTime: '',
@@ -66,12 +77,66 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
   const [isLoading, setIsLoading] = useState(!isNew)
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('basic')
+  // Odoo recipes for linking (recipes with ingredients but no instructions)
+  interface OdooRecipe {
+    item_id: string
+    item: string
+    category: string
+    product_group: string
+    ingredient_count: number
+    recipe_total_cost: number
+  }
+  const [odooRecipes, setOdooRecipes] = useState<OdooRecipe[]>([])
+  const [linkedRecipeId, setLinkedRecipeId] = useState<string>('')
+  const [linkedRecipeName, setLinkedRecipeName] = useState<string>('')
+  const [isLoadingRecipes, setIsLoadingRecipes] = useState(true)
+  const [recipeSearchQuery, setRecipeSearchQuery] = useState('')
+  const [showRecipeDropdown, setShowRecipeDropdown] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  
+  // Import confirmation dialog
+  const [showImportConfirmDialog, setShowImportConfirmDialog] = useState(false)
+  const [pendingImportData, setPendingImportData] = useState<{
+    recipe: OdooRecipe
+    mainIngredients: MainIngredient[]
+    subRecipes: SubRecipe[]
+  } | null>(null)
+  
+  // Toast notifications
+  const { toasts, success, error: showError, removeToast } = useToast()
 
   useEffect(() => {
+    fetchOdooRecipes()
     if (!isNew) {
       fetchRecipe()
     }
   }, [params.id])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowRecipeDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const fetchOdooRecipes = async () => {
+    try {
+      setIsLoadingRecipes(true)
+      const res = await fetch('/api/odoo-recipes')
+      const data = await res.json()
+      console.log('Fetched Odoo recipes for dropdown:', data.recipes?.length || 0, 'recipes')
+      setOdooRecipes(data.recipes || [])
+    } catch (error) {
+      console.error('Failed to fetch Odoo recipes', error)
+    } finally {
+      setIsLoadingRecipes(false)
+    }
+  }
 
   const fetchRecipe = async () => {
     try {
@@ -80,6 +145,22 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
       const found = data.find((r: Recipe) => r.recipeId === params.id)
       if (found) {
         setRecipe(found)
+        setLinkedRecipeId(found.linkedRecipeId || '')
+        // Set search query to linked recipe name if exists
+        if (found.linkedRecipeId) {
+          // Try to find the linked Odoo recipe name
+          const odooRes = await fetch('/api/odoo-recipes')
+          const odooData = await odooRes.json()
+          const linkedOdooRecipe = odooData.recipes?.find((r: any) => r.item_id === found.linkedRecipeId)
+          if (linkedOdooRecipe) {
+            setRecipeSearchQuery(linkedOdooRecipe.item)
+            setLinkedRecipeName(linkedOdooRecipe.item)
+          } else {
+            // Fallback: use the ID as the name
+            setRecipeSearchQuery(found.linkedRecipeId)
+            setLinkedRecipeName(found.linkedRecipeId)
+          }
+        }
       } else {
         alert('Recipe instructions not found')
         router.push('/admin/recipe-instructions')
@@ -91,16 +172,166 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
     }
   }
 
+  // Filter Odoo recipes based on search query
+  const filteredOdooRecipes = useMemo(() => {
+    if (!recipeSearchQuery.trim()) return odooRecipes
+    const query = recipeSearchQuery.toLowerCase()
+    return odooRecipes.filter(r => 
+      r.item.toLowerCase().includes(query) ||
+      String(r.item_id).toLowerCase().includes(query) ||
+      r.category?.toLowerCase().includes(query) ||
+      r.product_group?.toLowerCase().includes(query)
+    )
+  }, [odooRecipes, recipeSearchQuery])
+
+  const fetchAndTransformOdooRecipe = async (selectedRecipe: OdooRecipe) => {
+    try {
+      // Fetch detailed recipe data from Odoo
+      const res = await fetch(`/api/odoo-recipes/${selectedRecipe.item_id}`)
+      if (!res.ok) {
+        throw new Error('Failed to fetch recipe details')
+      }
+      
+      const data = await res.json()
+      
+      // Transform Odoo ingredients to MainIngredients and SubRecipes format
+      const mainIngredients: MainIngredient[] = []
+      const subRecipes: SubRecipe[] = []
+      
+      data.ingredients.forEach((ing: any) => {
+        if (ing.item_type === 'ingredient') {
+          // Add as main ingredient
+          mainIngredients.push({
+            name: ing.ingredient_name,
+            quantity: ing.quantity,
+            unit: ing.unit,
+            specifications: ing.notes || undefined,
+          })
+        } else if (ing.item_type === 'subrecipe') {
+          // Create a sub-recipe ID from the name
+          const subRecipeId = ing.ingredient_name.toLowerCase().replace(/\s+/g, '-')
+          
+          // Add reference in main ingredients
+          mainIngredients.push({
+            name: ing.ingredient_name,
+            quantity: ing.quantity,
+            unit: ing.unit,
+            specifications: ing.notes || undefined,
+            subRecipeId: subRecipeId,
+          })
+          
+          // Add the sub-recipe with its ingredients
+          const subRecipeIngredients: Ingredient[] = (ing.subrecipe_ingredients || []).map((subIng: any) => ({
+            item: subIng.ingredient_name,
+            quantity: `${subIng.quantity} ${subIng.unit}`,
+            notes: subIng.notes || undefined,
+            unit: subIng.unit,
+          }))
+          
+          subRecipes.push({
+            subRecipeId: subRecipeId,
+            name: ing.ingredient_name,
+            yield: `${ing.quantity} ${ing.unit}`,
+            ingredients: subRecipeIngredients,
+            notes: ing.notes || undefined,
+          })
+        }
+      })
+      
+      return { mainIngredients, subRecipes }
+    } catch (err) {
+      console.error('Error fetching recipe details:', err)
+      showError('Failed to fetch recipe details from Odoo')
+      return null
+    }
+  }
+
+  const handleSelectOdooRecipe = async (selectedRecipe: OdooRecipe) => {
+    setLinkedRecipeId(selectedRecipe.item_id)
+    setLinkedRecipeName(selectedRecipe.item)
+    setRecipeSearchQuery(selectedRecipe.item)
+    setShowRecipeDropdown(false)
+    
+    // Generate slug from recipe name (only if creating new recipe)
+    const slug = selectedRecipe.item
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric chars with hyphens
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+    
+    // Set the recipe name and ID to match the Odoo recipe
+    setRecipe(prev => ({
+      ...prev,
+      name: selectedRecipe.item,
+      recipeId: isNew ? slug : prev.recipeId, // Only update ID if it's a new recipe
+    }))
+    
+    // Fetch and prepare import data
+    const importData = await fetchAndTransformOdooRecipe(selectedRecipe)
+    if (!importData) return
+    
+    // Check if there's existing data that would be replaced
+    const hasExistingData = 
+      (recipe.mainIngredients && recipe.mainIngredients.length > 0) ||
+      (recipe.subRecipes && recipe.subRecipes.length > 0)
+    
+    if (hasExistingData) {
+      // Show confirmation dialog
+      setPendingImportData({
+        recipe: selectedRecipe,
+        ...importData,
+      })
+      setShowImportConfirmDialog(true)
+    } else {
+      // No existing data, import directly
+      applyImportData(importData.mainIngredients, importData.subRecipes)
+      success(`Imported ${importData.mainIngredients.length} ingredients and ${importData.subRecipes.length} sub-recipes from "${selectedRecipe.item}"`)
+    }
+  }
+  
+  const applyImportData = (mainIngredients: MainIngredient[], subRecipes: SubRecipe[]) => {
+    setRecipe(prev => ({
+      ...prev,
+      mainIngredients,
+      subRecipes,
+    }))
+  }
+  
+  const handleConfirmImport = () => {
+    if (pendingImportData) {
+      applyImportData(pendingImportData.mainIngredients, pendingImportData.subRecipes)
+      success(`Imported ${pendingImportData.mainIngredients.length} ingredients and ${pendingImportData.subRecipes.length} sub-recipes from "${pendingImportData.recipe.item}"`)
+    }
+    setShowImportConfirmDialog(false)
+    setPendingImportData(null)
+  }
+  
+  const handleCancelImport = () => {
+    setShowImportConfirmDialog(false)
+    setPendingImportData(null)
+  }
+
+  const handleClearRecipeLink = () => {
+    setLinkedRecipeId('')
+    setLinkedRecipeName('')
+    setRecipeSearchQuery('')
+  }
+
   const saveRecipe = async () => {
     setIsSaving(true)
     try {
       const method = isNew ? 'POST' : 'PUT'
       const url = isNew ? '/api/recipes' : `/api/recipes/${params.id}`
       
+      // Include linkedRecipeId in the recipe data
+      const recipeData = {
+        ...recipe,
+        linkedRecipeId: linkedRecipeId || undefined
+      }
+      
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(recipe)
+        body: JSON.stringify(recipeData)
       })
 
       if (!res.ok) {
@@ -193,8 +424,47 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      {/* Import Confirmation Dialog */}
+      <Dialog open={showImportConfirmDialog} onOpenChange={setShowImportConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import Ingredients & Sub-Recipes?</DialogTitle>
+            <DialogDescription>
+              This will replace your current ingredients and sub-recipes with data from the linked Odoo recipe.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {pendingImportData && (
+            <div className="py-4 space-y-2">
+              <p className="text-sm">
+                <strong>Recipe:</strong> {pendingImportData.recipe.item}
+              </p>
+              <p className="text-sm">
+                <strong>Main Ingredients:</strong> {pendingImportData.mainIngredients.length} items
+              </p>
+              <p className="text-sm">
+                <strong>Sub-Recipes:</strong> {pendingImportData.subRecipes.length} items
+              </p>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelImport}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmImport} className="gap-2">
+              <Download className="h-4 w-4" />
+              Import Data
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
@@ -242,6 +512,104 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
                     disabled={!isNew}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Link2 className="h-4 w-4" />
+                  Link to Existing Recipe (Searchable)
+                </Label>
+                <div className="relative" ref={dropdownRef}>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      ref={searchInputRef}
+                      value={recipeSearchQuery}
+                      onChange={(e) => {
+                        setRecipeSearchQuery(e.target.value)
+                        setShowRecipeDropdown(true)
+                      }}
+                      onFocus={() => setShowRecipeDropdown(true)}
+                      placeholder="Type to search for a recipe to link..."
+                      className="pl-10 pr-10"
+                    />
+                    {(linkedRecipeId || recipeSearchQuery) && (
+                      <button
+                        type="button"
+                        onClick={handleClearRecipeLink}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {showRecipeDropdown && (
+                    <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                      {isLoadingRecipes ? (
+                        <div className="p-3 flex items-center gap-2 text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading recipes from Odoo...
+                        </div>
+                      ) : filteredOdooRecipes.length === 0 ? (
+                        <div className="p-3 text-muted-foreground">
+                          {recipeSearchQuery ? 'No recipes found matching your search' : 'No recipes available'}
+                        </div>
+                      ) : (
+                        filteredOdooRecipes.map((r) => (
+                          <button
+                            key={r.item_id}
+                            type="button"
+                            onClick={() => handleSelectOdooRecipe(r)}
+                            className={`w-full px-3 py-2 text-left hover:bg-muted flex items-center justify-between ${
+                              linkedRecipeId === r.item_id ? 'bg-primary/10' : ''
+                            }`}
+                          >
+                            <div>
+                              <div className="font-medium">{r.item}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {r.category} • {r.product_group} • {r.ingredient_count} ingredients
+                              </div>
+                            </div>
+                            {linkedRecipeId === r.item_id && (
+                              <span className="text-primary text-xs">Linked</span>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+                {linkedRecipeId && (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-green-600 flex items-center gap-1">
+                      <Link2 className="h-3 w-3" />
+                      Linked to recipe: {linkedRecipeName || linkedRecipeId}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        const odooRecipe = odooRecipes.find(r => r.item_id === linkedRecipeId)
+                        if (odooRecipe) {
+                          const importData = await fetchAndTransformOdooRecipe(odooRecipe)
+                          if (importData) {
+                            setPendingImportData({
+                              recipe: odooRecipe,
+                              ...importData,
+                            })
+                            setShowImportConfirmDialog(true)
+                          }
+                        }
+                      }}
+                      className="gap-2"
+                    >
+                      <Download className="h-3 w-3" />
+                      Re-sync Ingredients
+                    </Button>
+                  </div>
+                )}
               </div>
               
               <div className="grid grid-cols-3 gap-4">
@@ -548,22 +916,24 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
                 />
               </div>
               <div className="space-y-2">
-                <Label>Photo URLs (One per line)</Label>
-                <Textarea 
-                  value={recipe.presentation.photos.join('\n')}
-                  onChange={e => setRecipe(prev => ({ 
+                <Label>Recipe Photos</Label>
+                <ImageUpload
+                  images={recipe.presentation.photos}
+                  onImagesChange={(photos) => setRecipe(prev => ({ 
                     ...prev, 
                     presentation: { 
                       ...prev.presentation, 
-                      photos: e.target.value.split('\n').filter(l => l.trim()) 
+                      photos 
                     } 
                   }))}
+                  maxImages={10}
                 />
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </>
   )
 }

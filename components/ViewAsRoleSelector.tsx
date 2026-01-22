@@ -13,6 +13,8 @@ const ALL_ROLES: UserRole[] = [
   'operations_lead',
   'dispatcher',
   'central_kitchen',
+  'head_chef',
+  'station_staff',
   'branch_manager',
   'branch_staff',
 ]
