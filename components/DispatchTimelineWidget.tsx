@@ -143,22 +143,20 @@ export function DispatchTimelineWidget({
   
   if (!activeDispatch || dispatches.length === 0) {
     return (
-      <Card className={cn("border-l-4 border-l-amber-500 h-full flex flex-col", className)}>
+      <Card className={cn("border-l-4 border-l-amber-500", className)}>
         <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
           <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2">
             <Truck className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-amber-600" />
             Dispatch Progress
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6 flex-1 flex flex-col">
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className="text-center py-6 text-muted-foreground">
-              <Package className="h-10 w-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">No active dispatches</p>
-            </div>
+        <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
+          <div className="text-center py-6 text-muted-foreground">
+            <Package className="h-10 w-10 mx-auto mb-2 opacity-30" />
+            <p className="text-sm">No active dispatches</p>
           </div>
           {showManageButton && (
-            <div className="mt-auto">
+            <div className="mt-4">
               <Link href="/dispatch" className="block">
                 <Button variant="outline" size="sm" className="w-full text-xs gap-2">
                   <Package className="h-3.5 w-3.5" />
@@ -174,7 +172,7 @@ export function DispatchTimelineWidget({
   }
   
   return (
-    <Card className={cn("border-l-4 border-l-amber-500 h-full flex flex-col", className)}>
+    <Card className={cn("border-l-4 border-l-amber-500", className)}>
       <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2">
@@ -186,7 +184,7 @@ export function DispatchTimelineWidget({
           </Badge>
         </div>
       </CardHeader>
-      <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6 flex-1 flex flex-col">
+      <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
         {/* Summary row */}
         <div className="flex items-center justify-between mb-2 xs:mb-3 text-xs xs:text-sm">
           <div className="flex items-center gap-2 xs:gap-3">
@@ -211,11 +209,9 @@ export function DispatchTimelineWidget({
           </span>
         </div>
         
-        {/* Main content area with flex-1 to fill space */}
-        <div className="flex-1 flex flex-col">
-          {/* Compact list view - handles high branch counts */}
-          <div className="space-y-1.5 xs:space-y-2 overflow-y-auto pr-1 flex-1">
-            {branchProgress.slice(0, maxBranches).map(branch => {
+        {/* Branch list with fixed max height */}
+        <div className="space-y-1.5 xs:space-y-2 overflow-y-auto pr-1 max-h-[400px]">
+          {branchProgress.slice(0, maxBranches).map(branch => {
               const isActive = branch.status === 'packing' || branch.status === 'receiving'
               const isCompleted = branch.status === 'completed'
               const isDispatched = branch.status === 'dispatched'
@@ -276,29 +272,28 @@ export function DispatchTimelineWidget({
                 </div>
               )
             })}
+        </div>
+        
+        {/* Footer section - legend and button */}
+        <div className="mt-3">
+          {/* Compact inline legend */}
+          <div className="flex items-center justify-center gap-3 xs:gap-4 text-[10px] text-muted-foreground pt-3 xs:pt-4 border-t border-slate-100">
+            <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-gray-300"></span>Pending</span>
+            <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-blue-500"></span>Active</span>
+            <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-amber-500"></span>In Transit</span>
+            <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-green-500"></span>Done</span>
           </div>
           
-          {/* Footer section - legend and button */}
-          <div className="mt-auto">
-            {/* Compact inline legend */}
-            <div className="flex items-center justify-center gap-3 xs:gap-4 text-[10px] text-muted-foreground pt-3 xs:pt-4 mt-2 xs:mt-3 border-t border-slate-100">
-              <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-gray-300"></span>Pending</span>
-              <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-blue-500"></span>Active</span>
-              <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-amber-500"></span>In Transit</span>
-              <span className="flex items-center gap-1 xs:gap-1.5"><span className="w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full bg-green-500"></span>Done</span>
-            </div>
-            
-            {/* Action button */}
-            {showManageButton && (
-              <Link href={`/dispatch/${activeDispatch.id}/report`} className="block mt-2 xs:mt-3">
-                <Button variant="ghost" size="sm" className="w-full text-[10px] xs:text-xs gap-1 xs:gap-2 h-6 xs:h-7 px-2 xs:px-3">
-                  <span className="hidden sm:inline">View Full Report</span>
-                  <span className="sm:hidden">View</span>
-                  <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
-                </Button>
-              </Link>
-            )}
-          </div>
+          {/* Action button */}
+          {showManageButton && (
+            <Link href={`/dispatch/${activeDispatch.id}/report`} className="block mt-2 xs:mt-3">
+              <Button variant="ghost" size="sm" className="w-full text-[10px] xs:text-xs gap-1 xs:gap-2 h-6 xs:h-7 px-2 xs:px-3">
+                <span className="hidden sm:inline">View Full Report</span>
+                <span className="sm:hidden">View</span>
+                <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
+              </Button>
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>
