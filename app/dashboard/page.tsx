@@ -132,28 +132,42 @@ export default function BranchManagerDashboard() {
       }
       setBranches(userBranches)
 
-      // Fetch analytics
-      const analyticsRes = await fetch('/api/analytics/branches?period=today')
+      // Helper function to filter analytics to user's branches
+      const filterAnalyticsToUserBranches = (branches: BranchAnalytics[]) => {
+        return (branches || []).filter((a: BranchAnalytics) => {
+          const analyticsBranch = (a.branch || '').toLowerCase().trim()
+          return userBranches.some(b => {
+            const branchName = b.name.toLowerCase().trim()
+            const branchSlug = b.slug.toLowerCase()
+            // Match exact name, slug conversion, or partial containment
+            return branchName === analyticsBranch ||
+                   branchSlug === analyticsBranch.replace(/\s+/g, '-') ||
+                   branchName.includes(analyticsBranch) ||
+                   analyticsBranch.includes(branchName.replace('isc ', ''))
+          })
+        })
+      }
+
+      // Fetch analytics for yesterday
+      const analyticsRes = await fetch('/api/analytics/branches?period=yesterday')
       const analyticsData = await analyticsRes.json()
       
-      // Filter analytics to user's branches with flexible matching
-      const userAnalytics = (analyticsData.branches || []).filter((a: BranchAnalytics) => {
-        const analyticsBranch = (a.branch || '').toLowerCase().trim()
-        return userBranches.some(b => {
-          const branchName = b.name.toLowerCase().trim()
-          const branchSlug = b.slug.toLowerCase()
-          // Match exact name, slug conversion, or partial containment
-          return branchName === analyticsBranch ||
-                 branchSlug === analyticsBranch.replace(/\s+/g, '-') ||
-                 branchName.includes(analyticsBranch) ||
-                 analyticsBranch.includes(branchName.replace('isc ', ''))
-        })
-      })
+      // Fetch analytics for 2 days ago to calculate percentage change
+      const twoDaysAgoRes = await fetch('/api/analytics/branches?period=2daysago')
+      const twoDaysAgoData = await twoDaysAgoRes.json()
+      
+      // Filter both to user's branches
+      const userAnalytics = filterAnalyticsToUserBranches(analyticsData.branches)
+      const userAnalyticsTwoDaysAgo = filterAnalyticsToUserBranches(twoDaysAgoData.branches)
+      
       setBranchAnalytics(userAnalytics)
 
-      // Calculate totals for user's branches (use filtered analytics or fallback to all if matching failed)
+      // Calculate totals for user's branches
       let totalRevenue = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.revenue, 0)
       let totalOrders = userAnalytics.reduce((sum: number, a: BranchAnalytics) => sum + a.orders, 0)
+      
+      // Calculate revenue from 2 days ago for the same branches
+      let revenueTwoDaysAgo = userAnalyticsTwoDaysAgo.reduce((sum: number, a: BranchAnalytics) => sum + a.revenue, 0)
       
       // If no matching analytics but user has branches, use total from API response
       if (totalRevenue === 0 && userBranches.length > 0 && analyticsData.totalRevenue) {
@@ -161,13 +175,19 @@ export default function BranchManagerDashboard() {
         totalOrders = (analyticsData.branches || []).reduce((sum: number, a: BranchAnalytics) => sum + a.orders, 0)
       }
       
+      if (revenueTwoDaysAgo === 0 && userBranches.length > 0 && twoDaysAgoData.totalRevenue) {
+        revenueTwoDaysAgo = twoDaysAgoData.totalRevenue
+      }
+      
       setTodayRevenue(totalRevenue)
       setTodayOrders(totalOrders)
 
-      // Fetch summary for change percentage
-      const summaryRes = await fetch('/api/analytics/summary')
-      const summaryData = await summaryRes.json()
-      setRevenueChange(summaryData.today?.changes?.revenue || 0)
+      // Calculate accurate percentage change for user's branches
+      const accurateChange = revenueTwoDaysAgo > 0 
+        ? Math.round(((totalRevenue - revenueTwoDaysAgo) / revenueTwoDaysAgo) * 100 * 10) / 10
+        : (totalRevenue > 0 ? 100 : 0)
+      
+      setRevenueChange(accurateChange)
 
       // Fetch dispatches
       const dispatchRes = await fetch('/api/dispatch')
@@ -369,7 +389,7 @@ export default function BranchManagerDashboard() {
                   <div className="p-1 xs:p-1.5 rounded-md xs:rounded-lg bg-emerald-100">
                     <DollarSign className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-emerald-600" />
                   </div>
-                  <span className="text-[10px] xs:text-xs text-muted-foreground">Revenue</span>
+                  <span className="text-[10px] xs:text-xs text-muted-foreground">Yesterday Revenue</span>
                 </div>
                 <p className="text-base xs:text-lg sm:text-xl font-bold">{formatCurrency(todayRevenue)}</p>
                 <div className={cn(
@@ -381,7 +401,7 @@ export default function BranchManagerDashboard() {
                   ) : (
                     <TrendingDown className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
                   )}
-                  <span className="hidden xs:inline">{revenueChange >= 0 ? '+' : ''}{revenueChange}% vs yesterday</span>
+                  <span className="hidden xs:inline">{revenueChange >= 0 ? '+' : ''}{revenueChange}% vs day before</span>
                   <span className="xs:hidden">{revenueChange >= 0 ? '+' : ''}{revenueChange}%</span>
                 </div>
               </CardContent>
@@ -481,7 +501,7 @@ export default function BranchManagerDashboard() {
                                 {analytics ? formatCurrency(analytics.revenue) : '-'}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {analytics?.orders || 0} orders today
+                                {analytics?.orders || 0} orders yesterday
                               </p>
                             </div>
                           </div>

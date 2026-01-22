@@ -7,12 +7,18 @@ export const revalidate = 0
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const period = searchParams.get('period') || 'month' // 'today', 'week', 'month', 'year'
+    const period = searchParams.get('period') || 'month' // 'today', 'yesterday', '2daysago', 'week', 'month', 'year'
 
     let dateFilter = ''
     switch (period) {
       case 'today':
         dateFilter = 'date = CURRENT_DATE'
+        break
+      case 'yesterday':
+        dateFilter = 'date = CURRENT_DATE - INTERVAL \'1 day\''
+        break
+      case '2daysago':
+        dateFilter = 'date = CURRENT_DATE - INTERVAL \'2 days\''
         break
       case 'week':
         dateFilter = 'date >= DATE_TRUNC(\'week\', CURRENT_DATE)'
