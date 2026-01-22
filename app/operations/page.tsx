@@ -162,7 +162,7 @@ export default function OperationsDashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">CK Recipes</p>
+                    <p className="text-sm font-medium text-muted-foreground">Recipe Instructions</p>
                     <p className="text-3xl font-bold text-foreground mt-1">{stats.recipes}</p>
                   </div>
                   <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600">
@@ -176,7 +176,7 @@ export default function OperationsDashboardPage() {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Prep Instructions</p>
+                    <p className="text-sm font-medium text-muted-foreground">Reheating Instructions</p>
                     <p className="text-3xl font-bold text-foreground mt-1">{stats.instructions}</p>
                   </div>
                   <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600">
@@ -332,8 +332,8 @@ export default function OperationsDashboardPage() {
               Content Management
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* CK Recipes */}
-              <Link href="/recipes">
+              {/* Recipe Instructions */}
+              <Link href="/admin/recipe-instructions">
                 <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
@@ -341,7 +341,7 @@ export default function OperationsDashboardPage() {
                         <ChefHat className="h-6 w-6" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground">CK Recipes</h3>
+                        <h3 className="font-semibold text-foreground">Recipe Instructions</h3>
                         <p className="text-sm text-muted-foreground mt-1">
                           Full recipes for Central Kitchen with cooking instructions
                         </p>
@@ -355,8 +355,8 @@ export default function OperationsDashboardPage() {
                 </Card>
               </Link>
 
-              {/* Prep Instructions */}
-              <Link href="/admin/recipe-instructions">
+              {/* Reheating Instructions */}
+              <Link href="/admin/reheating-instructions">
                 <Card className="h-full hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer group">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
@@ -364,7 +364,7 @@ export default function OperationsDashboardPage() {
                         <Flame className="h-6 w-6" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground">Prep Instructions</h3>
+                        <h3 className="font-semibold text-foreground">Reheating Instructions</h3>
                         <p className="text-sm text-muted-foreground mt-1">
                           Reheating & assembly instructions for branches
                         </p>
