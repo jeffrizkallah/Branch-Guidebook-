@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { X, AlertTriangle, Thermometer, Scale, CheckCircle, Clock, User, MapPin, Calendar, Image as ImageIcon, Eye, MessageSquare, Send, Loader2, CheckCheck } from 'lucide-react'
+import { X, AlertTriangle, Thermometer, Scale, CheckCircle, Clock, User, MapPin, Calendar, Image as ImageIcon, Eye, MessageSquare, Send, Loader2, CheckCheck, ThumbsUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import Image from 'next/image'
+import { LikeModal } from '@/components/LikeModal'
+import { QualityLike, LikesSummary, canGiveLikes } from '@/lib/quality-likes'
 
 interface QualityCheckDetail {
   id: number
@@ -69,9 +71,18 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
   const [sendingFeedback, setSendingFeedback] = useState(false)
   const [feedbackSuccess, setFeedbackSuccess] = useState(false)
 
+  // Likes state
+  const [likes, setLikes] = useState<QualityLike[]>([])
+  const [likesLoading, setLikesLoading] = useState(false)
+  const [showLikeModal, setShowLikeModal] = useState(false)
+  const [userHasLiked, setUserHasLiked] = useState(false)
+  const [currentUserLikeId, setCurrentUserLikeId] = useState<number | undefined>()
+  const [likingInProgress, setLikingInProgress] = useState(false)
+
   const userRole = session?.user?.role
   const userId = session?.user?.id
   const canGiveFeedback = ['admin', 'regional_manager', 'operations_lead'].includes(userRole || '')
+  const canLike = canGiveLikes(userRole)
   const isSubmitter = submission?.submittedBy === userId
 
   const fetchFeedback = useCallback(async () => {
@@ -91,10 +102,30 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
     }
   }, [submissionId])
 
+  const fetchLikes = useCallback(async () => {
+    if (!submissionId) return
+    
+    setLikesLoading(true)
+    try {
+      const response = await fetch(`/api/quality-checks/${submissionId}/likes`)
+      if (response.ok) {
+        const data: LikesSummary = await response.json()
+        setLikes(data.likes || [])
+        setUserHasLiked(data.userHasLiked)
+        setCurrentUserLikeId(data.currentUserLikeId)
+      }
+    } catch (err) {
+      console.error('Error fetching likes:', err)
+    } finally {
+      setLikesLoading(false)
+    }
+  }, [submissionId])
+
   useEffect(() => {
     if (!submissionId) {
       setSubmission(null)
       setFeedback([])
+      setLikes([])
       return
     }
 
@@ -118,7 +149,8 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
 
     fetchSubmission()
     fetchFeedback()
-  }, [submissionId, fetchFeedback])
+    fetchLikes()
+  }, [submissionId, fetchFeedback, fetchLikes])
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -181,6 +213,39 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
     } catch (err) {
       console.error('Error marking feedback as read:', err)
     }
+  }
+
+  const handleToggleLike = async () => {
+    if (!submissionId) return
+
+    if (userHasLiked) {
+      // Unlike
+      setLikingInProgress(true)
+      try {
+        const response = await fetch(`/api/quality-checks/${submissionId}/like`, {
+          method: 'DELETE'
+        })
+
+        if (response.ok) {
+          await fetchLikes()
+        } else {
+          const data = await response.json()
+          alert(data.error || 'Failed to remove like')
+        }
+      } catch (err) {
+        console.error('Error removing like:', err)
+        alert('Failed to remove like')
+      } finally {
+        setLikingInProgress(false)
+      }
+    } else {
+      // Show modal to add like
+      setShowLikeModal(true)
+    }
+  }
+
+  const handleLikeAdded = async () => {
+    await fetchLikes()
   }
 
   if (!submissionId) return null
@@ -382,7 +447,94 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
                     <p className="text-xs mt-1">{getScoreLabel(submission.appearanceScore)}</p>
                   </div>
                 </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-2 mt-4">
+                  {/* Debug info */}
+                  <div className="text-xs bg-gray-100 p-2 rounded">
+                    <p>Debug: canLike={String(canLike)}, isSubmitter={String(isSubmitter)}, role={userRole}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {canLike && !isSubmitter && (
+                      <Button
+                        onClick={handleToggleLike}
+                        disabled={likingInProgress}
+                        className={userHasLiked 
+                          ? "bg-blue-600 hover:bg-blue-700 text-white" 
+                          : "bg-white hover:bg-blue-50 text-blue-600 border-2 border-blue-600"
+                        }
+                      >
+                        {likingInProgress ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <ThumbsUp className={`h-4 w-4 mr-2 ${userHasLiked ? 'fill-current' : ''}`} />
+                        )}
+                        {userHasLiked ? `Liked (${likes.length})` : 'Like'}
+                      </Button>
+                    )}
+                    {canGiveFeedback && !isSubmitter && (
+                      <Button
+                        onClick={() => setShowFeedbackPanel(true)}
+                        variant="outline"
+                        className="border-2 border-orange-600 text-orange-600 hover:bg-orange-50"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Give Feedback
+                      </Button>
+                    )}
+                    {isSubmitter && likes.length > 0 && (
+                      <div className="flex items-center gap-2 text-blue-600 font-medium">
+                        <ThumbsUp className="h-4 w-4 fill-current" />
+                        <span>{likes.length} {likes.length === 1 ? 'Like' : 'Likes'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
+
+              {/* Likes Section */}
+              {likes.length > 0 && (
+                <div className="bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl border border-blue-200 p-4">
+                  <h3 className="font-semibold text-sm mb-3 text-blue-900 uppercase tracking-wide flex items-center gap-2">
+                    <ThumbsUp className="h-4 w-4" />
+                    Liked by {likes.length} {likes.length === 1 ? 'Manager' : 'Managers'}
+                  </h3>
+                  <div className="space-y-3">
+                    {likes.map((like) => (
+                      <div 
+                        key={like.id} 
+                        className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-400 to-sky-500 flex items-center justify-center text-white text-xs font-bold">
+                              {like.givenByName.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-blue-900">{like.givenByName}</p>
+                              <p className="text-xs text-blue-600">{formatRole(like.givenByRole)} • {formatRelativeTime(like.createdAt)}</p>
+                            </div>
+                          </div>
+                          <ThumbsUp className="h-4 w-4 text-blue-500 fill-current flex-shrink-0" />
+                        </div>
+                        {like.tags && like.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {like.tags.map((tag, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-blue-200">
+                                ✨ {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                        {like.note && (
+                          <p className="text-sm text-gray-700 leading-relaxed italic">"{like.note}"</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Measurements Section */}
               {(submission.tempCelsius !== null || submission.portionQtyGm !== null) && (
@@ -711,6 +863,17 @@ export function QualityCheckDetailModal({ submissionId, onClose }: QualityCheckD
             </div>
           </div>
         </div>
+      )}
+
+      {/* Like Modal */}
+      {showLikeModal && submission && (
+        <LikeModal
+          submissionId={submissionId}
+          submitterName={submission.submitterName}
+          productName={submission.productName}
+          onClose={() => setShowLikeModal(false)}
+          onLikeAdded={handleLikeAdded}
+        />
       )}
     </div>
   )

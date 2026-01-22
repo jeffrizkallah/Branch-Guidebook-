@@ -32,6 +32,7 @@ import {
   ClipboardCheck,
   Coffee,
   Sun,
+  Settings2,
 } from 'lucide-react'
 import { Sparkline } from '@/components/Sparkline'
 import { DispatchTimelineWidget } from '@/components/DispatchTimelineWidget'
@@ -152,6 +153,9 @@ interface QualitySummary {
     branchName: string
     breakfastSubmitted: boolean
     lunchSubmitted: boolean
+    breakfastCount: number
+    lunchCount: number
+    totalSubmissions: number
   }[]
   lowScores: {
     id: number
@@ -920,51 +924,59 @@ export default function AdminDashboardPage() {
       {/* Quality Control Widget */}
       {qualitySummary && (
         <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="pb-2 xs:pb-3 px-3 xs:px-6 pt-3 xs:pt-6">
-            <div className="flex items-center justify-between gap-2">
-              <CardTitle className="text-sm xs:text-base flex items-center gap-1.5 xs:gap-2 min-w-0 flex-1">
-                <ClipboardCheck className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-green-600 shrink-0" />
-                <span className="truncate">Quality Control Today</span>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4 text-green-600" />
+                Quality Control Today
               </CardTitle>
-              <Link href="/admin/quality-control" className="shrink-0">
-                <Button variant="ghost" size="sm" className="text-[10px] xs:text-xs gap-1 h-6 xs:h-7 px-2 xs:px-3">
-                  View All
-                  <ArrowRight className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link href="/admin/quality-control/fields">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+                    <Settings2 className="h-3 w-3" />
+                    Fields
+                  </Button>
+                </Link>
+                <Link href="/admin/quality-control">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
+                    View All
+                    <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="px-3 xs:px-6 pb-3 xs:pb-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3 mb-3 xs:mb-4">
-              <div className="text-center p-2 xs:p-3 bg-green-50 rounded-lg">
-                <p className="text-xl xs:text-2xl font-bold text-green-700">{qualitySummary.totalSubmissions}</p>
-                <p className="text-[9px] xs:text-[10px] sm:text-xs text-green-600 mt-0.5">Submissions</p>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <p className="text-2xl font-bold text-green-700">{qualitySummary.totalSubmissions}</p>
+                <p className="text-xs text-green-600">Submissions</p>
               </div>
-              <div className="text-center p-2 xs:p-3 bg-blue-50 rounded-lg">
-                <p className="text-xl xs:text-2xl font-bold text-blue-700">{qualitySummary.complianceRate}%</p>
-                <p className="text-[9px] xs:text-[10px] sm:text-xs text-blue-600 mt-0.5">Compliance</p>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <p className="text-2xl font-bold text-blue-700">{qualitySummary.complianceRate}%</p>
+                <p className="text-xs text-blue-600">Compliance</p>
               </div>
-              <div className="text-center p-2 xs:p-3 bg-emerald-50 rounded-lg">
-                <p className="text-xl xs:text-2xl font-bold text-emerald-700">
+              <div className="text-center p-3 bg-emerald-50 rounded-lg">
+                <p className="text-2xl font-bold text-emerald-700">
                   {qualitySummary.todayCompliance.filter(b => b.breakfastSubmitted || b.lunchSubmitted).length}
                 </p>
-                <p className="text-[9px] xs:text-[10px] sm:text-xs text-emerald-600 mt-0.5">Done</p>
+                <p className="text-xs text-emerald-600">Branches Done</p>
               </div>
-              <div className="text-center p-2 xs:p-3 bg-amber-50 rounded-lg">
-                <p className="text-xl xs:text-2xl font-bold text-amber-700">
+              <div className="text-center p-3 bg-amber-50 rounded-lg">
+                <p className="text-2xl font-bold text-amber-700">
                   {qualitySummary.todayCompliance.filter(b => !b.breakfastSubmitted && !b.lunchSubmitted).length}
                 </p>
-                <p className="text-[9px] xs:text-[10px] sm:text-xs text-amber-600 mt-0.5">Pending</p>
+                <p className="text-xs text-amber-600">Pending</p>
               </div>
             </div>
 
             {/* Branch compliance grid */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 xs:gap-2">
-              {qualitySummary.todayCompliance.slice(0, 8).map((branch) => (
-                <div
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+              {qualitySummary.todayCompliance.slice(0, 12).map((branch) => (
+                <div 
                   key={branch.branchSlug}
                   className={`
-                    flex items-center justify-between p-1.5 xs:p-2 rounded-lg text-[10px] xs:text-xs
+                    flex flex-col p-2 rounded-lg text-xs
                     ${branch.breakfastSubmitted && branch.lunchSubmitted
                       ? 'bg-green-50 border border-green-200'
                       : branch.breakfastSubmitted || branch.lunchSubmitted
@@ -973,13 +985,22 @@ export default function AdminDashboardPage() {
                     }
                   `}
                 >
-                  <span className="font-medium truncate flex-1 leading-tight">{branch.branchName}</span>
-                  <div className="flex gap-0.5 xs:gap-1 shrink-0">
-                    <div className={`w-4 h-4 xs:w-5 xs:h-5 rounded flex items-center justify-center ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                      <Coffee className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium truncate flex-1">{branch.branchName}</span>
+                    {branch.totalSubmissions > 0 && (
+                      <span className="text-xs font-bold text-primary ml-1">
+                        {branch.totalSubmissions}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    <div className={`flex items-center gap-0.5 px-1 py-0.5 rounded ${branch.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
+                      <Coffee className="h-3 w-3" />
+                      {branch.breakfastSubmitted && <span className="text-[10px]">{branch.breakfastCount}</span>}
                     </div>
-                    <div className={`w-4 h-4 xs:w-5 xs:h-5 rounded flex items-center justify-center ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'}`}>
-                      <Sun className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
+                    <div className={`flex items-center gap-0.5 px-1 py-0.5 rounded ${branch.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}>
+                      <Sun className="h-3 w-3" />
+                      {branch.lunchSubmitted && <span className="text-[10px]">{branch.lunchCount}</span>}
                     </div>
                   </div>
                 </div>
@@ -988,17 +1009,17 @@ export default function AdminDashboardPage() {
 
             {/* Low scores alert */}
             {qualitySummary.lowScores.length > 0 && (
-              <div className="mt-3 xs:mt-4 p-2 xs:p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-xs xs:text-sm font-medium text-red-700 flex items-center gap-1.5 xs:gap-2 mb-1.5 xs:mb-2">
-                  <AlertTriangle className="h-3 w-3 xs:h-4 xs:w-4" />
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm font-medium text-red-700 flex items-center gap-2 mb-2">
+                  <AlertTriangle className="h-4 w-4" />
                   Low Score Alerts ({qualitySummary.lowScores.length})
                 </p>
-                <div className="space-y-0.5 xs:space-y-1">
+                <div className="space-y-1">
                   {qualitySummary.lowScores.slice(0, 3).map((item) => (
                     <button
                       key={item.id}
                       onClick={() => setSelectedSubmissionId(item.id)}
-                      className="w-full text-left text-[9px] xs:text-[10px] sm:text-xs text-red-600 hover:text-red-800 hover:bg-red-100 p-1 xs:p-1.5 rounded transition-colors leading-tight"
+                      className="w-full text-left text-xs text-red-600 hover:text-red-800 hover:bg-red-100 p-1 rounded transition-colors"
                     >
                       {item.productName} at {item.branchName} - Taste: {item.tasteScore}/5, Look: {item.appearanceScore}/5
                     </button>

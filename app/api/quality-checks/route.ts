@@ -25,6 +25,16 @@ export async function GET(request: Request) {
     const isAdmin = user.role === 'admin' || user.role === 'operations_lead' || user.role === 'regional_manager'
     const isCentralKitchen = user.role === 'central_kitchen'
 
+    // Check if quality_likes table exists
+    let likesTableExists = false
+    try {
+      await sql`SELECT 1 FROM quality_likes LIMIT 1`
+      likesTableExists = true
+    } catch (e) {
+      // Table doesn't exist yet
+      likesTableExists = false
+    }
+
     // Build the query with filters
     let query = `
       SELECT 
@@ -54,6 +64,8 @@ export async function GET(request: Request) {
         qc.created_at as "createdAt",
         u.first_name || ' ' || u.last_name as "submitterName",
         b.name as "branchName"
+        ${likesTableExists ? `, COALESCE((SELECT COUNT(*) FROM quality_likes ql WHERE ql.quality_check_id = qc.id), 0) as "likesCount"` : ', 0 as "likesCount"'}
+        ${likesTableExists ? `, COALESCE((SELECT COUNT(*) FROM quality_feedback qf WHERE qf.quality_check_id = qc.id), 0) as "feedbackCount"` : ', 0 as "feedbackCount"'}
       FROM quality_checks qc
       LEFT JOIN users u ON qc.submitted_by = u.id
       LEFT JOIN branches b ON qc.branch_slug = b.slug

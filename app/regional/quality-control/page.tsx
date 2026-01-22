@@ -32,7 +32,8 @@ import {
   MessageSquare,
   Send,
   Loader2,
-  CheckCheck
+  CheckCheck,
+  ThumbsUp
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
@@ -63,6 +64,8 @@ interface QualityCheck {
   customFields: Record<string, { value: any; notes: string | null }> | null
   status: string
   adminNotes: string | null
+  likesCount: number
+  feedbackCount: number
 }
 
 interface FieldConfig {
@@ -859,6 +862,9 @@ export default function RegionalQualityControlPage() {
                   <th className="text-center p-2 md:p-3 text-xs md:text-sm font-medium whitespace-nowrap">
                     Photo
                   </th>
+                  <th className="text-center p-2 md:p-3 text-xs md:text-sm font-medium whitespace-nowrap">
+                    Engagement
+                  </th>
                   <th 
                     className="text-center p-2 md:p-3 text-xs md:text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none whitespace-nowrap"
                     onClick={() => handleSort('status')}
@@ -935,6 +941,23 @@ export default function RegionalQualityControlPage() {
                           <ImageIcon className="h-4 w-4 mx-auto opacity-30" />
                         </span>
                       )}
+                    </td>
+                    <td className="p-2 md:p-3 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {check.likesCount > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                            <ThumbsUp className="h-3 w-3" /> {check.likesCount}
+                          </span>
+                        )}
+                        {check.feedbackCount > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
+                            <MessageSquare className="h-3 w-3" /> {check.feedbackCount}
+                          </span>
+                        )}
+                        {check.likesCount === 0 && check.feedbackCount === 0 && (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
                     </td>
                     <td className="p-2 md:p-3 text-center">
                       <Badge variant={

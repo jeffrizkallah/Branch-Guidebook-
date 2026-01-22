@@ -32,7 +32,8 @@ import {
   MessageSquare,
   Send,
   Loader2,
-  CheckCheck
+  CheckCheck,
+  ThumbsUp
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -40,6 +41,7 @@ import { QualityImportModal } from '@/components/QualityImportModal'
 import { QualityAnalytics } from '@/components/QualityAnalytics'
 import { QualityCheckDetailModal } from '@/components/QualityCheckDetailModal'
 import { FeedbackTrackingWidget } from '@/components/FeedbackTrackingWidget'
+import { LikeModal } from '@/components/LikeModal'
 
 interface QualityCheck {
   id: number
@@ -64,6 +66,8 @@ interface QualityCheck {
   customFields: Record<string, { value: any; notes: string | null }> | null
   status: string
   adminNotes: string | null
+  likesCount: number
+  feedbackCount: number
 }
 
 interface FieldConfig {
@@ -122,6 +126,8 @@ export default function QualityControlPage() {
   const [selectedCheck, setSelectedCheck] = useState<QualityCheck | null>(null)
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<number | null>(null)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [showLikeModal, setShowLikeModal] = useState(false)
+  const [likeCheckData, setLikeCheckData] = useState<{id: number, submitterName: string, productName: string} | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(50)
   const [sortField, setSortField] = useState<'date' | 'branch' | 'product' | 'section' | 'taste' | 'appearance' | 'status'>('date')
@@ -873,6 +879,9 @@ export default function QualityControlPage() {
                     <th className="text-center p-2 md:p-3 text-xs md:text-sm font-medium whitespace-nowrap">
                       Photo
                     </th>
+                    <th className="text-center p-2 md:p-3 text-xs md:text-sm font-medium whitespace-nowrap">
+                      Engagement
+                    </th>
                     <th 
                       className="text-center p-2 md:p-3 text-xs md:text-sm font-medium cursor-pointer hover:bg-muted transition-colors select-none whitespace-nowrap"
                       onClick={() => handleSort('status')}
@@ -949,6 +958,23 @@ export default function QualityControlPage() {
                             <ImageIcon className="h-4 w-4 mx-auto opacity-30" />
                           </span>
                         )}
+                      </td>
+                      <td className="p-2 md:p-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {check.likesCount > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                              <ThumbsUp className="h-3 w-3" /> {check.likesCount}
+                            </span>
+                          )}
+                          {check.feedbackCount > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700">
+                              <MessageSquare className="h-3 w-3" /> {check.feedbackCount}
+                            </span>
+                          )}
+                          {check.likesCount === 0 && check.feedbackCount === 0 && (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-2 md:p-3 text-center">
                         <Badge variant={
@@ -1158,6 +1184,100 @@ export default function QualityControlPage() {
                   </div>
                 </div>
 
+                {/* Action Buttons - Like & Feedback */}
+                <div className="space-y-3 border-t border-b py-4">
+                  <div className="flex items-center justify-center gap-3">
+                    <Button
+                      onClick={() => {
+                        setLikeCheckData({
+                          id: selectedCheck.id,
+                          submitterName: selectedCheck.submitterName,
+                          productName: selectedCheck.productName
+                        })
+                        setShowLikeModal(true)
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white flex-1 max-w-xs"
+                      size="lg"
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Like
+                    </Button>
+                    {canGiveFeedback && (
+                      <Button
+                        variant={showFeedbackPanel ? "secondary" : "outline"}
+                        onClick={() => setShowFeedbackPanel(!showFeedbackPanel)}
+                        className="border-2 border-orange-600 text-orange-600 hover:bg-orange-50 flex-1 max-w-xs"
+                        size="lg"
+                      >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        {showFeedbackPanel ? 'Hide Feedback' : 'Give Feedback'}
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Feedback Input Panel */}
+                  {showFeedbackPanel && canGiveFeedback && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-3">
+                      {feedbackSuccess && (
+                        <div className="p-2 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Feedback sent successfully!
+                        </div>
+                      )}
+                      <div>
+                        <label className="text-sm font-medium text-orange-900 mb-2 block">
+                          Your Feedback
+                        </label>
+                        <textarea
+                          value={feedbackText}
+                          onChange={(e) => setFeedbackText(e.target.value)}
+                          placeholder="Share improvement suggestions..."
+                          className="w-full p-3 border border-orange-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+                          rows={3}
+                          maxLength={2000}
+                        />
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-xs text-orange-600">
+                            {feedbackText.length}/2000
+                          </span>
+                          <Button
+                            onClick={async () => {
+                              if (!feedbackText.trim()) return
+                              setSendingFeedback(true)
+                              try {
+                                const response = await fetch(`/api/quality-checks/${selectedCheck.id}/feedback`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ feedbackText: feedbackText.trim() })
+                                })
+                                if (response.ok) {
+                                  setFeedbackText('')
+                                  setFeedbackSuccess(true)
+                                  setTimeout(() => setFeedbackSuccess(false), 3000)
+                                } else {
+                                  alert('Failed to send feedback')
+                                }
+                              } catch (err) {
+                                alert('Error sending feedback')
+                              } finally {
+                                setSendingFeedback(false)
+                              }
+                            }}
+                            disabled={!feedbackText.trim() || sendingFeedback}
+                            className="bg-orange-600 hover:bg-orange-700 text-white"
+                          >
+                            {sendingFeedback ? (
+                              <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Sending...</>
+                            ) : (
+                              <><Send className="h-4 w-4 mr-2" /> Send Feedback</>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 {/* Custom Fields */}
                 {selectedCheck.customFields && Object.keys(selectedCheck.customFields).length > 0 && (
                   <div className="space-y-2">
@@ -1230,93 +1350,6 @@ export default function QualityControlPage() {
                   </div>
                 )}
 
-                {/* Feedback Section */}
-                {canGiveFeedback && (
-                  <div className="border-t pt-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm font-medium flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-orange-500" />
-                        Feedback to Submitter
-                      </p>
-                      <Button
-                        variant={showFeedbackPanel ? "secondary" : "outline"}
-                        size="sm"
-                        onClick={() => setShowFeedbackPanel(!showFeedbackPanel)}
-                      >
-                        {showFeedbackPanel ? 'Hide' : 'Give Feedback'}
-                      </Button>
-                    </div>
-
-                    {/* Previous Feedback */}
-                    {feedbackLoading ? (
-                      <div className="flex items-center justify-center py-4">
-                        <Loader2 className="h-5 w-5 animate-spin text-orange-500" />
-                      </div>
-                    ) : feedback.length > 0 && (
-                      <div className="space-y-2 mb-3">
-                        {feedback.map((fb) => (
-                          <div 
-                            key={fb.id} 
-                            className="p-3 bg-orange-50 rounded-lg border border-orange-200"
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white text-xs font-bold">
-                                {fb.feedbackByName.charAt(0)}
-                              </div>
-                              <span className="text-xs font-medium">{fb.feedbackByName}</span>
-                              <span className="text-xs text-muted-foreground">• {formatRelativeTime(fb.createdAt)}</span>
-                              {fb.isRead && (
-                                <CheckCheck className="h-3.5 w-3.5 text-green-500 ml-auto" />
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-700">{fb.feedbackText}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Feedback Input Panel */}
-                    {showFeedbackPanel && (
-                      <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-3">
-                        {feedbackSuccess && (
-                          <div className="p-2 bg-green-100 border border-green-300 rounded-lg text-green-800 text-sm flex items-center gap-2">
-                            <CheckCircle2 className="h-4 w-4" />
-                            Feedback sent to {selectedCheck.submitterName}!
-                          </div>
-                        )}
-                        <p className="text-xs text-orange-700">
-                          Send improvement suggestions to <strong>{selectedCheck.submitterName}</strong>
-                        </p>
-                        <textarea
-                          value={feedbackText}
-                          onChange={(e) => setFeedbackText(e.target.value)}
-                          placeholder="Share how this could be improved..."
-                          className="w-full p-3 border rounded-lg text-sm resize-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                          rows={3}
-                          maxLength={2000}
-                        />
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400">
-                            {feedbackText.length}/2000
-                          </span>
-                          <Button
-                            onClick={handleSendFeedback}
-                            disabled={!feedbackText.trim() || sendingFeedback}
-                            className="bg-orange-500 hover:bg-orange-600"
-                          >
-                            {sendingFeedback ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <Send className="h-4 w-4 mr-2" />
-                            )}
-                            Send Feedback
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 {/* Admin Actions */}
                 <div className="flex gap-2 pt-4 border-t">
                   <Button
@@ -1346,6 +1379,25 @@ export default function QualityControlPage() {
           submissionId={selectedSubmissionId}
           onClose={() => setSelectedSubmissionId(null)}
         />
+
+        {/* Like Modal */}
+        {showLikeModal && likeCheckData && (
+          <LikeModal
+            submissionId={likeCheckData.id}
+            submitterName={likeCheckData.submitterName}
+            productName={likeCheckData.productName}
+            onClose={() => {
+              setShowLikeModal(false)
+              setLikeCheckData(null)
+            }}
+            onLikeAdded={() => {
+              setShowLikeModal(false)
+              setLikeCheckData(null)
+              // Refresh the data
+              fetchData()
+            }}
+          />
+        )}
       </div>
   )
 }
