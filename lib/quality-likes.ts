@@ -48,7 +48,7 @@ export function validateLikeNote(note: string | undefined): boolean {
 }
 
 // Helper to check if user can give likes
-export function canGiveLikes(userRole: string | undefined): boolean {
+export function canGiveLikes(userRole: string | null | undefined): boolean {
   if (!userRole) return false
   return ['admin', 'regional_manager', 'operations_lead'].includes(userRole)
 }
