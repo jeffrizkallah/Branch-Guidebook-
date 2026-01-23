@@ -42,7 +42,7 @@ export default function HomePage() {
     <div className="flex min-h-screen">
       <RoleSidebar />
 
-      <main className="flex-1 flex flex-col pt-14 xs:pt-16 md:pt-0">
+      <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0">
         <div className="flex-1 container mx-auto px-3 xs:px-4 py-4 xs:py-6 md:py-8">
           {/* Header */}
           <div className="mb-4 xs:mb-6 md:mb-8">

@@ -46,7 +46,7 @@ export default async function BranchPage({ params, searchParams }: BranchPagePro
       {!isPrintMode && <RoleSidebar />}
       <PrintHeader branchName={branch.name} />
 
-      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-14 xs:pt-16 md:pt-0 overflow-x-hidden"}>
+      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0 overflow-x-hidden"}>
         <div className="flex-1 w-full max-w-7xl mx-auto px-2.5 xs:px-3 sm:px-4 md:px-6 py-3 xs:py-4 md:py-8">
           <Breadcrumbs
             items={[

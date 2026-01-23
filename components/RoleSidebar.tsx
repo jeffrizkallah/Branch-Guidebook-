@@ -219,8 +219,8 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className={`md:hidden fixed left-0 right-0 z-50 glass-nav border-b border-border no-print ${isPreviewMode ? 'top-10' : 'top-0'}`}>
+      {/* Mobile & Tablet Top Bar */}
+      <div className={`lg:hidden fixed left-0 right-0 z-50 glass-nav border-b border-border no-print ${isPreviewMode ? 'top-10' : 'top-0'}`}>
         <div className="flex items-center justify-between px-3 xs:px-4 py-2.5 xs:py-3">
           <Link href={role ? getNavItems(role)[0]?.href || '/' : '/'} className="flex items-center gap-2">
             <span className="text-base xs:text-lg font-bold text-primary">Mikana</span>
@@ -240,10 +240,10 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
         </div>
       </div>
 
-      {/* Mobile Backdrop */}
+      {/* Mobile & Tablet Backdrop */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-40 no-print"
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 no-print"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -255,7 +255,7 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
           transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-[70px] xs:w-[80px]' : 'w-[260px] xs:w-[280px]'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0
+          lg:translate-x-0
           flex flex-col
           ${isPreviewMode ? 'top-10 h-[calc(100vh-40px)]' : 'top-0 h-screen'}
           ${className || ''}
@@ -269,7 +269,7 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
             </Link>
           )}
           
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {!isCollapsed && <NotificationDropdown />}
             <Button
               variant="ghost"
@@ -420,7 +420,7 @@ export function RoleSidebar({ className }: RoleSidebarProps) {
 
       {/* Spacer for desktop */}
       <div 
-        className={`hidden md:block transition-all duration-300 ease-in-out flex-shrink-0 ${isCollapsed ? 'w-[70px] xs:w-[80px]' : 'w-[260px] xs:w-[280px]'}`}
+        className={`hidden lg:block transition-all duration-300 ease-in-out flex-shrink-0 ${isCollapsed ? 'w-[70px] xs:w-[80px]' : 'w-[260px] xs:w-[280px]'}`}
       />
     </>
   )

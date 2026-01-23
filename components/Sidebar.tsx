@@ -48,8 +48,8 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Top Bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 glass-nav border-b border-border no-print">
+      {/* Mobile & Tablet Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass-nav border-b border-border no-print">
         <div className="flex items-center justify-between px-4 py-3">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-lg font-bold text-primary">Mikana</span>
@@ -72,10 +72,10 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
         </div>
       </div>
 
-      {/* Mobile Backdrop */}
+      {/* Mobile & Tablet Backdrop */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-40 no-print"
+          className="lg:hidden fixed inset-0 bg-black/50 z-40 no-print"
           onClick={closeMobile}
         />
       )}
@@ -87,7 +87,7 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
           transition-all duration-300 ease-in-out
           ${isCollapsed ? 'w-[80px]' : 'w-[280px]'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0
+          lg:translate-x-0
           flex flex-col
         `}
       >
@@ -99,7 +99,7 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
             </Link>
           )}
           
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-1">
             {/* Notification Bell (Desktop) */}
             {!isCollapsed && <NotificationDropdown />}
             
@@ -185,7 +185,7 @@ export function Sidebar({ onSearch, searchQuery }: SidebarProps) {
 
       {/* Spacer for desktop to prevent content from going under sidebar */}
       <div 
-        className={`hidden md:block transition-all duration-300 ease-in-out ${isCollapsed ? 'w-[80px]' : 'w-[280px]'}`}
+        className={`hidden lg:block transition-all duration-300 ease-in-out ${isCollapsed ? 'w-[80px]' : 'w-[280px]'}`}
       />
     </>
   )
