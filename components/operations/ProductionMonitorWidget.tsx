@@ -186,9 +186,9 @@ export function ProductionMonitorWidget() {
             station: item.station,
             performedByName: 'Head Chef',
             details: {
-              oldQuantity: item.originalQuantity,
-              newQuantity: item.adjustedQuantity,
-              reason: item.adjustmentReason,
+              oldQuantity: item.originalQuantity ?? undefined,
+              newQuantity: item.adjustedQuantity ?? undefined,
+              reason: item.adjustmentReason ?? undefined,
             },
           })
         }
@@ -203,9 +203,9 @@ export function ProductionMonitorWidget() {
             station: item.station,
             performedByName: 'Head Chef',
             details: {
-              oldDate: item.originalScheduledDate,
-              newDate: item.rescheduledDate,
-              reason: item.rescheduleReason,
+              oldDate: item.originalScheduledDate ?? undefined,
+              newDate: item.rescheduledDate ?? undefined,
+              reason: item.rescheduleReason ?? undefined,
             },
           })
         }
