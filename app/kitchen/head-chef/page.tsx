@@ -331,7 +331,7 @@ export default function HeadChefDashboard() {
         body: JSON.stringify({
           productionItemId: recipeModalItem.itemId,
           scheduleId: selectedSchedule.scheduleId,
-          recipeId: recipe?.recipe_id || null,
+          recipeId: recipe?.recipeId || null,
           recipeName: recipeModalItem.recipeName,
           scheduledDate: selectedDate,
           missingIngredients,
