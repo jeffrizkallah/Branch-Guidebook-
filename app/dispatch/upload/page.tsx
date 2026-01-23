@@ -497,7 +497,7 @@ export default function DispatchUploadPage() {
     <div className="flex min-h-screen">
       <Sidebar />
       
-      <main className="flex-1 flex flex-col pt-16 md:pt-0">
+      <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0">
         <div className="flex-1 container mx-auto px-4 py-8">
           <Breadcrumbs
           items={[

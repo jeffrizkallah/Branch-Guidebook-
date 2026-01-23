@@ -124,7 +124,7 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
     return (
       <div className="flex min-h-screen">
         <RoleSidebar />
-        <main className="flex-1 flex flex-col pt-16 md:pt-0 items-center justify-center">
+        <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
       </div>
@@ -135,7 +135,7 @@ export default function RecipeInstructionsPage({ params }: RecipeInstructionsPag
     <div className="flex min-h-screen">
       <RoleSidebar />
 
-      <main className="flex-1 flex flex-col pt-16 md:pt-0">
+      <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0">
         <div className="flex-1 container mx-auto px-4 py-8">
         <Breadcrumbs
           items={[

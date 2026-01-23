@@ -107,7 +107,7 @@ export default function RecipeInstructionPage({ params }: RecipeInstructionPageP
     return (
       <div className={isPrintMode ? "min-h-screen flex flex-col" : "flex min-h-screen"}>
         {!isPrintMode && <RoleSidebar />}
-        <main className={isPrintMode ? "flex-1 flex items-center justify-center" : "flex-1 flex flex-col pt-16 md:pt-0 items-center justify-center"}>
+        <main className={isPrintMode ? "flex-1 flex items-center justify-center" : "flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0 items-center justify-center"}>
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </main>
         {isPrintMode && <Footer />}
@@ -125,7 +125,7 @@ export default function RecipeInstructionPage({ params }: RecipeInstructionPageP
       {!isPrintMode && <RoleSidebar />}
       <PrintHeader branchName={`${branch.name} - ${instruction.dishName}`} />
 
-      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-16 md:pt-0"}>
+      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0"}>
         <div className={isPrintMode ? "" : "flex-1 container mx-auto px-4 py-8"}>
         <Breadcrumbs
           items={[

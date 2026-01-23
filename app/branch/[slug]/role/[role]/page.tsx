@@ -45,7 +45,7 @@ export default async function RolePage({ params, searchParams }: RolePageProps) 
       {!isPrintMode && <RoleSidebar />}
       <PrintHeader branchName={branch.name} pageTitle={role.name} />
 
-      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-16 md:pt-0"}>
+      <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0"}>
         <div className="flex-1 container mx-auto px-4 py-8">
           <Breadcrumbs
             items={[

@@ -14,7 +14,7 @@ export default function RegionalLayout({
   return (
     <div className="flex min-h-screen">
       <RoleSidebar />
-      <main className={`flex-1 flex flex-col pt-16 md:pt-0 ${isPreviewMode ? 'mt-10' : ''}`}>
+      <main className={`flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0 ${isPreviewMode ? 'mt-10' : ''}`}>
         <div className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
           {children}
         </div>

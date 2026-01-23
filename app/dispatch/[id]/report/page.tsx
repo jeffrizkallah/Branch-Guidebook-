@@ -209,7 +209,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     return (
       <div className="flex min-h-screen">
         <RoleSidebar />
-        <main className="flex-1 flex flex-col pt-16 md:pt-0">
+        <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0">
           <div className="flex-1 container mx-auto px-4 py-8">
             <div className="text-center py-12">
               <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50 animate-pulse" />
@@ -226,7 +226,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     return (
       <div className="flex min-h-screen">
         <RoleSidebar />
-        <main className="flex-1 flex flex-col pt-16 md:pt-0">
+        <main className="flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0">
           <div className="flex-1 container mx-auto px-4 py-8">
             <div className="text-center py-12">
               <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
@@ -350,7 +350,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           </div>
         )}
         
-        <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-16 md:pt-0"}>
+        <main className={isPrintMode ? "flex-1 container mx-auto px-4 py-8" : "flex-1 flex flex-col pt-14 xs:pt-16 lg:pt-0"}>
           <div className="flex-1 container mx-auto px-4 py-8">
           {!isPrintMode && (
             <Breadcrumbs
