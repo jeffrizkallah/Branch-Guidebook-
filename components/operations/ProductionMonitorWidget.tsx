@@ -135,7 +135,7 @@ export function ProductionMonitorWidget() {
             timestamp: item.completedAt,
             activityType: 'COMPLETED',
             recipeName: item.recipeName,
-            station: item.assignedTo,
+            station: item.assignedTo ?? undefined,
             performedByName: 'Station Team',
             details: {
               quantity: item.actualQuantity || item.quantity,
@@ -151,7 +151,7 @@ export function ProductionMonitorWidget() {
             timestamp: item.startedAt,
             activityType: 'STARTED',
             recipeName: item.recipeName,
-            station: item.assignedTo,
+            station: item.assignedTo ?? undefined,
             performedByName: item.assignedBy || 'Head Chef',
             details: {
               quantity: item.quantity,
@@ -167,7 +167,7 @@ export function ProductionMonitorWidget() {
             timestamp: item.assignedAt,
             activityType: 'ASSIGNED',
             recipeName: item.recipeName,
-            station: item.assignedTo,
+            station: item.assignedTo ?? undefined,
             performedByName: item.assignedBy || 'Head Chef',
             details: {
               quantity: item.quantity,
