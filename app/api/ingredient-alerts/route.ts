@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       recipeName: alertData.recipeName,
       scheduledDate: alertData.scheduledDate,
       reportedBy: session.user.id.toString(),
-      reportedByName: session.user.name || session.user.email,
+      reportedByName: `${session.user.firstName} ${session.user.lastName}` || session.user.email,
       reportedAt: timestamp,
       priority,
       status: 'PENDING',

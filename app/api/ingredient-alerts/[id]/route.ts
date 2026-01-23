@@ -71,7 +71,7 @@ export async function PATCH(
 
       if (updates.status === 'RESOLVED' || updates.status === 'CANNOT_FULFILL') {
         alerts[index].resolvedBy = session.user.id.toString()
-        alerts[index].resolvedByName = session.user.name || session.user.email
+        alerts[index].resolvedByName = `${session.user.firstName} ${session.user.lastName}` || session.user.email
         alerts[index].resolvedAt = timestamp
         alerts[index].resolution = updates.resolution || null
         alerts[index].resolutionNotes = updates.resolutionNotes || null
