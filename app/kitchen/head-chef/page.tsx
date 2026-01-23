@@ -510,9 +510,9 @@ export default function HeadChefDashboard() {
             quantity: recipeModalItem.quantity,
             unit: recipeModalItem.unit,
             completed: recipeModalItem.completed || false,
-            startedAt: recipeModalItem.startedAt,
-            completedAt: recipeModalItem.completedAt,
-            notes: recipeModalItem.notes,
+            startedAt: recipeModalItem.startedAt ?? undefined,
+            completedAt: recipeModalItem.completedAt ?? undefined,
+            notes: recipeModalItem.notes ?? undefined,
             subRecipeProgress: {}
           }}
           recipe={recipe}
