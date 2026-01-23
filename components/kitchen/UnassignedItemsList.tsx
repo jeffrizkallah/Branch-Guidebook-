@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ClipboardList, ChevronDown, Send, Eye } from 'lucide-react'
+import { ClipboardList, ChevronDown, Send, Eye, Scale } from 'lucide-react'
 import type { ProductionItem, ProductionStation } from '@/lib/data'
 
 interface UnassignedItemsListProps {
@@ -20,6 +20,7 @@ interface UnassignedItemsListProps {
   onSelectionChange: (selected: Set<string>) => void
   onAssign: (itemIds: string[], station: ProductionStation) => void
   onViewRecipe?: (item: ProductionItem) => void
+  onAdjustQuantity?: (item: ProductionItem) => void
   stations: ProductionStation[]
   stationColors: Record<string, { bg: string; text: string; border: string }>
   stationIcons: Record<string, React.ReactNode>
@@ -31,6 +32,7 @@ export function UnassignedItemsList({
   onSelectionChange,
   onAssign,
   onViewRecipe,
+  onAdjustQuantity,
   stations,
   stationColors,
   stationIcons
@@ -156,6 +158,18 @@ export function UnassignedItemsList({
                   >
                     <Eye className="h-4 w-4" />
                     <span className="hidden sm:inline">View Recipe</span>
+                  </Button>
+                )}
+
+                {onAdjustQuantity && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onAdjustQuantity(item)}
+                    className="gap-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                  >
+                    <Scale className="h-4 w-4" />
+                    <span className="hidden sm:inline">Adjust</span>
                   </Button>
                 )}
 

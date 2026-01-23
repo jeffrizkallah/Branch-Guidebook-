@@ -764,6 +764,25 @@ export interface ProductionItem {
 
   // Link to recipe for scaling
   recipeId?: string | null
+
+  // Rescheduling fields (Feature 1: Push/Shuffle items)
+  originalScheduledDate?: string | null    // Original date before rescheduling
+  rescheduledDate?: string | null          // New date if rescheduled
+  rescheduleReason?: string | null         // Reason for rescheduling
+  rescheduledBy?: string | null            // User who rescheduled
+  rescheduledAt?: string | null            // Timestamp of reschedule
+
+  // Quantity adjustment fields (Feature 2: Adjust quantities)
+  originalQuantity?: number | null         // Original requested quantity
+  adjustedQuantity?: number | null         // Adjusted production quantity
+  adjustmentReason?: string | null         // Reason for adjustment
+  inventoryOffset?: number | null          // Amount already in inventory
+  adjustedBy?: string | null               // User who adjusted
+  adjustedAt?: string | null               // Timestamp of adjustment
+
+  // Ingredient alert tracking (Feature 3: Missing ingredients)
+  hasIngredientAlert?: boolean             // Flag if this item has missing ingredients
+  ingredientAlertId?: string | null        // Link to IngredientAlert
 }
 
 export interface ProductionDay {
@@ -779,6 +798,43 @@ export interface ProductionSchedule {
   createdBy: string
   createdAt: string
   days: ProductionDay[]
+}
+
+// Ingredient Alert System (Feature 3: Missing ingredients)
+// ==========================================
+
+export type IngredientStatus = 'MISSING' | 'PARTIAL' | 'ORDERED' | 'IN_STOCK'
+export type AlertPriority = 'HIGH' | 'MEDIUM' | 'LOW'
+export type AlertStatus = 'PENDING' | 'ACKNOWLEDGED' | 'RESOLVED' | 'CANNOT_FULFILL'
+export type AlertResolution = 'ORDERED' | 'IN_STOCK_ERROR' | 'SUBSTITUTED' | 'RESCHEDULED' | 'CANCELLED'
+
+export interface MissingIngredient {
+  name: string
+  quantityNeeded: number
+  unit: string
+  quantityAvailable: number
+  status: IngredientStatus
+}
+
+export interface IngredientAlert {
+  alertId: string
+  productionItemId: string
+  scheduleId: string
+  recipeId?: string | null
+  recipeName: string
+  scheduledDate: string
+  reportedBy: string                    // Head chef user ID
+  reportedByName?: string               // For display
+  reportedAt: string
+  priority: AlertPriority
+  status: AlertStatus
+  missingIngredients: MissingIngredient[]
+  notes?: string | null
+  resolvedBy?: string | null            // Central kitchen user ID
+  resolvedByName?: string | null        // For display
+  resolvedAt?: string | null
+  resolution?: AlertResolution | null
+  resolutionNotes?: string | null
 }
 
 /**

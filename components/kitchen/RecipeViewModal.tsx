@@ -24,10 +24,12 @@ import {
   BookOpen,
   Wrench,
   Image as ImageIcon,
+  AlertTriangle,
 } from 'lucide-react'
 import type { Recipe, SubRecipe } from '@/lib/data'
 import { parseYield } from '@/lib/yield-utils'
 import type { StationTask } from './types'
+import { MissingIngredientsPanel } from './MissingIngredientsPanel'
 
 interface RecipeViewModalProps {
   task: StationTask
@@ -37,6 +39,16 @@ interface RecipeViewModalProps {
   selectedDate: string
   onSubRecipeProgress: (task: StationTask, subRecipeId: string, completed: boolean) => void | Promise<void>
   onClose: () => void
+  onReportMissingIngredients?: (
+    missingIngredients: {
+      name: string
+      quantityNeeded: number
+      unit: string
+      quantityAvailable: number
+      status: 'MISSING' | 'PARTIAL'
+    }[],
+    notes: string
+  ) => void | Promise<void>
 }
 
 export function RecipeViewModal({
@@ -46,7 +58,8 @@ export function RecipeViewModal({
   scheduleId,
   selectedDate,
   onSubRecipeProgress,
-  onClose
+  onClose,
+  onReportMissingIngredients
 }: RecipeViewModalProps) {
   const [activeTab, setActiveTab] = useState('ingredients')
 
@@ -258,6 +271,12 @@ export function RecipeViewModal({
                 <BookOpen className="h-4 w-4" />
                 Overview
               </TabsTrigger>
+              {onReportMissingIngredients && (
+                <TabsTrigger value="missing" className="gap-1">
+                  <AlertTriangle className="h-4 w-4" />
+                  Report Missing
+                </TabsTrigger>
+              )}
             </TabsList>
           </div>
 
@@ -634,6 +653,18 @@ export function RecipeViewModal({
                   ))}
                 </div>
               </TabsContent>
+
+              {/* Missing Ingredients Tab */}
+              {onReportMissingIngredients && (
+                <TabsContent value="missing" className="m-0">
+                  <MissingIngredientsPanel
+                    recipe={recipe}
+                    targetQuantity={task.quantity}
+                    yieldMultiplier={yieldMultiplier}
+                    onReportMissing={onReportMissingIngredients}
+                  />
+                </TabsContent>
+              )}
             </div>
           </ScrollArea>
         </Tabs>

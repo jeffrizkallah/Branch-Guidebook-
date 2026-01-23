@@ -26,7 +26,6 @@ CHANGES/ADDITIONS
 - Add a way where suzan can from a submissions give a note which will arrive the branch manager dashboard where they can see notes and tips on their submissions
 - Fix the Branch Manager dashboard page
 - To extract the inventory levels of the branches, theyre located in the 3 main files in our sharpoint for our company (like the Odoo Reports folder) the files are named (Branch_Mngt V_New_Soufouh.xlsb, Branch_Mngt V_New_YAS. xlsb, Branch_Mngt V_New_Sharja.xlsb) and in each of these files, there is a sheet called inventory with the headers (Inventory Date	Branch	Item	Category	Quantity	Unit	Product Expiry Date	Unit Cost	Total Cost) each branch fills their inventory in them (how are we going to extract this and fill it in the Neon db) keep in mind these are .xlsb files.
-- Incorperate a widge in the operations lead dashboard to show updates on the headchef and whats happening with the production schedule/order
 
 # Dispatch Fixes
 - **(DONE)** Add a way to delete a branch on the follow up dispatch model, because there are some branches we dont deliver to in the next dispatch
@@ -35,6 +34,7 @@ CHANGES/ADDITIONS
 
 - Create somehting for arraj to be able to have the whole dispatch order visable to make it easier to fill out the items, becuase now he uses a paper
 
-- Need to sometimes push items to other days because no ingredients available, so need to shuffle around some items around the week
-- If i need to make 100kg of brownies, sometimes we have in inventory 20kg so then we only produce 80kg, this should automatically chnage the recipe quantites by headchead before sent to stations
-- Able to click on certain ingredietns of recipes to ping the head offcie that we dont have them
+- **(DONE)** Need to sometimes push items to other days because no ingredients available, so need to shuffle around some items around the week
+- **(DONE)** If i need to make 100kg of brownies, sometimes we have in inventory 20kg so then we only produce 80kg, this should automatically chnage the recipe quantites by headchead before sent to stations
+- **(DONE)** Able to click on certain ingredietns of recipes to ping the head offcie that we dont have them
+- **(DONE)** Incorperate a widge in the operations lead dashboard to show updates on the headchef and whats happening with the production schedule/order

@@ -683,29 +683,32 @@
           {
             "itemId": "prod-71",
             "recipeName": "Cottage Pie Hachwe 1 KG",
-            "quantity": 7,
+            "quantity": 3,
             "unit": "Kg",
             "station": "Hot Section",
             "notes": "",
-            "completed": false
+            "completed": false,
+            "originalQuantity": 7,
+            "adjustedQuantity": 3,
+            "adjustmentReason": "existing inventory",
+            "inventoryOffset": 4,
+            "adjustedBy": "1",
+            "adjustedAt": "2026-01-23T10:24:19.189Z"
           },
           {
             "itemId": "prod-72",
             "recipeName": "Croutons 1 KG",
-            "quantity": 4,
+            "quantity": 2,
             "unit": "Kg",
             "station": "Pantry",
             "notes": "",
-            "completed": false
-          },
-          {
-            "itemId": "prod-73",
-            "recipeName": "Loaf English Banana Cake",
-            "quantity": 12.4,
-            "unit": "Unit",
-            "station": "Desserts",
-            "notes": "",
-            "completed": false
+            "completed": false,
+            "originalQuantity": 4,
+            "adjustedQuantity": 2,
+            "adjustmentReason": "existing inventory",
+            "inventoryOffset": 2,
+            "adjustedBy": "1",
+            "adjustedAt": "2026-01-23T10:24:40.473Z"
           },
           {
             "itemId": "prod-74",
@@ -838,6 +841,20 @@
             "station": "Pantry",
             "notes": "",
             "completed": false
+          },
+          {
+            "itemId": "prod-73",
+            "recipeName": "Loaf English Banana Cake",
+            "quantity": 12.4,
+            "unit": "Unit",
+            "station": "Desserts",
+            "notes": "",
+            "completed": false,
+            "originalScheduledDate": "2026-01-23",
+            "rescheduledDate": "2026-01-24",
+            "rescheduleReason": "missing ingredients",
+            "rescheduledBy": "1",
+            "rescheduledAt": "2026-01-23T10:23:12.347Z"
           }
         ]
       }

@@ -18,12 +18,17 @@ import {
   Beef,
   RefreshCw,
   Printer,
+  LayoutGrid,
+  List,
+  Scale,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { StationProgressCard } from '@/components/kitchen/StationProgressCard'
 import { UnassignedItemsList } from '@/components/kitchen/UnassignedItemsList'
 import { AssignedItemsByStation } from '@/components/kitchen/AssignedItemsByStation'
 import { RecipeViewModal } from '@/components/kitchen/RecipeViewModal'
+import { WeeklyCalendarView } from '@/components/kitchen/WeeklyCalendarView'
+import { QuantityAdjustmentModal } from '@/components/kitchen/QuantityAdjustmentModal'
 import type { ProductionSchedule, ProductionItem, ProductionStation, Recipe } from '@/lib/data'
 import { getActiveStations, normalizeStationName } from '@/lib/data'
 
@@ -56,10 +61,19 @@ export default function HeadChefDashboard() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
+  // View mode: list or calendar
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+
   // Recipe modal states
   const [recipeModalItem, setRecipeModalItem] = useState<ProductionItem | null>(null)
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [loadingRecipe, setLoadingRecipe] = useState(false)
+
+  // Quantity adjustment modal
+  const [quantityAdjustModal, setQuantityAdjustModal] = useState<{
+    open: boolean
+    item: ProductionItem | null
+  }>({ open: false, item: null })
 
   // Get items for the selected date
   const getItemsForDate = useCallback(() => {
@@ -233,6 +247,117 @@ export default function HeadChefDashboard() {
     }
   }
 
+  // Handle adjust quantity
+  const handleAdjustQuantity = (item: ProductionItem) => {
+    setQuantityAdjustModal({ open: true, item })
+  }
+
+  const handleConfirmAdjustQuantity = async (adjustedQuantity: number, reason: string, inventoryOffset: number) => {
+    if (!quantityAdjustModal.item || !selectedSchedule || !selectedDate) return
+
+    try {
+      const response = await fetch(
+        `/api/production-schedules/${selectedSchedule.scheduleId}/items/${quantityAdjustModal.item.itemId}/adjust-quantity`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            date: selectedDate,
+            adjustedQuantity,
+            reason,
+            inventoryOffset
+          })
+        }
+      )
+
+      if (response.ok) {
+        await fetchSchedules(true)
+        setQuantityAdjustModal({ open: false, item: null })
+      } else {
+        alert('Failed to adjust quantity')
+      }
+    } catch (error) {
+      console.error('Error adjusting quantity:', error)
+      alert('Error adjusting quantity')
+    }
+  }
+
+  // Handle reschedule (for calendar view)
+  const handleReschedule = async (itemId: string, currentDate: string, newDate: string, reason: string) => {
+    if (!selectedSchedule) return
+
+    try {
+      const response = await fetch(
+        `/api/production-schedules/${selectedSchedule.scheduleId}/items/${itemId}/reschedule`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            currentDate,
+            newDate,
+            reason
+          })
+        }
+      )
+
+      if (response.ok) {
+        await fetchSchedules(true)
+      } else {
+        alert('Failed to reschedule item')
+      }
+    } catch (error) {
+      console.error('Error rescheduling item:', error)
+      alert('Error rescheduling item')
+    }
+  }
+
+  // Handle report missing ingredients
+  const handleReportMissingIngredients = async (
+    missingIngredients: {
+      name: string
+      quantityNeeded: number
+      unit: string
+      quantityAvailable: number
+      status: 'MISSING' | 'PARTIAL'
+    }[],
+    notes: string
+  ) => {
+    if (!recipeModalItem || !selectedSchedule || !selectedDate) return
+
+    try {
+      const response = await fetch('/api/ingredient-alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productionItemId: recipeModalItem.itemId,
+          scheduleId: selectedSchedule.scheduleId,
+          recipeId: recipe?.recipe_id || null,
+          recipeName: recipeModalItem.recipeName,
+          scheduledDate: selectedDate,
+          missingIngredients,
+          notes
+        })
+      })
+
+      if (response.ok) {
+        alert('Ingredient alert sent to Central Kitchen!')
+        // Update the item to mark it has an alert
+        const alertData = await response.json()
+        // Refresh schedules to show alert indicator
+        await fetchSchedules(true)
+        
+        // Close recipe modal
+        setRecipeModalItem(null)
+        setRecipe(null)
+      } else {
+        alert('Failed to send ingredient alert')
+      }
+    } catch (error) {
+      console.error('Error reporting missing ingredients:', error)
+      alert('Error reporting missing ingredients')
+    }
+  }
+
   // Navigate dates
   const navigateDate = (direction: 'prev' | 'next') => {
     if (!selectedSchedule) return
@@ -315,6 +440,28 @@ export default function HeadChefDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* View Mode Toggle */}
+              <div className="flex items-center gap-1 p-1 bg-muted rounded-lg">
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="h-8 px-3"
+                >
+                  <List className="h-4 w-4 mr-1" />
+                  List
+                </Button>
+                <Button
+                  variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('calendar')}
+                  className="h-8 px-3"
+                >
+                  <LayoutGrid className="h-4 w-4 mr-1" />
+                  Calendar
+                </Button>
+              </div>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -464,29 +611,48 @@ export default function HeadChefDashboard() {
             </div>
           )}
 
-          {/* Unassigned Items */}
-          {unassigned.length > 0 && (
-            <UnassignedItemsList
-              items={unassigned}
-              selectedItems={selectedItems}
-              onSelectionChange={setSelectedItems}
-              onAssign={handleAssign}
-              onViewRecipe={handleViewRecipe}
-              stations={getActiveStations()}
-              stationColors={stationColors}
-              stationIcons={stationIcons}
+          {/* Calendar View */}
+          {viewMode === 'calendar' && selectedSchedule && (
+            <WeeklyCalendarView
+              schedule={selectedSchedule}
+              onReschedule={handleReschedule}
+              onItemClick={(item, date) => {
+                setSelectedDate(date)
+                handleViewRecipe(item)
+              }}
             />
           )}
 
-          {/* Assigned Items by Station */}
-          <AssignedItemsByStation
-            byStation={byStation}
-            stations={getActiveStations()}
-            stationColors={stationColors}
-            stationIcons={stationIcons}
-            onReassign={handleReassign}
-            onViewRecipe={handleViewRecipe}
-          />
+          {/* List View */}
+          {viewMode === 'list' && (
+            <>
+              {/* Unassigned Items */}
+              {unassigned.length > 0 && (
+                <UnassignedItemsList
+                  items={unassigned}
+                  selectedItems={selectedItems}
+                  onSelectionChange={setSelectedItems}
+                  onAssign={handleAssign}
+                  onViewRecipe={handleViewRecipe}
+                  onAdjustQuantity={handleAdjustQuantity}
+                  stations={getActiveStations()}
+                  stationColors={stationColors}
+                  stationIcons={stationIcons}
+                />
+              )}
+
+              {/* Assigned Items by Station */}
+              <AssignedItemsByStation
+                byStation={byStation}
+                stations={getActiveStations()}
+                stationColors={stationColors}
+                stationIcons={stationIcons}
+                onReassign={handleReassign}
+                onViewRecipe={handleViewRecipe}
+                onAdjustQuantity={handleAdjustQuantity}
+              />
+            </>
+          )}
 
           {/* Empty State */}
           {!selectedSchedule && (
@@ -520,10 +686,23 @@ export default function HeadChefDashboard() {
           scheduleId={null}
           selectedDate={selectedDate}
           onSubRecipeProgress={() => {}}
+          onReportMissingIngredients={handleReportMissingIngredients}
           onClose={() => {
             setRecipeModalItem(null)
             setRecipe(null)
           }}
+        />
+      )}
+
+      {/* Quantity Adjustment Modal */}
+      {quantityAdjustModal.item && (
+        <QuantityAdjustmentModal
+          item={quantityAdjustModal.item}
+          open={quantityAdjustModal.open}
+          onClose={() => setQuantityAdjustModal({ open: false, item: null })}
+          onConfirm={handleConfirmAdjustQuantity}
+          scheduleId={selectedSchedule?.scheduleId || ''}
+          selectedDate={selectedDate}
         />
       )}
 

@@ -35,6 +35,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
+import { ProductionMonitorWidget } from '@/components/operations/ProductionMonitorWidget'
 
 interface DashboardStats {
   recipes: number
@@ -324,6 +325,11 @@ export default function OperationsDashboardPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Production Monitor Widget */}
+          <div className="mb-8">
+            <ProductionMonitorWidget />
+          </div>
 
           {/* Management Section */}
           <div className="space-y-4 mb-8">

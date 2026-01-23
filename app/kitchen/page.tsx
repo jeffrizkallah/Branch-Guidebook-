@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { QualityControlWidget } from '@/components/QualityControlWidget'
+import { IngredientAlertWidget } from '@/components/kitchen/IngredientAlertWidget'
 
 interface Dispatch {
   id: string
@@ -236,6 +237,11 @@ export default function CentralKitchenDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Ingredient Alerts Widget */}
+      <div className="mb-4 xs:mb-6 md:mb-8">
+        <IngredientAlertWidget refreshInterval={30000} />
       </div>
 
       {/* Quick Actions */}

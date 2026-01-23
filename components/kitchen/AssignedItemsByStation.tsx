@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, CheckCircle2, Clock, PlayCircle, ArrowRight, Eye } from 'lucide-react'
+import { MoreHorizontal, CheckCircle2, Clock, PlayCircle, ArrowRight, Eye, Scale } from 'lucide-react'
 import type { ProductionItem, ProductionStation } from '@/lib/data'
 
 interface AssignedItemsByStationProps {
@@ -20,6 +20,7 @@ interface AssignedItemsByStationProps {
   stationIcons: Record<string, React.ReactNode>
   onReassign: (itemId: string, newStation: ProductionStation | null) => void
   onViewRecipe?: (item: ProductionItem) => void
+  onAdjustQuantity?: (item: ProductionItem) => void
 }
 
 export function AssignedItemsByStation({
@@ -28,7 +29,8 @@ export function AssignedItemsByStation({
   stationColors,
   stationIcons,
   onReassign,
-  onViewRecipe
+  onViewRecipe,
+  onAdjustQuantity
 }: AssignedItemsByStationProps) {
   const getItemStatus = (item: ProductionItem) => {
     if (item.completed || item.completedAt) {
@@ -146,6 +148,18 @@ export function AssignedItemsByStation({
                           >
                             <Eye className="h-4 w-4" />
                             <span className="hidden sm:inline">View</span>
+                          </Button>
+                        )}
+
+                        {onAdjustQuantity && !item.completed && !item.completedAt && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onAdjustQuantity(item)}
+                            className="gap-1 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                          >
+                            <Scale className="h-4 w-4" />
+                            <span className="hidden sm:inline">Adjust</span>
                           </Button>
                         )}
 
