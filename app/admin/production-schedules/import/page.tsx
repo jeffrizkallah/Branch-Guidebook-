@@ -73,13 +73,14 @@ export default function ImportProductionSchedulePage() {
         h.includes('qty') || h.includes('quantity') || h.includes('order')
       )
       const unitIdx = header.findIndex(h => 
-        h.includes('unit') || h.includes('uo')
+        h.includes('unit') || h.includes('uo') || h.includes('uom')
       )
       const stationIdx = header.findIndex(h => 
         h.includes('station') || h.includes('section')
       )
 
       const items: ParsedItem[] = []
+      const errors: string[] = []
       
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split('\t').map(c => c.trim())
@@ -87,27 +88,65 @@ export default function ImportProductionSchedulePage() {
 
         const dateStr = dateIdx >= 0 ? cols[dateIdx] : cols[0]
         const recipeName = recipeIdx >= 0 ? cols[recipeIdx] : cols[1]
-        const quantity = qtyIdx >= 0 ? parseFloat(cols[qtyIdx]) || 0 : parseFloat(cols[2]) || 0
+        const qtyStr = qtyIdx >= 0 ? cols[qtyIdx] : cols[2]
+        const quantity = parseFloat(qtyStr) || 0
         const unit = unitIdx >= 0 ? cols[unitIdx] : cols[3] || 'Kg'
         const stationStr = stationIdx >= 0 ? cols[stationIdx] : cols[4] || 'Hot Section'
 
-        if (!recipeName || quantity === 0) continue
-
-        // Parse date
-        let parsedDate: Date
-        try {
-          // Try to parse various date formats
-          if (dateStr.includes(',')) {
-            // Format: "Monday, November 3, 2025"
-            parsedDate = new Date(dateStr)
-          } else {
-            parsedDate = new Date(dateStr)
-          }
-        } catch {
+        if (!recipeName) {
+          errors.push(`Row ${i + 1}: Missing recipe name`)
+          continue
+        }
+        if (quantity === 0) {
+          errors.push(`Row ${i + 1}: Invalid quantity "${qtyStr}"`)
           continue
         }
 
-        if (isNaN(parsedDate.getTime())) continue
+        // Parse date more carefully to avoid timezone issues
+        let parsedDate: Date
+        try {
+          if (dateStr.includes(',')) {
+            // Format: "Thursday, January 22, 2026" or "Monday, January 19, 2026"
+            // Extract month, day, and year
+            const parts = dateStr.split(',').map(p => p.trim())
+            if (parts.length >= 2) {
+              // Join remaining parts with comma+space to preserve format
+              let datePart = parts.slice(1).join(', ').trim()
+              // Match: "Month Day, Year" or "Month Day Year" - flexible with comma and spaces
+              const dateMatch = datePart.match(/(\w+)\s+(\d+),?\s*(\d{4})/)
+              if (dateMatch) {
+                const [, monthName, day, year] = dateMatch
+                const monthNames = ['january', 'february', 'march', 'april', 'may', 'june', 
+                                  'july', 'august', 'september', 'october', 'november', 'december']
+                const month = monthNames.indexOf(monthName.toLowerCase())
+                if (month !== -1) {
+                  // Create date using local timezone (year, month, day)
+                  parsedDate = new Date(parseInt(year), month, parseInt(day))
+                } else {
+                  errors.push(`Row ${i + 1}: Unknown month "${monthName}"`)
+                  continue
+                }
+              } else {
+                errors.push(`Row ${i + 1}: Cannot parse date "${dateStr}"`)
+                continue
+              }
+            } else {
+              errors.push(`Row ${i + 1}: Invalid date format "${dateStr}"`)
+              continue
+            }
+          } else {
+            // Try standard date parsing
+            parsedDate = new Date(dateStr)
+          }
+        } catch (e) {
+          errors.push(`Row ${i + 1}: Date parse error "${dateStr}"`)
+          continue
+        }
+
+        if (isNaN(parsedDate.getTime())) {
+          errors.push(`Row ${i + 1}: Invalid date "${dateStr}"`)
+          continue
+        }
 
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         
@@ -120,8 +159,14 @@ export default function ImportProductionSchedulePage() {
           }
         }
 
+        // Format date as YYYY-MM-DD without timezone conversion
+        const year = parsedDate.getFullYear()
+        const month = String(parsedDate.getMonth() + 1).padStart(2, '0')
+        const day = String(parsedDate.getDate()).padStart(2, '0')
+        const formattedDate = `${year}-${month}-${day}`
+
         items.push({
-          date: parsedDate.toISOString().split('T')[0],
+          date: formattedDate,
           dayName: dayNames[parsedDate.getDay()],
           recipeName,
           quantity,
@@ -131,7 +176,10 @@ export default function ImportProductionSchedulePage() {
       }
 
       if (items.length === 0) {
-        throw new Error('No valid items found. Check your data format.')
+        const errorMsg = errors.length > 0 
+          ? `No valid items found. Errors:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`
+          : 'No valid items found. Check your data format.'
+        throw new Error(errorMsg)
       }
 
       // Sort by date
@@ -188,13 +236,13 @@ export default function ImportProductionSchedulePage() {
       })
 
       const days: ProductionDay[] = []
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
       
       dayMap.forEach((items, date) => {
-        const d = new Date(date)
+        // Get day name from the first item with this date (already correctly parsed)
+        const dayName = parsedItems.find(item => item.date === date)?.dayName || 'Monday'
         days.push({
           date,
-          dayName: dayNames[d.getDay()],
+          dayName,
           items
         })
       })
@@ -259,16 +307,18 @@ export default function ImportProductionSchedulePage() {
             Step 1: Paste Excel Data
           </CardTitle>
           <CardDescription>
-            Copy and paste your production plan from Excel. Include headers.
+            Copy and paste your production plan from Excel. Include headers. Supports single-day or multi-day weekly schedules.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Textarea
-            placeholder={`Date of Production\tMain Recipes\tQTY Order\tUO\tStations
-Monday, November 3, 2025\tBeef Burger 1 KG (80 grams)\t8.5\tKg\tButchery
-Monday, November 3, 2025\tBeef For Burrito\t16.7\tKg\tButchery
-Tuesday, November 4, 2025\tChicken Burger Patty 1 KG\t13.9\tKg\tButchery
-Tuesday, November 4, 2025\tChicken Fajitas 1 KG\t55.6\tKg\tHot Section`}
+            placeholder={`Date of Production\tMain Recipes\tQTY Ordered\tUOM\tStations
+Monday, January 19, 2026\tBatter 1 KG\t6.6\tKg\tPantry
+Monday, January 19, 2026\tBeef Burger 1 KG (80 grams)\t6.4\tKg\tButchery
+Tuesday, January 20, 2026\tBanana Pudding 1 Kg\t17.4\tKg\tDesserts
+Tuesday, January 20, 2026\tChicken Burger Patty 1 KG\t32.1\tKg\tButchery
+Wednesday, January 21, 2026\tChicken Marinade Breast 1 Kg\t37.1\tKg\tButchery
+Wednesday, January 21, 2026\tDate Sable 1 Kg\t13.3\tKg\tDesserts`}
             value={rawData}
             onChange={(e) => setRawData(e.target.value)}
             rows={10}
@@ -289,9 +339,9 @@ Tuesday, November 4, 2025\tChicken Fajitas 1 KG\t55.6\tKg\tHot Section`}
           </Button>
 
           {error && (
-            <div className="flex items-center gap-2 text-red-500 text-sm">
-              <AlertCircle className="h-4 w-4" />
-              {error}
+            <div className="flex items-start gap-2 text-red-500 text-sm bg-red-50 dark:bg-red-950/20 p-3 rounded border border-red-200 dark:border-red-800">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <div className="whitespace-pre-wrap">{error}</div>
             </div>
           )}
         </CardContent>
@@ -340,11 +390,17 @@ Tuesday, November 4, 2025\tChicken Fajitas 1 KG\t55.6\tKg\tHot Section`}
 
             {/* Preview */}
             <div className="space-y-4 max-h-[500px] overflow-y-auto">
-              {Object.entries(groupedItems).sort(([a], [b]) => a.localeCompare(b)).map(([date, { dayName, items }]) => (
+              {Object.entries(groupedItems).sort(([a], [b]) => a.localeCompare(b)).map(([date, { dayName, items }]) => {
+                // Format date without timezone conversion
+                const [year, month, day] = date.split('-')
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                const formattedDate = `${monthNames[parseInt(month) - 1]} ${parseInt(day)}`
+                
+                return (
                 <div key={date} className="border rounded-lg p-4">
                   <h3 className="font-semibold flex items-center gap-2 mb-3">
                     <Calendar className="h-4 w-4" />
-                    {dayName}, {new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {dayName}, {formattedDate}
                     <Badge variant="secondary">{items.length} items</Badge>
                   </h3>
                   <div className="space-y-2">
@@ -359,7 +415,8 @@ Tuesday, November 4, 2025\tChicken Fajitas 1 KG\t55.6\tKg\tHot Section`}
                     ))}
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
 
             {/* Save Button */}

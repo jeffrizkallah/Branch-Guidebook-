@@ -18,6 +18,8 @@ import {
   Beef,
   Eye,
   ListChecks,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { StationTaskCard } from '@/components/kitchen/StationTaskCard'
@@ -59,7 +61,7 @@ export default function StationTabletPage() {
   const [scheduleId, setScheduleId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [selectedDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0])
 
   // Modal states
   const [completionModalTask, setCompletionModalTask] = useState<StationTask | null>(null)
@@ -103,6 +105,26 @@ export default function StationTabletPage() {
   const handleRefresh = async () => {
     setRefreshing(true)
     await fetchTasks()
+  }
+
+  // Handle date navigation
+  const handlePreviousDay = () => {
+    const currentDate = new Date(selectedDate)
+    currentDate.setDate(currentDate.getDate() - 1)
+    setSelectedDate(currentDate.toISOString().split('T')[0])
+    setLoading(true)
+  }
+
+  const handleNextDay = () => {
+    const currentDate = new Date(selectedDate)
+    currentDate.setDate(currentDate.getDate() + 1)
+    setSelectedDate(currentDate.toISOString().split('T')[0])
+    setLoading(true)
+  }
+
+  const handleToday = () => {
+    setSelectedDate(new Date().toISOString().split('T')[0])
+    setLoading(true)
   }
 
   // Handle start task
@@ -240,28 +262,57 @@ export default function StationTabletPage() {
               </div>
               <div>
                 <h1 className={`text-xl font-bold ${colors.text}`}>{station}</h1>
-                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {new Date(selectedDate).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={handlePreviousDay}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(selectedDate).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={handleNextDay}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="gap-1"
-            >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleToday}
+                className="gap-1"
+              >
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Today</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="gap-1"
+              >
+                <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </div>
           </div>
 
           {/* Progress Bar */}

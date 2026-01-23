@@ -5,8 +5,6 @@ import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { RoleSidebar } from '@/components/RoleSidebar'
-import { Footer } from '@/components/Footer'
 import {
   Factory,
   ChefHat,
@@ -179,12 +177,8 @@ export default function CentralKitchenDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      <RoleSidebar />
-
-      <main className="flex-1 flex flex-col pt-16 md:pt-0">
-        <div className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
-          {/* Header */}
+    <div className="container mx-auto px-3 xs:px-4 py-4 xs:py-6 md:py-8">
+      {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-xl bg-rose-100">
@@ -474,9 +468,6 @@ export default function CentralKitchenDashboard() {
             )}
           </CardContent>
         </Card>
-        </div>
-        <Footer />
-      </main>
     </div>
   )
 }

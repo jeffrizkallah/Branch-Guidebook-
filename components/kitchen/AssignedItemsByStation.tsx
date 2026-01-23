@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, CheckCircle2, Clock, PlayCircle, ArrowRight } from 'lucide-react'
+import { MoreHorizontal, CheckCircle2, Clock, PlayCircle, ArrowRight, Eye } from 'lucide-react'
 import type { ProductionItem, ProductionStation } from '@/lib/data'
 
 interface AssignedItemsByStationProps {
@@ -19,6 +19,7 @@ interface AssignedItemsByStationProps {
   stationColors: Record<string, { bg: string; text: string; border: string }>
   stationIcons: Record<string, React.ReactNode>
   onReassign: (itemId: string, newStation: ProductionStation | null) => void
+  onViewRecipe?: (item: ProductionItem) => void
 }
 
 export function AssignedItemsByStation({
@@ -26,7 +27,8 @@ export function AssignedItemsByStation({
   stations,
   stationColors,
   stationIcons,
-  onReassign
+  onReassign,
+  onViewRecipe
 }: AssignedItemsByStationProps) {
   const getItemStatus = (item: ProductionItem) => {
     if (item.completed || item.completedAt) {
@@ -134,35 +136,49 @@ export function AssignedItemsByStation({
                         )}
                       </div>
 
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => onReassign(item.itemId, null)}
-                            className="text-amber-600"
+                      <div className="flex items-center gap-2">
+                        {onViewRecipe && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onViewRecipe(item)}
+                            className="gap-1 text-muted-foreground hover:text-primary"
                           >
-                            <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
-                            Unassign
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {stations
-                            .filter(s => s !== station)
-                            .map(targetStation => (
-                              <DropdownMenuItem
-                                key={targetStation}
-                                onClick={() => onReassign(item.itemId, targetStation)}
-                                className="flex items-center gap-2"
-                              >
-                                <ArrowRight className="h-4 w-4" />
-                                Move to {targetStation}
-                              </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <Eye className="h-4 w-4" />
+                            <span className="hidden sm:inline">View</span>
+                          </Button>
+                        )}
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => onReassign(item.itemId, null)}
+                              className="text-amber-600"
+                            >
+                              <ArrowRight className="h-4 w-4 mr-2 rotate-180" />
+                              Unassign
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            {stations
+                              .filter(s => s !== station)
+                              .map(targetStation => (
+                                <DropdownMenuItem
+                                  key={targetStation}
+                                  onClick={() => onReassign(item.itemId, targetStation)}
+                                  className="flex items-center gap-2"
+                                >
+                                  <ArrowRight className="h-4 w-4" />
+                                  Move to {targetStation}
+                                </DropdownMenuItem>
+                              ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                   )
                 })}

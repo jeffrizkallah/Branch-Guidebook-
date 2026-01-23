@@ -120,13 +120,9 @@ export default withAuth(
 
     // Central kitchen special handling - can only access kitchen-related pages
     if (userRole === 'central_kitchen') {
-      // Redirect root to kitchen dashboard
-      if (path === '/') {
-        return NextResponse.redirect(new URL('/kitchen', req.url))
-      }
-
       // Allow their pages
-      if (path === '/kitchen' ||
+      if (path === '/' ||
+          path === '/kitchen' ||
           path === '/profile' ||
           path.startsWith('/recipes') ||
           path.startsWith('/branch/central-kitchen') ||

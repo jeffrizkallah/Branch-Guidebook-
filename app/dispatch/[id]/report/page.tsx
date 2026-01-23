@@ -480,14 +480,14 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           </div>
 
           {/* Summary Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <Package className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                  <div className="text-3xl font-bold">{totalBranches}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Total Branches</div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <Package className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                  <div className="text-2xl font-bold">{totalBranches}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Total Branches</div>
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     {completedBranches} completed • {pendingBranches} pending
                   </div>
                 </div>
@@ -497,10 +497,10 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                  <div className="text-3xl font-bold text-red-600">{realIssues.length}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Real Issues</div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <AlertTriangle className="h-6 w-6 mx-auto mb-2 text-red-600" />
+                  <div className="text-2xl font-bold text-red-600">{realIssues.length}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Real Issues</div>
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     Requires investigation
                   </div>
                 </div>
@@ -510,10 +510,10 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <Package className="h-8 w-8 mx-auto mb-2 text-amber-600" />
-                  <div className="text-3xl font-bold text-amber-600">{packagingVariances.length}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Packaging</div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <Package className="h-6 w-6 mx-auto mb-2 text-amber-600" />
+                  <div className="text-2xl font-bold text-amber-600">{packagingVariances.length}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Packaging</div>
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     Expected variances
                   </div>
                 </div>
@@ -523,10 +523,10 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <XCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                  <div className="text-3xl font-bold text-red-500">{missingItems.length}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Missing Items</div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <XCircle className="h-6 w-6 mx-auto mb-2 text-red-500" />
+                  <div className="text-2xl font-bold text-red-500">{missingItems.length}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Missing Items</div>
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     Not received at all
                   </div>
                 </div>
@@ -536,10 +536,10 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <TrendingDown className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
-                  <div className="text-3xl font-bold text-yellow-600">{partialItems.length}</div>
-                  <div className="text-sm text-muted-foreground mt-1">Partial Deliveries</div>
-                  <div className="text-xs text-muted-foreground mt-2">
+                  <TrendingDown className="h-6 w-6 mx-auto mb-2 text-yellow-600" />
+                  <div className="text-2xl font-bold text-yellow-600">{partialItems.length}</div>
+                  <div className="text-xs text-muted-foreground mt-1">Partial Deliveries</div>
+                  <div className="text-[10px] text-muted-foreground mt-2">
                     {damagedItems.length} damaged items
                   </div>
                 </div>

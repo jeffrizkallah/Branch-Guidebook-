@@ -70,6 +70,29 @@ export function RecipeViewModal({
     return scaled % 1 === 0 ? scaled.toString() : scaled.toFixed(2)
   }
 
+  // Format number with commas
+  const formatNumber = (num: number): string => {
+    return num.toLocaleString('en-US', { maximumFractionDigits: 2 })
+  }
+
+  // Format quantity with unit conversion and commas
+  const formatQuantityDisplay = (quantity: string, unit: string): { display: string; subtext?: string } => {
+    const num = parseFloat(quantity)
+    if (isNaN(num)) return { display: `${quantity} ${unit}` }
+
+    // Convert GM to KG if >= 1000
+    if (unit.toUpperCase() === 'GM' && num >= 1000) {
+      const kg = num / 1000
+      return {
+        display: `${formatNumber(kg)} KG`,
+        subtext: `${formatNumber(num)} GM`
+      }
+    }
+
+    // For other units or smaller GM amounts, just add comma formatting
+    return { display: `${formatNumber(num)} ${unit}` }
+  }
+
   // Handle sub-recipe checkbox change
   const handleSubRecipeToggle = (subRecipeId: string, completed: boolean) => {
     onSubRecipeProgress(task, subRecipeId, completed)
@@ -367,6 +390,8 @@ export function RecipeViewModal({
                         {recipe.mainIngredients.map((ing, idx) => {
                           const scaled = scaleQuantity(ing.quantity.toString())
                           const isScaled = yieldMultiplier > 1
+                          const formatted = formatQuantityDisplay(scaled, ing.unit)
+                          const baseFormatted = formatQuantityDisplay(ing.quantity.toString(), ing.unit)
                           return (
                             <div key={idx} className={`flex items-center justify-between p-3 rounded-lg border ${
                               isScaled ? 'bg-blue-50 border-blue-200' : 'bg-muted'
@@ -374,11 +399,16 @@ export function RecipeViewModal({
                               <span className="font-medium">{ing.name}</span>
                               <div className="text-right">
                                 <div className={`font-bold ${isScaled ? 'text-blue-700 text-lg' : ''}`}>
-                                  {scaled} {ing.unit}
+                                  {formatted.display}
                                 </div>
-                                {isScaled && (
+                                {formatted.subtext && (
                                   <div className="text-xs text-muted-foreground">
-                                    base: {ing.quantity} {ing.unit}
+                                    {formatted.subtext}
+                                  </div>
+                                )}
+                                {isScaled && (
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    base: {baseFormatted.display}
                                   </div>
                                 )}
                               </div>
@@ -405,6 +435,8 @@ export function RecipeViewModal({
                           const scaled = scaleQuantity(ing.quantity)
                           const baseQty = parseFloat(ing.quantity)
                           const isScaled = yieldMultiplier > 1 && !isNaN(baseQty)
+                          const formatted = formatQuantityDisplay(scaled, ing.unit || '')
+                          const baseFormatted = formatQuantityDisplay(ing.quantity, ing.unit || '')
                           return (
                             <div key={idx} className={`flex items-center justify-between p-3 rounded-lg border ${
                               isScaled ? 'bg-blue-50 border-blue-200' : 'bg-muted'
@@ -412,11 +444,16 @@ export function RecipeViewModal({
                               <span className="font-medium">{ing.item}</span>
                               <div className="text-right">
                                 <div className={`font-bold ${isScaled ? 'text-blue-700 text-lg' : ''}`}>
-                                  {scaled} {ing.unit || ''}
+                                  {formatted.display}
                                 </div>
-                                {isScaled && (
+                                {formatted.subtext && (
                                   <div className="text-xs text-muted-foreground">
-                                    base: {ing.quantity} {ing.unit || ''}
+                                    {formatted.subtext}
+                                  </div>
+                                )}
+                                {isScaled && (
+                                  <div className="text-xs text-muted-foreground mt-0.5">
+                                    base: {baseFormatted.display}
                                   </div>
                                 )}
                               </div>
@@ -479,17 +516,24 @@ export function RecipeViewModal({
                                   {subRecipe.ingredients.map((ing, ingIdx) => {
                                     const scaled = scaleQuantity(ing.quantity)
                                     const isScaled = yieldMultiplier > 1
+                                    const formatted = formatQuantityDisplay(scaled, ing.unit || '')
+                                    const baseFormatted = formatQuantityDisplay(ing.quantity, ing.unit || '')
                                     return (
                                       <div key={ingIdx} className={`text-sm p-2 rounded ${
                                         isScaled ? 'bg-blue-50 border border-blue-200' : 'bg-muted/50'
                                       }`}>
                                         <div className="font-medium">{ing.item}</div>
                                         <div className={isScaled ? 'text-blue-700 font-bold' : ''}>
-                                          {scaled} {ing.unit || ''}
+                                          {formatted.display}
                                         </div>
+                                        {formatted.subtext && (
+                                          <div className="text-xs text-muted-foreground">
+                                            {formatted.subtext}
+                                          </div>
+                                        )}
                                         {isScaled && (
                                           <div className="text-xs text-muted-foreground">
-                                            base: {ing.quantity} {ing.unit || ''}
+                                            base: {baseFormatted.display}
                                           </div>
                                         )}
                                       </div>

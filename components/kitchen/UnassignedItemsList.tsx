@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ClipboardList, ChevronDown, Send } from 'lucide-react'
+import { ClipboardList, ChevronDown, Send, Eye } from 'lucide-react'
 import type { ProductionItem, ProductionStation } from '@/lib/data'
 
 interface UnassignedItemsListProps {
@@ -19,6 +19,7 @@ interface UnassignedItemsListProps {
   selectedItems: Set<string>
   onSelectionChange: (selected: Set<string>) => void
   onAssign: (itemIds: string[], station: ProductionStation) => void
+  onViewRecipe?: (item: ProductionItem) => void
   stations: ProductionStation[]
   stationColors: Record<string, { bg: string; text: string; border: string }>
   stationIcons: Record<string, React.ReactNode>
@@ -29,6 +30,7 @@ export function UnassignedItemsList({
   selectedItems,
   onSelectionChange,
   onAssign,
+  onViewRecipe,
   stations,
   stationColors,
   stationIcons
@@ -144,29 +146,43 @@ export function UnassignedItemsList({
                 </div>
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline" className="gap-1">
-                    Assign to
-                    <ChevronDown className="h-3 w-3" />
+              <div className="flex items-center gap-2">
+                {onViewRecipe && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => onViewRecipe(item)}
+                    className="gap-1 text-muted-foreground hover:text-primary"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span className="hidden sm:inline">View Recipe</span>
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {stations.map(station => {
-                    const colors = stationColors[station]
-                    return (
-                      <DropdownMenuItem
-                        key={station}
-                        onClick={() => handleSingleAssign(item.itemId, station)}
-                        className={`flex items-center gap-2 ${colors.text}`}
-                      >
-                        {stationIcons[station]}
-                        {station}
-                      </DropdownMenuItem>
-                    )
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                )}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="gap-1">
+                      Assign to
+                      <ChevronDown className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {stations.map(station => {
+                      const colors = stationColors[station]
+                      return (
+                        <DropdownMenuItem
+                          key={station}
+                          onClick={() => handleSingleAssign(item.itemId, station)}
+                          className={`flex items-center gap-2 ${colors.text}`}
+                        >
+                          {stationIcons[station]}
+                          {station}
+                        </DropdownMenuItem>
+                      )
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           ))}
         </div>

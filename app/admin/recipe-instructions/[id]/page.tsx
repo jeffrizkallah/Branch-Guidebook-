@@ -110,6 +110,17 @@ export default function RecipeInstructionsEditorPage({ params }: { params: { id:
     fetchOdooRecipes()
     if (!isNew) {
       fetchRecipe()
+    } else {
+      // Check for query parameters when creating new instructions
+      const searchParams = new URLSearchParams(window.location.search)
+      const odooRecipeId = searchParams.get('odooRecipeId')
+      const odooRecipeName = searchParams.get('odooRecipeName')
+      
+      if (odooRecipeId && odooRecipeName) {
+        setLinkedRecipeId(odooRecipeId)
+        setLinkedRecipeName(odooRecipeName)
+        setRecipeSearchQuery(odooRecipeName)
+      }
     }
   }, [params.id])
 

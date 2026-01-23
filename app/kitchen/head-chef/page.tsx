@@ -23,7 +23,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { StationProgressCard } from '@/components/kitchen/StationProgressCard'
 import { UnassignedItemsList } from '@/components/kitchen/UnassignedItemsList'
 import { AssignedItemsByStation } from '@/components/kitchen/AssignedItemsByStation'
-import type { ProductionSchedule, ProductionItem, ProductionStation } from '@/lib/data'
+import { RecipeViewModal } from '@/components/kitchen/RecipeViewModal'
+import type { ProductionSchedule, ProductionItem, ProductionStation, Recipe } from '@/lib/data'
 import { getActiveStations, normalizeStationName } from '@/lib/data'
 
 // Station icons mapping
@@ -54,6 +55,11 @@ export default function HeadChefDashboard() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+
+  // Recipe modal states
+  const [recipeModalItem, setRecipeModalItem] = useState<ProductionItem | null>(null)
+  const [recipe, setRecipe] = useState<Recipe | null>(null)
+  const [loadingRecipe, setLoadingRecipe] = useState(false)
 
   // Get items for the selected date
   const getItemsForDate = useCallback(() => {
@@ -97,7 +103,7 @@ export default function HeadChefDashboard() {
   }, [])
 
   // Fetch schedules
-  const fetchSchedules = useCallback(async () => {
+  const fetchSchedules = useCallback(async (preserveUserSelection = false) => {
     try {
       const response = await fetch('/api/production-schedules')
       const data: ProductionSchedule[] = await response.json()
@@ -108,7 +114,13 @@ export default function HeadChefDashboard() {
       )
       setSchedules(sorted)
 
-      // Find current week's schedule or use most recent
+      // If preserving user selection, just update the schedules list
+      if (preserveUserSelection) {
+        // Don't change user's selected schedule/date
+        return
+      }
+
+      // Initial load: Find current week's schedule or use most recent
       const today = new Date()
       const currentSchedule = sorted.find(s => {
         const start = new Date(s.weekStart)
@@ -118,7 +130,7 @@ export default function HeadChefDashboard() {
 
       if (currentSchedule) {
         setSelectedSchedule(currentSchedule)
-
+        
         // Find today's date in the schedule, or use first available day
         const todayStr = today.toISOString().split('T')[0]
         const todayInSchedule = currentSchedule.days.find(d => d.date === todayStr)
@@ -130,20 +142,20 @@ export default function HeadChefDashboard() {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [])
+  }, []) // No dependencies - function is stable
 
   useEffect(() => {
-    fetchSchedules()
+    fetchSchedules(false) // Initial load - select today's date
 
-    // Set up polling every 30 seconds
-    const interval = setInterval(fetchSchedules, 30000)
+    // Set up polling every 30 seconds - preserve user's selected date and schedule
+    const interval = setInterval(() => fetchSchedules(true), 30000)
     return () => clearInterval(interval)
   }, [fetchSchedules])
 
   // Handle refresh
   const handleRefresh = async () => {
     setRefreshing(true)
-    await fetchSchedules()
+    await fetchSchedules(true) // Preserve the user's selected date and schedule during manual refresh
   }
 
   // Handle assignment
@@ -165,7 +177,7 @@ export default function HeadChefDashboard() {
       if (response.ok) {
         // Clear selection and refresh
         setSelectedItems(new Set())
-        await fetchSchedules()
+        await fetchSchedules(true) // Preserve the user's selected date and schedule
       }
     } catch (error) {
       console.error('Error assigning items:', error)
@@ -188,10 +200,36 @@ export default function HeadChefDashboard() {
       })
 
       if (response.ok) {
-        await fetchSchedules()
+        await fetchSchedules(true) // Preserve the user's selected date and schedule
       }
     } catch (error) {
       console.error('Error reassigning item:', error)
+    }
+  }
+
+  // Handle view recipe
+  const handleViewRecipe = async (item: ProductionItem) => {
+    setRecipeModalItem(item)
+    setLoadingRecipe(true)
+
+    try {
+      // Fetch recipe by name match
+      const response = await fetch('/api/recipes')
+      const recipes: Recipe[] = await response.json()
+
+      // Find matching recipe by name
+      const matchedRecipe = recipes.find(r =>
+        r.name.toLowerCase() === item.recipeName.toLowerCase() ||
+        r.name.toLowerCase().includes(item.recipeName.toLowerCase()) ||
+        item.recipeName.toLowerCase().includes(r.name.toLowerCase())
+      )
+
+      setRecipe(matchedRecipe || null)
+    } catch (error) {
+      console.error('Error fetching recipe:', error)
+      setRecipe(null)
+    } finally {
+      setLoadingRecipe(false)
     }
   }
 
@@ -226,6 +264,26 @@ export default function HeadChefDashboard() {
     window.print()
   }
 
+  // Go to today's date
+  const handleGoToToday = () => {
+    const today = new Date()
+    const todayStr = today.toISOString().split('T')[0]
+    
+    // Find the schedule that contains today
+    const todaySchedule = schedules.find(s => {
+      const start = new Date(s.weekStart)
+      const end = new Date(s.weekEnd)
+      return today >= start && today <= end
+    })
+
+    if (todaySchedule) {
+      setSelectedSchedule(todaySchedule)
+      // Check if today exists in this schedule
+      const todayInSchedule = todaySchedule.days.find(d => d.date === todayStr)
+      setSelectedDate(todayInSchedule ? todayStr : todaySchedule.days[0]?.date || '')
+    }
+  }
+
   const { unassigned, byStation } = categorizeItems()
   const currentDay = selectedSchedule?.days.find(d => d.date === selectedDate)
 
@@ -257,6 +315,14 @@ export default function HeadChefDashboard() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGoToToday}
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                Today
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -405,6 +471,7 @@ export default function HeadChefDashboard() {
               selectedItems={selectedItems}
               onSelectionChange={setSelectedItems}
               onAssign={handleAssign}
+              onViewRecipe={handleViewRecipe}
               stations={getActiveStations()}
               stationColors={stationColors}
               stationIcons={stationIcons}
@@ -418,6 +485,7 @@ export default function HeadChefDashboard() {
             stationColors={stationColors}
             stationIcons={stationIcons}
             onReassign={handleReassign}
+            onViewRecipe={handleViewRecipe}
           />
 
           {/* Empty State */}
@@ -432,6 +500,32 @@ export default function HeadChefDashboard() {
               </CardContent>
             </Card>
           )}
+
+      {/* Recipe View Modal */}
+      {recipeModalItem && (
+        <RecipeViewModal
+          task={{
+            itemId: recipeModalItem.itemId,
+            recipeName: recipeModalItem.recipeName,
+            quantity: recipeModalItem.quantity,
+            unit: recipeModalItem.unit,
+            completed: recipeModalItem.completed || false,
+            startedAt: recipeModalItem.startedAt,
+            completedAt: recipeModalItem.completedAt,
+            notes: recipeModalItem.notes,
+            subRecipeProgress: {}
+          }}
+          recipe={recipe}
+          loading={loadingRecipe}
+          scheduleId={null}
+          selectedDate={selectedDate}
+          onSubRecipeProgress={() => {}}
+          onClose={() => {
+            setRecipeModalItem(null)
+            setRecipe(null)
+          }}
+        />
+      )}
 
       {/* Print styles */}
       <style jsx global>{`

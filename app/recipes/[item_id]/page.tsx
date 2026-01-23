@@ -224,7 +224,7 @@ export default function RecipeDetailPage() {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => router.push('/recipes')}
+              onClick={() => router.back()}
               className="flex-shrink-0 mt-1"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -305,7 +305,7 @@ export default function RecipeDetailPage() {
                   <span>No instructions available for this recipe</span>
                 </div>
                 {canCreateInstructions && (
-                  <Link href="/admin/recipe-instructions/import">
+                  <Link href={`/admin/recipe-instructions/new?odooRecipeId=${itemId}&odooRecipeName=${encodeURIComponent(recipe.item)}`}>
                     <Button variant="outline" className="gap-2">
                       <Plus className="h-4 w-4" />
                       Create Instructions

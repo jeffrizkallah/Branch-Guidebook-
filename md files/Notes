@@ -35,4 +35,6 @@ CHANGES/ADDITIONS
 
 - Create somehting for arraj to be able to have the whole dispatch order visable to make it easier to fill out the items, becuase now he uses a paper
 
-
+- Need to sometimes push items to other days because no ingredients available, so need to shuffle around some items around the week
+- If i need to make 100kg of brownies, sometimes we have in inventory 20kg so then we only produce 80kg, this should automatically chnage the recipe quantites by headchead before sent to stations
+- Able to click on certain ingredietns of recipes to ping the head offcie that we dont have them
