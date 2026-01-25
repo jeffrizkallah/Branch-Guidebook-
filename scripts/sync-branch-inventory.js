@@ -215,7 +215,12 @@ function parseExcel(buffer, sheetName) {
   }
   
   const sheet = workbook.Sheets[sheetName];
-  const data = XLSX.utils.sheet_to_json(sheet, { defval: null });
+  
+  // Header is in row 2 (index 1), so start reading from there
+  const data = XLSX.utils.sheet_to_json(sheet, { 
+    defval: null,
+    range: 1  // Start from row 2 (0-indexed, so 1 = row 2)
+  });
   
   return data;
 }
