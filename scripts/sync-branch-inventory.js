@@ -29,7 +29,7 @@ const FILE_CONFIGS = {
     fileIdEnv: 'SHAREPOINT_BRANCH_CK_FILE_ID',
     tableName: 'branch_inventory',
     fileName: 'Branch_Daily_Closing Central_Kitchen.xlsx',
-    sheetName: 'inventory',  // The specific sheet containing inventory data
+    sheetName: 'Inventory',  // The specific sheet containing inventory data (capital I)
     branch: 'Central Kitchen',
     columns: [
       'inventory_date', 'branch', 'item', 'category', 'quantity',
