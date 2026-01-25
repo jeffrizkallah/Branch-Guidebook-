@@ -236,8 +236,24 @@ function buildBulkUpsertQuery(tableName, columns, rows, transformFn) {
     return null;
   }
   
+  // Deduplicate based on unique constraint (inventory_date, branch, item)
+  // Keep the last occurrence of each duplicate
+  const uniqueRows = [];
+  const seen = new Map();
+  
+  for (const row of transformedRows) {
+    const key = `${row.inventory_date}|${row.branch}|${row.item}`;
+    seen.set(key, row);  // This will overwrite duplicates, keeping the last one
+  }
+  
+  uniqueRows.push(...seen.values());
+  
+  if (uniqueRows.length === 0) {
+    return null;
+  }
+  
   // Build value rows for SQL
-  const valueRows = transformedRows.map(row => {
+  const valueRows = uniqueRows.map(row => {
     const values = columns.map(col => escapeSqlValue(row[col]));
     return `(${values.join(', ')})`;
   });
