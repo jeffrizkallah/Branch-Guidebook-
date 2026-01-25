@@ -1,0 +1,68 @@
+name: Sync Branch Inventory
+
+on:
+  schedule:
+    # Runs every Sunday at midnight Dubai time (8PM UTC Saturday)
+    # Dubai is UTC+4, so 00:00 Sunday Dubai = 20:00 Saturday UTC
+    - cron: '0 20 * * 6'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run mode (for testing)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  sync-inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install xlsx @neondatabase/serverless ws
+      
+      - name: Sync Central Kitchen inventory
+        env:
+          # SharePoint/Microsoft Graph credentials
+          SHAREPOINT_TENANT_ID: ${{ secrets.SHAREPOINT_TENANT_ID }}
+          SHAREPOINT_CLIENT_ID: ${{ secrets.SHAREPOINT_CLIENT_ID }}
+          SHAREPOINT_CLIENT_SECRET: ${{ secrets.SHAREPOINT_CLIENT_SECRET }}
+          SHAREPOINT_DRIVE_ID: ${{ secrets.SHAREPOINT_DRIVE_ID }}
+          
+          # Central Kitchen inventory file ID
+          SHAREPOINT_BRANCH_CK_FILE_ID: ${{ secrets.SHAREPOINT_BRANCH_CK_FILE_ID }}
+          
+          # Database connection
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/sync-branch-inventory.js
+      
+      - name: Report success
+        if: success()
+        run: |
+          echo "✅ Branch inventory sync completed successfully!"
+          echo "Time: $(date)"
+          echo "Branch: Central Kitchen"
+      
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "❌ Branch inventory sync failed!"
+          echo "Time: $(date)"
+          echo "Check the logs above for details."
