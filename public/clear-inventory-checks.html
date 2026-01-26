@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Inventory Checks</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            line-height: 1.6;
+        }
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #b91c1c;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .result.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .result.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Clear Inventory Checks</h1>
+        <p>
+            This will delete all inventory check records from the <strong>production database</strong>.
+            After clearing, refresh your Head Chef Dashboard to see the "Run Inventory Check" button.
+        </p>
+        <p style="color: #dc2626; font-weight: 600;">
+            ⚠️ Warning: This action cannot be undone!
+        </p>
+        
+        <button id="clearBtn" onclick="clearInventoryChecks()">
+            Clear All Inventory Checks
+        </button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        async function clearInventoryChecks() {
+            const btn = document.getElementById('clearBtn');
+            const result = document.getElementById('result');
+            
+            // Disable button and show loading
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Clearing...';
+            result.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/admin/clear-inventory-checks', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    result.className = 'result success';
+                    result.style.display = 'block';
+                    result.innerHTML = `
+                        <strong>✅ Success!</strong><br>
+                        Deleted ${data.deleted.checks} inventory checks and ${data.deleted.shortages} shortage records.<br><br>
+                        <strong>Next step:</strong> Go to your Head Chef Dashboard and refresh the page (Ctrl+Shift+R).
+                    `;
+                    btn.innerHTML = '✅ Cleared Successfully';
+                } else {
+                    throw new Error(data.error || 'Failed to clear records');
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.style.display = 'block';
+                result.innerHTML = `
+                    <strong>❌ Error:</strong><br>
+                    ${error.message}<br><br>
+                    Please check the console for more details.
+                `;
+                btn.disabled = false;
+                btn.innerHTML = 'Clear All Inventory Checks';
+                console.error('Error clearing inventory checks:', error);
+            }
+        }
+    </script>
+</body>
+</html>
