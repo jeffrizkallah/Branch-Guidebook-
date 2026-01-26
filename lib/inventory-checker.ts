@@ -516,22 +516,6 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
   
   console.log(`✅ Check complete: ${overallStatus} (${missing} missing, ${partial} partial, ${sufficient} sufficient)`)
   
-  // Transform shortages to match component interface
-  const transformedShortages = shortages.map((shortage, index) => ({
-    shortage_id: `shortage-${checkId}-${Date.now()}-${index}`,
-    ingredient_name: shortage.ingredient,
-    inventory_item_name: shortage.inventoryItem,
-    required_quantity: shortage.required || 0,
-    available_quantity: shortage.available || 0,
-    shortfall_amount: shortage.shortfall || 0,
-    unit: shortage.unit,
-    status: shortage.status,
-    priority: shortage.priority,
-    affected_recipes: shortage.affectedRecipes,
-    affected_production_items: shortage.affectedItems,
-    production_date: shortage.productionDate
-  }))
-  
   return {
     checkId,
     scheduleId,
@@ -541,7 +525,7 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
     missing,
     partial,
     sufficient,
-    shortages: transformedShortages,
+    shortages,
     inventoryDate
   }
 }
