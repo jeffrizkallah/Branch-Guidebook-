@@ -486,7 +486,7 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
       partial_ingredients_count, sufficient_ingredients_count,
       overall_status, checked_by, check_type
     ) VALUES (
-      ${checkId}, ${scheduleId}, ${productionDates}, 'COMPLETED',
+      ${checkId}, ${scheduleId}, ${JSON.stringify(productionDates)}, 'COMPLETED',
       ${totalIngredients}, ${missing}, ${partial}, ${sufficient},
       ${overallStatus}, ${userId || 'system'}, ${userId ? 'MANUAL' : 'AUTOMATIC'}
     )
