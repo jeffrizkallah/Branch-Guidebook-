@@ -798,19 +798,19 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                       {isIssueExpanded && (
                         <CardContent>
                           {/* Issues Table */}
-                          <div className="border rounded-lg overflow-hidden">
+                          <div className="border rounded-lg overflow-auto max-h-[600px]">
                             <table className="w-full">
-                              <thead className="bg-muted">
+                              <thead className="bg-muted sticky top-0 z-10">
                                 <tr>
-                                  <th className="text-left p-3 font-medium">Item Name</th>
-                                  <th className="text-center p-3 font-medium">Ordered</th>
-                                  <th className="text-center p-3 font-medium">Packed</th>
-                                  <th className="text-center p-3 font-medium">Received</th>
-                                  <th className="text-center p-3 font-medium">Still to Send</th>
-                                  <th className="text-center p-3 font-medium">Unit</th>
-                                  <th className="text-center p-3 font-medium">Issue Type</th>
-                                  <th className="text-center p-3 font-medium">Resolution</th>
-                                  <th className="text-left p-3 font-medium">Notes</th>
+                                  <th className="text-left p-3 font-medium bg-muted">Item Name</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Ordered</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Packed</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Received</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Still to Send</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Unit</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Issue Type</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Resolution</th>
+                                  <th className="text-left p-3 font-medium bg-muted">Notes</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -1039,22 +1039,21 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                       {isExpanded && (
                         <CardContent>
                           {/* Items Table */}
-                          <div className="border rounded-lg overflow-hidden">
-                            <div className="overflow-x-auto">
-                              <table className="w-full">
-                                <thead className="bg-muted">
-                                  <tr>
-                                    <th className="text-left p-3 font-medium">Item Name</th>
-                                    <th className="text-center p-3 font-medium">Ordered</th>
-                                    <th className="text-center p-3 font-medium">Packed</th>
-                                    <th className="text-center p-3 font-medium">Received</th>
-                                    <th className="text-center p-3 font-medium">Still to Send</th>
-                                    <th className="text-center p-3 font-medium">Unit</th>
-                                    <th className="text-center p-3 font-medium">Status</th>
-                                    <th className="text-left p-3 font-medium">Notes</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
+                          <div className="border rounded-lg overflow-auto max-h-[600px]">
+                            <table className="w-full">
+                              <thead className="bg-muted sticky top-0 z-10">
+                                <tr>
+                                  <th className="text-left p-3 font-medium bg-muted">Item Name</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Ordered</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Packed</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Received</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Still to Send</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Unit</th>
+                                  <th className="text-center p-3 font-medium bg-muted">Status</th>
+                                  <th className="text-left p-3 font-medium bg-muted">Notes</th>
+                                </tr>
+                              </thead>
+                              <tbody>
                                   {displayItems.map(item => {
                                     const packedQty = item.packedQty ?? item.orderedQty
                                     const receivedQty = item.receivedQty ?? 0
@@ -1129,7 +1128,6 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                   })}
                                 </tbody>
                               </table>
-                            </div>
                           </div>
 
                           {/* Overall Branch Notes */}
