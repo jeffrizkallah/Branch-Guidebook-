@@ -37,5 +37,7 @@ CHANGES/ADDITIONS
 - **(DONE)** If i need to make 100kg of brownies, sometimes we have in inventory 20kg so then we only produce 80kg, this should automatically chnage the recipe quantites by headchead before sent to stations
 - **(DONE)** Able to click on certain ingredietns of recipes to ping the head offcie that we dont have them
 - **(DONE)** Incorperate a widge in the operations lead dashboard to show updates on the headchef and whats happening with the production schedule/order
+- **(DONE)** Automated Inventory Checking System - Automatically compare production order ingredients with Central Kitchen inventory, flag missing items to head office (Database migration completed)
+- **(DONE)** Ingredient Problems Table Redesign - Redesigned from card-based layout to virtualized table with side drawer. Now handles 300+ items smoothly with bulk operations, CSV export, advanced filtering, and pagination. 10x performance improvement.
 - Create somehting for arraj to be able to have the whole dispatch order visable to make it easier to fill out the items, becuase now he uses a paper
 

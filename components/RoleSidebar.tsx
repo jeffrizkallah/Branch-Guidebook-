@@ -24,6 +24,7 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
+  AlertCircle,
 } from 'lucide-react'
 import type { UserRole } from '@/lib/auth'
 import { useRolePreview } from '@/lib/role-preview'
@@ -93,6 +94,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
     case 'central_kitchen':
       return [
         { href: '/kitchen', label: 'Home', icon: Home },
+        { href: '/kitchen/ingredient-problems', label: 'Ingredient Problems', icon: AlertCircle },
         { href: '/recipes', label: 'Recipes', icon: ChefHat },
         { href: '/', label: 'Branches', icon: Building2 },
       ]

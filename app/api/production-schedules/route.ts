@@ -1,21 +1,15 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'production-schedules.json')
-
-function readSchedules() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeSchedules(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
+import { sql } from '@vercel/postgres'
 
 export async function GET() {
   try {
-    const schedules = readSchedules()
+    const result = await sql`
+      SELECT schedule_data
+      FROM production_schedules
+      ORDER BY (schedule_data->>'weekStart')::date DESC
+    `
+    
+    const schedules = result.rows.map(row => row.schedule_data)
     return NextResponse.json(schedules)
   } catch (error) {
     console.error('Error reading production schedules:', error)
@@ -26,21 +20,16 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const newSchedule = await request.json()
-    const schedules = readSchedules()
     
-    // Check if schedule with same ID already exists
-    const existingIndex = schedules.findIndex(
-      (s: any) => s.scheduleId === newSchedule.scheduleId
-    )
-    
-    if (existingIndex !== -1) {
-      // Replace existing schedule
-      schedules[existingIndex] = newSchedule
-    } else {
-      schedules.push(newSchedule)
-    }
-    
-    writeSchedules(schedules)
+    // Insert or update schedule
+    await sql`
+      INSERT INTO production_schedules (schedule_id, schedule_data)
+      VALUES (${newSchedule.scheduleId}, ${JSON.stringify(newSchedule)}::jsonb)
+      ON CONFLICT (schedule_id)
+      DO UPDATE SET
+        schedule_data = ${JSON.stringify(newSchedule)}::jsonb,
+        updated_at = CURRENT_TIMESTAMP
+    `
     
     return NextResponse.json(newSchedule, { status: 201 })
   } catch (error) {

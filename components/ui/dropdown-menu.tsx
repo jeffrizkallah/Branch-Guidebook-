@@ -145,6 +145,53 @@ const DropdownMenuLabel = React.forwardRef<
 ))
 DropdownMenuLabel.displayName = 'DropdownMenuLabel'
 
+interface DropdownMenuCheckboxItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  checked?: boolean
+  onCheckedChange?: (checked: boolean) => void
+  children: React.ReactNode
+}
+
+const DropdownMenuCheckboxItem = React.forwardRef<HTMLDivElement, DropdownMenuCheckboxItemProps>(
+  ({ className, checked, onCheckedChange, children, ...props }, ref) => {
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onCheckedChange?.(!checked)
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+          className
+        )}
+        onClick={handleClick}
+        {...props}
+      >
+        <span className="mr-2 flex h-4 w-4 items-center justify-center border border-gray-300 rounded">
+          {checked && (
+            <svg
+              className="h-3 w-3 text-current"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+        </span>
+        {children}
+      </div>
+    )
+  }
+)
+DropdownMenuCheckboxItem.displayName = 'DropdownMenuCheckboxItem'
+
 export {
   DropdownMenu,
   DropdownMenuContent,
@@ -152,4 +199,5 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
 }

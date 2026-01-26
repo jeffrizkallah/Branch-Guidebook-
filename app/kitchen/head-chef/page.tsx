@@ -29,6 +29,7 @@ import { AssignedItemsByStation } from '@/components/kitchen/AssignedItemsByStat
 import { RecipeViewModal } from '@/components/kitchen/RecipeViewModal'
 import { WeeklyCalendarView } from '@/components/kitchen/WeeklyCalendarView'
 import { QuantityAdjustmentModal } from '@/components/kitchen/QuantityAdjustmentModal'
+import { InventoryStatusWidget } from '@/components/kitchen/InventoryStatusWidget'
 import type { ProductionSchedule, ProductionItem, ProductionStation, Recipe } from '@/lib/data'
 import { getActiveStations, normalizeStationName } from '@/lib/data'
 
@@ -568,6 +569,23 @@ export default function HeadChefDashboard() {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* Inventory Status Widget */}
+          {selectedSchedule && (
+            <div className="mb-6">
+              <InventoryStatusWidget 
+                scheduleId={selectedSchedule.scheduleId}
+                scheduleName={`Week of ${new Date(selectedSchedule.weekStart).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric'
+                })} - ${new Date(selectedSchedule.weekEnd).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}`}
+              />
+            </div>
           )}
 
           {/* Station Progress Cards */}

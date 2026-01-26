@@ -21,7 +21,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { QualityControlWidget } from '@/components/QualityControlWidget'
-import { IngredientAlertWidget } from '@/components/kitchen/IngredientAlertWidget'
+import { InventoryShortageAlertsWidget } from '@/components/kitchen/InventoryShortageAlertsWidget'
 
 interface Dispatch {
   id: string
@@ -239,9 +239,9 @@ export default function CentralKitchenDashboard() {
         </Card>
       </div>
 
-      {/* Ingredient Alerts Widget */}
+      {/* Automated Inventory Shortage Alerts */}
       <div className="mb-4 xs:mb-6 md:mb-8">
-        <IngredientAlertWidget refreshInterval={30000} />
+        <InventoryShortageAlertsWidget />
       </div>
 
       {/* Quick Actions */}

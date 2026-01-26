@@ -1,19 +1,7 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { sql } from '@vercel/postgres'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'production-schedules.json')
-
-function readSchedules() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeSchedules(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
 
 export async function POST(
   request: Request,
@@ -37,14 +25,19 @@ export async function POST(
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const schedules = readSchedules()
-    const scheduleIndex = schedules.findIndex((s: any) => s.scheduleId === params.id)
+    // Get schedule from database
+    const result = await sql`
+      SELECT schedule_data
+      FROM production_schedules
+      WHERE schedule_id = ${params.id}
+    `
 
-    if (scheduleIndex === -1) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
     }
 
-    const dayIndex = schedules[scheduleIndex].days.findIndex((d: any) => d.date === date)
+    const schedule = result.rows[0].schedule_data
+    const dayIndex = schedule.days.findIndex((d: any) => d.date === date)
 
     if (dayIndex === -1) {
       return NextResponse.json({ error: 'Day not found in schedule' }, { status: 404 })
@@ -55,13 +48,13 @@ export async function POST(
 
     // Update each item
     for (const itemId of itemIds) {
-      const itemIndex = schedules[scheduleIndex].days[dayIndex].items.findIndex(
+      const itemIndex = schedule.days[dayIndex].items.findIndex(
         (i: any) => i.itemId === itemId
       )
 
       if (itemIndex !== -1) {
-        schedules[scheduleIndex].days[dayIndex].items[itemIndex] = {
-          ...schedules[scheduleIndex].days[dayIndex].items[itemIndex],
+        schedule.days[dayIndex].items[itemIndex] = {
+          ...schedule.days[dayIndex].items[itemIndex],
           assignedTo: station,
           assignedBy: assignedBy || session.user.id.toString(),
           assignedAt: timestamp
@@ -70,7 +63,13 @@ export async function POST(
       }
     }
 
-    writeSchedules(schedules)
+    // Save back to database
+    await sql`
+      UPDATE production_schedules
+      SET schedule_data = ${JSON.stringify(schedule)}::jsonb,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE schedule_id = ${params.id}
+    `
 
     return NextResponse.json({
       success: true,

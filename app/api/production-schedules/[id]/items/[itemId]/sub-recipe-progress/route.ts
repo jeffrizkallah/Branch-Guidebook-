@@ -37,20 +37,25 @@ export async function PATCH(
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const schedules = readSchedules()
-    const scheduleIndex = schedules.findIndex((s: any) => s.scheduleId === params.id)
+    const result = await sql`
+      SELECT schedule_data
+      FROM production_schedules
+      WHERE schedule_id = ${params.id}
+    `
 
-    if (scheduleIndex === -1) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
     }
 
-    const dayIndex = schedules[scheduleIndex].days.findIndex((d: any) => d.date === date)
+    const schedule = result.rows[0].schedule_data
+
+    const dayIndex = schedule.days.findIndex((d: any) => d.date === date)
 
     if (dayIndex === -1) {
       return NextResponse.json({ error: 'Day not found in schedule' }, { status: 404 })
     }
 
-    const itemIndex = schedules[scheduleIndex].days[dayIndex].items.findIndex(
+    const itemIndex = schedule.days[dayIndex].items.findIndex(
       (i: any) => i.itemId === params.itemId
     )
 
@@ -60,13 +65,13 @@ export async function PATCH(
 
     // Station staff can only update items assigned to their station
     if (session.user.role === 'station_staff' && session.user.stationAssignment) {
-      const item = schedules[scheduleIndex].days[dayIndex].items[itemIndex]
+      const item = schedule.days[dayIndex].items[itemIndex]
       if (item.assignedTo !== session.user.stationAssignment) {
         return NextResponse.json({ error: 'Forbidden: Item not assigned to your station' }, { status: 403 })
       }
     }
 
-    const item = schedules[scheduleIndex].days[dayIndex].items[itemIndex]
+    const item = schedule.days[dayIndex].items[itemIndex]
 
     // Initialize subRecipeProgress if it doesn't exist
     if (!item.subRecipeProgress) {
@@ -79,9 +84,14 @@ export async function PATCH(
       completedAt: completed ? (completedAt || new Date().toISOString()) : null
     }
 
-    schedules[scheduleIndex].days[dayIndex].items[itemIndex] = item
+    schedule.days[dayIndex].items[itemIndex] = item
 
-    writeSchedules(schedules)
+    await sql`
+      UPDATE production_schedules
+      SET schedule_data = ${JSON.stringify(schedule)}::jsonb,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE schedule_id = ${params.id}
+    `
 
     return NextResponse.json({
       success: true,

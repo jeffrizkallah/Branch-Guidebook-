@@ -106,7 +106,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     if (!dispatch) return
     
     // Create CSV export
-    let csv = 'Branch Name,Item Name,Ordered Qty,Packed Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Status,Packed By,Received By\n'
+    let csv = 'Branch Name,Item Name,Ordered Qty,Packed Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Status,Packed By,Packed On,Received By,Received On\n'
     
     dispatch.branchDispatches.forEach(bd => {
       bd.items.forEach(item => {
@@ -119,7 +119,9 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           const receivedQty = item.receivedQty || 0
           const stillToSend = item.orderedQty - receivedQty
           const unit = item.orderedQty > 150 ? 'unit' : 'KG'
-          csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${packedQty},${receivedQty},${stillToSend},"${unit}","${item.issue || 'none'}","${item.notes}","${bd.status}","${bd.packedBy || ''}","${bd.receivedBy || ''}"\n`
+          const packedOn = bd.packingCompletedAt ? formatDateTime(bd.packingCompletedAt) : ''
+          const receivedOn = bd.receivedAt ? formatDateTime(bd.receivedAt) : ''
+          csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${packedQty},${receivedQty},${stillToSend},"${unit}","${item.issue || 'none'}","${item.notes}","${bd.status}","${bd.packedBy || ''}","${packedOn}","${bd.receivedBy || ''}","${receivedOn}"\n`
         }
       })
     })
@@ -136,7 +138,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     if (!dispatch) return
     
     // Create CSV export with ALL items
-    let csv = 'Branch Name,Item Name,Ordered Qty,Packed Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Packed Checked,Received Checked,Status,Packed By,Received By,Received At\n'
+    let csv = 'Branch Name,Item Name,Ordered Qty,Packed Qty,Received Qty,Still to Send,Unit,Issue Type,Notes,Packed Checked,Received Checked,Status,Packed By,Packed On,Received By,Received On\n'
     
     dispatch.branchDispatches.forEach(bd => {
       bd.items.forEach(item => {
@@ -144,7 +146,9 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
         const receivedQty = item.receivedQty || 0
         const stillToSend = item.orderedQty - receivedQty
         const unit = item.orderedQty > 150 ? 'unit' : 'KG'
-        csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${packedQty},${receivedQty},${stillToSend},"${unit}","${item.issue || 'none'}","${item.notes || ''}",${item.packedChecked},${item.receivedChecked},"${bd.status}","${bd.packedBy || ''}","${bd.receivedBy || ''}","${bd.receivedAt || ''}"\n`
+        const packedOn = bd.packingCompletedAt ? formatDateTime(bd.packingCompletedAt) : ''
+        const receivedOn = bd.receivedAt ? formatDateTime(bd.receivedAt) : ''
+        csv += `"${bd.branchName}","${item.name}",${item.orderedQty},${packedQty},${receivedQty},${stillToSend},"${unit}","${item.issue || 'none'}","${item.notes || ''}",${item.packedChecked},${item.receivedChecked},"${bd.status}","${bd.packedBy || ''}","${packedOn}","${bd.receivedBy || ''}","${receivedOn}"\n`
       })
     })
     
@@ -299,6 +303,18 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     if (!dateStr) return 'N/A'
     const date = new Date(dateStr)
     return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const formatDateTime = (dateStr: string | null) => {
+    if (!dateStr) return 'N/A'
+    const date = new Date(dateStr)
+    return date.toLocaleString('en-US', { 
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -761,13 +777,13 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                 {bd.packedBy && (
                                   <div>
                                     Packed by: <span className="font-medium">{bd.packedBy}</span>
-                                    {bd.packingCompletedAt && <> at {formatTime(bd.packingCompletedAt)}</>}
+                                    {bd.packingCompletedAt && <> on {formatDateTime(bd.packingCompletedAt)}</>}
                                   </div>
                                 )}
                                 {bd.receivedBy && (
                                   <div>
                                     Received by: <span className="font-medium">{bd.receivedBy}</span>
-                                    {bd.receivedAt && <> at {formatTime(bd.receivedAt)}</>}
+                                    {bd.receivedAt && <> on {formatDateTime(bd.receivedAt)}</>}
                                   </div>
                                 )}
                               </div>
@@ -1012,7 +1028,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                               <>
                                 <div className="font-medium">{bd.receivedBy}</div>
                                 {bd.receivedAt && (
-                                  <div className="text-muted-foreground">{formatTime(bd.receivedAt)}</div>
+                                  <div className="text-muted-foreground">{formatDateTime(bd.receivedAt)}</div>
                                 )}
                               </>
                             )}
