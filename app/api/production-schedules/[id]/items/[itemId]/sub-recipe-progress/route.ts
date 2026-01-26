@@ -1,19 +1,7 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { sql } from '@vercel/postgres'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'production-schedules.json')
-
-function readSchedules() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeSchedules(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
 
 export async function PATCH(
   request: Request,
@@ -115,13 +103,17 @@ export async function GET(
       return NextResponse.json({ error: 'Missing date parameter' }, { status: 400 })
     }
 
-    const schedules = readSchedules()
-    const schedule = schedules.find((s: any) => s.scheduleId === params.id)
+    const result = await sql`
+      SELECT schedule_data
+      FROM production_schedules
+      WHERE schedule_id = ${params.id}
+    `
 
-    if (!schedule) {
+    if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Schedule not found' }, { status: 404 })
     }
 
+    const schedule = result.rows[0].schedule_data
     const day = schedule.days.find((d: any) => d.date === date)
 
     if (!day) {

@@ -1,19 +1,7 @@
 import { NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
+import { sql } from '@vercel/postgres'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
-
-const dataFilePath = path.join(process.cwd(), 'data', 'production-schedules.json')
-
-function readSchedules() {
-  const fileContents = fs.readFileSync(dataFilePath, 'utf8')
-  return JSON.parse(fileContents)
-}
-
-function writeSchedules(data: any) {
-  fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2))
-}
 
 export async function PATCH(
   request: Request,
