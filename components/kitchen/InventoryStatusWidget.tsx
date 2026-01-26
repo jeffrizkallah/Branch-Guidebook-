@@ -56,6 +56,7 @@ interface InventoryStatusWidgetProps {
 export function InventoryStatusWidget({ scheduleId, scheduleName }: InventoryStatusWidgetProps) {
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [checkResult, setCheckResult] = useState<any>(null)
   const [dayStatuses, setDayStatuses] = useState<DayStatus[]>([])
   const [selectedDay, setSelectedDay] = useState<DayStatus | null>(null)
@@ -105,6 +106,33 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
       console.error('Error loading check:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const deleteCheck = async () => {
+    if (!confirm('Are you sure you want to delete this inventory check? This will allow you to run a fresh check.')) {
+      return
+    }
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/inventory-check/${scheduleId}/delete`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        console.log('Inventory check deleted successfully')
+        setCheckResult(null)
+        setDayStatuses([])
+      } else {
+        console.error('Failed to delete inventory check')
+        alert('Failed to delete inventory check. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting check:', error)
+      alert('Error deleting inventory check. Please try again.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -361,24 +389,44 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
               <Package className="h-5 w-5" />
               Production Inventory Status
             </CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={runCheck}
-              disabled={checking}
-            >
-              {checking ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Checking...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Run Check Now
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={deleteCheck}
+                disabled={checking || deleting}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                {deleting ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Clearing...
+                  </>
+                ) : (
+                  <>
+                    Clear Old Data
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={runCheck}
+                disabled={checking || deleting}
+              >
+                {checking ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Run Check Now
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-gray-600 mt-1">
             {scheduleName}
