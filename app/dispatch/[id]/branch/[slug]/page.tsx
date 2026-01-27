@@ -63,15 +63,18 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     fetchDispatch()
   }, [params.id, params.slug])
 
-  // Set signature fields to user's name when user loads
+  // Set signature fields to user's name when user loads and dispatch data is available
   useEffect(() => {
-    if (userFullName && !packedBy) {
-      setPackedBy(userFullName)
+    if (userFullName && branchDispatch) {
+      // Only set if not already set from database
+      if (!packedBy && (mode === 'packing' || branchDispatch.status === 'pending')) {
+        setPackedBy(userFullName)
+      }
+      if (!receivedBy && mode === 'receiving') {
+        setReceivedBy(userFullName)
+      }
     }
-    if (userFullName && !receivedBy) {
-      setReceivedBy(userFullName)
-    }
-  }, [userFullName])
+  }, [userFullName, branchDispatch, mode])
 
   const fetchDispatch = async () => {
     try {
@@ -83,8 +86,14 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
         const bd = dispatch.branchDispatches.find((bd: any) => bd.branchSlug === params.slug)
         if (bd) {
           setBranchDispatch(bd)
-          setPackedBy(bd.packedBy || '')
-          setReceivedBy(bd.receivedBy || '')
+          // Only set from database if already exists (someone already completed it)
+          // Otherwise keep the user's full name that was set by useEffect
+          if (bd.packedBy) {
+            setPackedBy(bd.packedBy)
+          }
+          if (bd.receivedBy) {
+            setReceivedBy(bd.receivedBy)
+          }
           setOverallNotes(bd.overallNotes || '')
         }
       }
@@ -272,7 +281,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     if (mode === 'packing') {
       // Completing packing
       if (!packedBy.trim()) {
-        alert('Please enter the name of the person packing this dispatch')
+        alert('Unable to complete: Your account name could not be loaded. Please refresh the page and try again.')
         return
       }
 
@@ -310,7 +319,7 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
     } else {
       // Completing receiving
       if (!receivedBy.trim()) {
-        alert('Please enter the name of the person receiving this dispatch')
+        alert('Unable to complete: Your account name could not be loaded. Please refresh the page and try again.')
         return
       }
 
@@ -713,8 +722,9 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
                     {mode === 'packing' ? 'Packed By:' : 'Received By:'}
                   </label>
                   <div className="h-9 md:h-10 px-3 flex items-center bg-muted rounded-md border text-sm font-medium">
-                    {mode === 'packing' ? packedBy : receivedBy}
-                    {!userFullName && <span className="text-muted-foreground italic">Loading user...</span>}
+                    {(mode === 'packing' ? packedBy : receivedBy) || (
+                      <span className="text-muted-foreground italic">Loading user...</span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     Automatically signed with your account name
