@@ -12,8 +12,8 @@ export function RolePreviewBanner() {
   if (!isPreviewMode || !effectiveRole) return null
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] bg-amber-500 text-amber-950 py-2 px-4 shadow-md no-print">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-4">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] bg-amber-500 text-amber-950 py-2 px-4 shadow-lg rounded-lg no-print max-w-md">
+      <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-2">
           <Eye className="h-4 w-4" />
           <span className="text-sm font-medium">

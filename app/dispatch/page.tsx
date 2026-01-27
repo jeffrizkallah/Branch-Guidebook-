@@ -10,14 +10,14 @@ import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Upload, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Trash2, 
-  FileText, 
+import {
+  Upload,
+  Package,
+  Clock,
+  CheckCircle2,
+  AlertTriangle,
+  Trash2,
+  FileText,
   Loader2,
   ChevronDown,
   ChevronUp,
@@ -25,7 +25,6 @@ import {
   Truck,
   PackageCheck,
   Timer,
-  Sparkles,
   RefreshCw,
   ExternalLink
 } from 'lucide-react'
@@ -33,158 +32,107 @@ import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 import type { Dispatch } from '@/lib/data'
 
-// Workflow Stepper Component
-function WorkflowStepper({ 
-  packing, 
-  dispatched, 
-  completed, 
-  total,
-  packingStartedAt
-}: { 
+// Workflow Stepper Component - Full width layout with absolute positioned connectors
+function WorkflowStepper({
+  packing,
+  dispatched,
+  completed,
+  total
+}: {
   packing: number
   dispatched: number
   completed: number
   total: number
-  packingStartedAt?: string | null
 }) {
   const steps = [
-    { 
-      label: 'Packing', 
-      count: packing, 
-      icon: Package, 
+    {
+      label: 'Packing',
+      icon: Package,
       color: 'text-yellow-600 bg-yellow-100',
       activeColor: 'border-yellow-500',
-      isActive: packing > 0
+      isActive: packing > 0 || dispatched > 0 || completed > 0
     },
-    { 
-      label: 'Dispatched', 
-      count: dispatched, 
-      icon: Truck, 
+    {
+      label: 'Dispatched',
+      icon: Truck,
       color: 'text-blue-600 bg-blue-100',
       activeColor: 'border-blue-500',
       isActive: dispatched > 0 || completed > 0
     },
-    { 
-      label: 'Completed', 
-      count: completed, 
-      icon: CheckCircle2, 
+    {
+      label: 'Completed',
+      icon: CheckCircle2,
       color: 'text-green-600 bg-green-100',
       activeColor: 'border-green-500',
-      isActive: completed > 0
+      isActive: completed > 0 && completed === total
     },
   ]
-  
-  // Calculate time in stage
-  const getTimeInStage = () => {
-    if (!packingStartedAt) return null
-    const start = new Date(packingStartedAt)
-    const now = new Date()
-    const diffMs = now.getTime() - start.getTime()
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    
-    if (diffHours > 0) {
-      return `${diffHours}h ${diffMins}m in progress`
-    }
-    return `${diffMins}m in progress`
-  }
-  
-  const timeInStage = getTimeInStage()
-  
+
+  // Determine which connector segments are active
+  const segment1Active = dispatched > 0 || completed > 0
+  const segment2Active = completed > 0 && completed === total
+
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-1">
-        {steps.map((step, idx) => {
-          const Icon = step.icon
-          const isLast = idx === steps.length - 1
-          return (
-            <div key={step.label} className="flex items-center flex-1">
-              <div className={cn(
-                "flex flex-col items-center",
-                step.isActive ? "opacity-100" : "opacity-40"
-              )}>
-                <div className={cn(
-                  "w-7 h-7 xs:w-8 xs:h-8 rounded-full flex items-center justify-center border-2",
-                  step.isActive ? step.activeColor : "border-muted-foreground/30",
-                  step.isActive ? step.color : "bg-muted text-muted-foreground"
-                )}>
-                  <Icon className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
-                </div>
-                <span className="text-[9px] xs:text-[10px] mt-1 font-medium">{step.label}</span>
-                <span className={cn(
-                  "text-[9px] xs:text-[10px]",
-                  step.count > 0 ? (
-                    step.label === 'Completed' ? 'text-green-600 font-semibold' :
-                    step.label === 'Dispatched' ? 'text-blue-600 font-semibold' :
-                    'text-yellow-600 font-semibold'
-                  ) : 'text-muted-foreground'
-                )}>
-                  {step.count > 0 ? step.count : '—'}
-                </span>
-              </div>
-              {!isLast && (
-                <div className={cn(
-                  "flex-1 h-0.5 mx-1 xs:mx-2",
-                  steps[idx + 1].isActive ? "bg-gradient-to-r from-current to-muted" : "bg-muted"
-                )} style={{ 
-                  color: step.isActive ? (
-                    step.label === 'Packing' ? '#eab308' : '#3b82f6'
-                  ) : undefined 
-                }} />
-              )}
-            </div>
-          )
-        })}
+    <div className="relative flex items-start justify-between w-full">
+      {/* Background connector line (muted) */}
+      <div
+        className="absolute h-0.5 bg-muted"
+        style={{ top: '14px', left: '14px', right: '14px' }}
+      />
+
+      {/* Active connector segments overlay */}
+      <div
+        className="absolute flex h-0.5"
+        style={{ top: '14px', left: '14px', right: '14px' }}
+      >
+        <div className={cn(
+          "flex-1 transition-colors duration-300",
+          segment1Active ? "bg-blue-400" : "bg-transparent"
+        )} />
+        <div className={cn(
+          "flex-1 transition-colors duration-300",
+          segment2Active ? "bg-green-400" : "bg-transparent"
+        )} />
       </div>
-      {timeInStage && packing > 0 && (
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-          <Timer className="h-3 w-3" />
-          <span>{timeInStage}</span>
-        </div>
-      )}
+
+      {/* Step circles - positioned with z-10 to sit above lines */}
+      {steps.map((step) => {
+        const Icon = step.icon
+        return (
+          <div key={step.label} className="relative z-10 flex flex-col items-center">
+            <div className={cn(
+              "w-7 h-7 rounded-full flex items-center justify-center border-2 bg-background transition-all",
+              step.isActive ? step.activeColor : "border-muted-foreground/30",
+              step.isActive ? step.color : "bg-muted text-muted-foreground opacity-50"
+            )}>
+              <Icon className="h-3.5 w-3.5" />
+            </div>
+            <span className={cn(
+              "text-[10px] mt-1.5 font-medium",
+              step.isActive ? "text-foreground" : "text-muted-foreground"
+            )}>
+              {step.label}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
 
-// Progress Bar Component
-function ProgressBar({ 
-  completed, 
-  total,
-  showLabel = true 
-}: { 
-  completed: number
-  total: number
-  showLabel?: boolean
-}) {
+// Progress Bar Component - Simplified, thinner version
+function ProgressBar({ completed, total }: { completed: number; total: number }) {
   const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
-  
+
   return (
-    <div className="space-y-1">
-      {showLabel && (
-        <div className="flex items-center justify-between text-xs">
-          <span className={cn(
-            "font-medium",
-            percentage === 100 ? "text-green-600" : "text-muted-foreground"
-          )}>
-            {completed} of {total} branches complete
-          </span>
-          <span className={cn(
-            "font-bold",
-            percentage === 100 ? "text-green-600" : percentage > 50 ? "text-blue-600" : "text-yellow-600"
-          )}>
-            {percentage}%
-          </span>
-        </div>
-      )}
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
-        <div 
-          className={cn(
-            "h-full rounded-full transition-all duration-500",
-            percentage === 100 ? "bg-green-500" : percentage > 50 ? "bg-blue-500" : "bg-yellow-500"
-          )}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+      <div
+        className={cn(
+          "h-full rounded-full transition-all duration-500",
+          percentage === 100 ? "bg-green-500" : percentage > 50 ? "bg-blue-500" : "bg-yellow-500"
+        )}
+        style={{ width: `${percentage}%` }}
+      />
     </div>
   )
 }
@@ -332,14 +280,29 @@ export default function DispatchDashboardPage() {
   
   const formatDateLong = (dateStr: string) => {
     const date = new Date(dateStr)
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       weekday: 'short',
       year: 'numeric',
-      month: 'long', 
-      day: 'numeric' 
+      month: 'long',
+      day: 'numeric'
     })
   }
-  
+
+  // Calculate time in stage for display in subtitle
+  const getTimeInStage = (packingStartedAt: string | null | undefined) => {
+    if (!packingStartedAt) return null
+    const start = new Date(packingStartedAt)
+    const now = new Date()
+    const diffMs = now.getTime() - start.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+
+    if (diffHours > 0) {
+      return `${diffHours}h ${diffMins}m`
+    }
+    return `${diffMins}m`
+  }
+
   // Get card border color based on status
   const getCardBorderColor = (dispatch: Dispatch) => {
     const hasIssues = dispatch.branchDispatches.some(
@@ -356,28 +319,6 @@ export default function DispatchDashboardPage() {
     return 'border-l-blue-500'
   }
   
-  // Get contextual message for zero states
-  const getContextualMessage = (
-    packing: number, 
-    dispatched: number, 
-    completed: number, 
-    total: number
-  ) => {
-    if (completed === total && total > 0) {
-      return { message: 'All branches delivered!', type: 'success' as const }
-    }
-    if (packing === total && dispatched === 0 && completed === 0) {
-      return { message: `Ready to dispatch ${packing} branches`, type: 'action' as const }
-    }
-    if (packing > 0 && dispatched === 0) {
-      return { message: 'Packing in progress...', type: 'progress' as const }
-    }
-    if (dispatched > 0 && completed === 0) {
-      return { message: 'En route to branches', type: 'progress' as const }
-    }
-    return null
-  }
-
   // Show loading while auth is checking
   if (authLoading) {
     return (
@@ -541,8 +482,7 @@ export default function DispatchDashboardPage() {
                       
                       const isExpanded = expandedCards.has(dispatch.id)
                       const isAllCompleted = completedBranches === totalBranches
-                      const contextualMsg = getContextualMessage(pendingBranches, dispatchedBranches, completedBranches, totalBranches)
-                      
+
                       // Get first packing start time for time-in-stage
                       const packingStartedAt = dispatch.branchDispatches.find(
                         bd => bd.packingStartedAt
@@ -569,36 +509,38 @@ export default function DispatchDashboardPage() {
                             <div className="flex items-start justify-between gap-2 xs:gap-3">
                               {/* Left: Date and Status */}
                               <div className="flex-1 min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 mb-1">
-                                  {isFollowUp && (
-                                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 flex items-center gap-1 text-[10px] xs:text-xs">
-                                      <RefreshCw className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
-                                      Follow-Up
-                                    </Badge>
-                                  )}
-                                  <h3 className="font-bold text-base xs:text-lg md:text-xl">
-                                    {formatDateLong(dispatch.deliveryDate)}
-                                  </h3>
-                                  {withIssues > 0 && (
-                                    <Link href={`/dispatch/${dispatch.id}/report`}>
-                                      <Badge variant="destructive" className="flex items-center gap-1 cursor-pointer hover:bg-destructive/80 transition-colors text-[10px] xs:text-xs">
-                                        <AlertTriangle className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
-                                        {withIssues} Issue{withIssues > 1 ? 's' : ''}
+                                {/* Status badges row */}
+                                {(isFollowUp || withIssues > 0) && (
+                                  <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                                    {isFollowUp && (
+                                      <Badge className="bg-amber-100 text-amber-800 border-amber-300 flex items-center gap-1 text-[10px] px-1.5 py-0">
+                                        <RefreshCw className="h-2.5 w-2.5" />
+                                        Follow-Up
                                       </Badge>
-                                    </Link>
-                                  )}
+                                    )}
+                                    {withIssues > 0 && (
+                                      <Link href={`/dispatch/${dispatch.id}/report`}>
+                                        <Badge variant="destructive" className="flex items-center gap-1 cursor-pointer hover:bg-destructive/80 transition-colors text-[10px] px-1.5 py-0">
+                                          <AlertTriangle className="h-2.5 w-2.5" />
+                                          {withIssues} Issue{withIssues > 1 ? 's' : ''}
+                                        </Badge>
+                                      </Link>
+                                    )}
+                                  </div>
+                                )}
+                                {/* Date heading with completion checkmark */}
+                                <h3 className="font-bold text-base xs:text-lg md:text-xl flex items-center gap-2">
+                                  {formatDateLong(dispatch.deliveryDate)}
                                   {isAllCompleted && (
-                                    <Badge className="bg-green-100 text-green-700 border-green-200 flex items-center gap-1 text-[10px] xs:text-xs">
-                                      <Sparkles className="h-2.5 w-2.5 xs:h-3 xs:w-3" />
-                                      Complete
-                                    </Badge>
+                                    <CheckCircle2 className="h-4 w-4 xs:h-5 xs:w-5 text-green-600" />
                                   )}
-                                </div>
-                                <p className="text-[10px] xs:text-xs text-muted-foreground">
+                                </h3>
+                                {/* Subtitle with time indicator */}
+                                <div className="flex items-center gap-2 text-[10px] xs:text-xs text-muted-foreground mt-0.5">
                                   {isFollowUp && parentDispatch ? (
                                     <span className="flex items-center gap-1">
                                       <span>Resolving issues from</span>
-                                      <Link 
+                                      <Link
                                         href={`/dispatch/${parentDispatch.id}/report`}
                                         className="text-amber-600 hover:underline inline-flex items-center gap-0.5"
                                       >
@@ -607,11 +549,20 @@ export default function DispatchDashboardPage() {
                                       </Link>
                                     </span>
                                   ) : (
-                                    <>Created {formatDate(dispatch.createdDate)} by {dispatch.createdBy}</>
+                                    <span>Created {formatDate(dispatch.createdDate)} by {dispatch.createdBy}</span>
                                   )}
-                                </p>
+                                  {packingStartedAt && pendingBranches > 0 && (
+                                    <>
+                                      <span className="text-muted-foreground/50">•</span>
+                                      <span className="flex items-center gap-1 text-blue-600">
+                                        <Timer className="h-3 w-3" />
+                                        {getTimeInStage(packingStartedAt)} in progress
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
                               </div>
-                              
+
                               {/* Right: Actions */}
                               <div className="flex items-center gap-1.5 xs:gap-2 shrink-0">
                                 {/* View Report - Primary Action */}
@@ -625,7 +576,7 @@ export default function DispatchDashboardPage() {
                                     <span className="xs:hidden">Report</span>
                                   </Button>
                                 </Link>
-                                
+
                                 {/* Overflow Menu */}
                                 <div className="relative">
                                   <Button
@@ -639,9 +590,9 @@ export default function DispatchDashboardPage() {
                                   >
                                     <MoreVertical className="h-4 w-4" />
                                   </Button>
-                                  
+
                                   {openMenuId === dispatch.id && (
-                                    <div 
+                                    <div
                                       className="absolute right-0 top-full mt-1 bg-popover border rounded-md shadow-lg py-1 z-50 min-w-[140px]"
                                       onClick={(e) => e.stopPropagation()}
                                     >
@@ -657,38 +608,26 @@ export default function DispatchDashboardPage() {
                                 </div>
                               </div>
                             </div>
-                            
-                            {/* Progress Bar */}
-                            <div className="mt-3">
-                              <ProgressBar 
-                                completed={completedBranches} 
-                                total={totalBranches} 
-                              />
-                            </div>
-                            
-                            {/* Contextual Message */}
-                            {contextualMsg && (
-                              <div className={cn(
-                                "mt-2 text-xs font-medium flex items-center gap-1.5",
-                                contextualMsg.type === 'success' && "text-green-600",
-                                contextualMsg.type === 'action' && "text-yellow-600",
-                                contextualMsg.type === 'progress' && "text-blue-600"
-                              )}>
-                                {contextualMsg.type === 'success' && <CheckCircle2 className="h-3.5 w-3.5" />}
-                                {contextualMsg.type === 'action' && <Truck className="h-3.5 w-3.5" />}
-                                {contextualMsg.type === 'progress' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                                {contextualMsg.message}
-                              </div>
-                            )}
-                            
+
                             {/* Workflow Stepper */}
-                            <div className="mt-3 pt-3 border-t">
-                              <WorkflowStepper 
+                            <div className="mt-4">
+                              <WorkflowStepper
                                 packing={pendingBranches}
                                 dispatched={dispatchedBranches}
                                 completed={completedBranches}
                                 total={totalBranches}
-                                packingStartedAt={packingStartedAt}
+                              />
+                            </div>
+
+                            {/* Progress Bar with label */}
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                                <span>{completedBranches} of {totalBranches} complete</span>
+                                <span className="font-medium">{totalBranches > 0 ? Math.round((completedBranches / totalBranches) * 100) : 0}%</span>
+                              </div>
+                              <ProgressBar
+                                completed={completedBranches}
+                                total={totalBranches}
                               />
                             </div>
 

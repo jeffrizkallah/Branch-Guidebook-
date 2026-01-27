@@ -29,8 +29,10 @@ CHANGES/ADDITIONS
 - Breakdown of orders into recipes, sub-recipes, and ingredients
 - Fix sales analynics to be more accurate nd detailed (refer to mang ops file sharpoint)
 
+-Use the imported waste file from Odoo Report and analize it based on their order for the week, to give a percentage of waste everyweek based on the branches order, so how much did this branch waste per week based on thier order.this will show in the branch managers dashbaord. also it would be interesting to have a information about this in the admin, operations lead, and regional manager dashbaord somehow, with more detail like each branchs' waste per day. im not sure how the UI implemention will be of that it can also have awhole dedicated page for it. 
 
-# Dispatch Fixes
+
+# Dispatch Fixes 0.0.1
 - **(DONE)** Add a way to delete a branch on the follow up dispatch model, because there are some branches we dont deliver to in the next dispatch
 - **(DONE)** I have a small issue, so when the staff is packing the orders for example a branch orderd 2.4 kg of Loaf English Cake White but they will probably only send them 2 loafs of cake they wont cut a loaf and give then an extra 400 grams from it. this shows as a partial issue, how can we fix that problem. becuase we wouldnt consider this and issue. i want to seperate these things to actually know where the real issues are
 - **(DONE)** Need to sometimes push items to other days because no ingredients available, so need to shuffle around some items around the week
@@ -41,3 +43,17 @@ CHANGES/ADDITIONS
 - **(DONE)** Ingredient Problems Table Redesign - Redesigned from card-based layout to virtualized table with side drawer. Now handles 300+ items smoothly with bulk operations, CSV export, advanced filtering, and pagination. 10x performance improvement.
 - Create somehting for arraj to be able to have the whole dispatch order visable to make it easier to fill out the items, becuase now he uses a paper
 
+
+# Dispatch Fixes 0.0.2
+- **(Train)** *(User sees a red trash icon on each item row (only for pending/packing dispatches))* In the dispatch dashbord the user should be able to remove items from a disaptch not just add items, right now we have a button on the top of the page to add an item, but i would also like a feature where they can remove an item from the current exsisting dispatch
+- **(Train)** (When an item is marked as "partial" and the received quantity is between 87.5% and 112.5% of the ordered quantity:
+
+It gets a teal "Within Tolerance" badge instead of the yellow "Partial" badge
+It is not counted in the "Real Issues" statistics
+It is excluded from follow-up dispatches) 
+
+- **(DONE)** When packing and recieving you can no longer sign with any name you want in the end of the page, it will automatically use your user first and last name, so the staff cant just write whatever they want 
+- **(DONE)** In the dispatch view report page, in the section where there are issues per branch, add a feature where you can choose items and mark them as not an issue, beucause sometimes items are marked as an issue but they arent really an issue so i want t oremove them as issues so we can really focus on the real issues
+- Usually the Central Kitchen only sends fruits and vegetables to DIP, all other branches get them from the suppliers so if at anytime a new dispatch was uploaded and there was fruits and vegetables for other rbanches i want the items to be removed, the only branch that can recieve fruits and vegetables is DIP
+
+-Use the imported waste file from Odoo Report and analize it based on their order for the week, to give a percentage of waste everyweek based on the branches order, so how much did this branch waste per week based on thier order.this will show in the branch managers dashbaord. also it would be interesting to have a information about this in the admin, operations lead, and regional manager dashbaord somehow, with more detail like each branchs' waste per day. im not sure how the UI implemention will be of that it can also have awhole dedicated page for it. 

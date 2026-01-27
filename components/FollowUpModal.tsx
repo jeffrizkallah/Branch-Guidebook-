@@ -20,6 +20,21 @@ import {
 } from 'lucide-react'
 import type { Dispatch, BranchDispatch, DispatchItem } from '@/lib/data'
 
+// Tolerance threshold for partial deliveries (12.5%)
+// Items within 87.5% to 112.5% of ordered qty won't be flagged as issues
+const TOLERANCE_PERCENT = 12.5
+
+/**
+ * Check if a partial item is within acceptable tolerance
+ */
+const isWithinTolerance = (orderedQty: number, receivedQty: number | null): boolean => {
+  if (receivedQty === null || orderedQty === 0) return false
+  const ratio = receivedQty / orderedQty
+  const lowerBound = 1 - (TOLERANCE_PERCENT / 100)
+  const upperBound = 1 + (TOLERANCE_PERCENT / 100)
+  return ratio >= lowerBound && ratio <= upperBound
+}
+
 interface FollowUpModalProps {
   isOpen: boolean
   onClose: () => void
@@ -56,11 +71,16 @@ export function FollowUpModal({
       
       dispatch.branchDispatches.forEach(bd => {
         bd.items.forEach(item => {
-          // Only include items with real issues (not packaging variances) that are unresolved
+          // Only include items with real issues (not packaging variances or within-tolerance partials) that are unresolved
           if (item.issue && item.resolutionStatus !== 'resolved' && !item.expectedVariance) {
+            // Skip partial items that are within tolerance (±12.5%)
+            if (item.issue === 'partial' && isWithinTolerance(item.orderedQty, item.receivedQty)) {
+              return
+            }
+
             const receivedQty = item.receivedQty ?? 0
             const stillToSend = item.orderedQty - receivedQty
-            
+
             if (stillToSend > 0) {
               items.push({
                 branchSlug: bd.branchSlug,
@@ -105,22 +125,27 @@ export function FollowUpModal({
   const selectedItems = unresolvedItems.filter(i => i.selected)
   const selectedBranches = new Set(selectedItems.map(i => i.branchSlug))
   
-  // Calculate excluded packaging variances
-  const excludedPackagingCount = useMemo(() => {
-    if (!dispatch) return 0
-    let count = 0
+  // Calculate excluded items (packaging variances and within-tolerance partials)
+  const excludedCounts = useMemo(() => {
+    if (!dispatch) return { packaging: 0, tolerance: 0 }
+    let packaging = 0
+    let tolerance = 0
     dispatch.branchDispatches.forEach(bd => {
       bd.items.forEach(item => {
-        if (item.issue && item.resolutionStatus !== 'resolved' && item.expectedVariance === true) {
+        if (item.issue && item.resolutionStatus !== 'resolved') {
           const receivedQty = item.receivedQty ?? 0
           const stillToSend = item.orderedQty - receivedQty
           if (stillToSend > 0) {
-            count++
+            if (item.expectedVariance === true) {
+              packaging++
+            } else if (item.issue === 'partial' && isWithinTolerance(item.orderedQty, item.receivedQty)) {
+              tolerance++
+            }
           }
         }
       })
     })
-    return count
+    return { packaging, tolerance }
   }, [dispatch])
 
   const toggleBranch = (branchSlug: string) => {
@@ -365,11 +390,18 @@ export function FollowUpModal({
                   </div>
                 </div>
                 
-                {/* Packaging Variances Info */}
-                {excludedPackagingCount > 0 && (
+                {/* Excluded Items Info */}
+                {(excludedCounts.packaging > 0 || excludedCounts.tolerance > 0) && (
                   <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
                     <p className="text-amber-800">
-                      ⓘ <strong>{excludedPackagingCount}</strong> packaging variance{excludedPackagingCount !== 1 ? 's' : ''} excluded (expected due to whole units only)
+                      ⓘ Excluded from follow-up:{' '}
+                      {excludedCounts.packaging > 0 && (
+                        <><strong>{excludedCounts.packaging}</strong> packaging variance{excludedCounts.packaging !== 1 ? 's' : ''}</>
+                      )}
+                      {excludedCounts.packaging > 0 && excludedCounts.tolerance > 0 && ', '}
+                      {excludedCounts.tolerance > 0 && (
+                        <><strong>{excludedCounts.tolerance}</strong> within tolerance (±12.5%)</>
+                      )}
                     </p>
                   </div>
                 )}

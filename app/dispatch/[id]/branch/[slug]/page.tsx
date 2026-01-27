@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
@@ -36,6 +37,10 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
   const [packedBy, setPackedBy] = useState('')
   const [overallNotes, setOverallNotes] = useState('')
   const router = useRouter()
+  const { user } = useAuth()
+
+  // Auto-populate signature fields with user's full name
+  const userFullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''
   
   // Determine mode based on status
   const mode = branchDispatch?.status === 'pending' || branchDispatch?.status === 'packing' 
@@ -57,6 +62,16 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
   useEffect(() => {
     fetchDispatch()
   }, [params.id, params.slug])
+
+  // Set signature fields to user's name when user loads
+  useEffect(() => {
+    if (userFullName && !packedBy) {
+      setPackedBy(userFullName)
+    }
+    if (userFullName && !receivedBy) {
+      setReceivedBy(userFullName)
+    }
+  }, [userFullName])
 
   const fetchDispatch = async () => {
     try {
@@ -695,14 +710,15 @@ export default function ReceivingChecklistPage({ params }: ReceivingPageProps) {
               {!isCompleted && (
                 <div>
                   <label className="text-xs md:text-sm font-medium mb-1.5 md:mb-2 block">
-                    {mode === 'packing' ? 'Packed By: *' : 'Received By: *'}
+                    {mode === 'packing' ? 'Packed By:' : 'Received By:'}
                   </label>
-                  <Input
-                    placeholder="Enter your name"
-                    value={mode === 'packing' ? packedBy : receivedBy}
-                    onChange={(e) => mode === 'packing' ? setPackedBy(e.target.value) : setReceivedBy(e.target.value)}
-                    className="h-9 md:h-10 text-sm"
-                  />
+                  <div className="h-9 md:h-10 px-3 flex items-center bg-muted rounded-md border text-sm font-medium">
+                    {mode === 'packing' ? packedBy : receivedBy}
+                    {!userFullName && <span className="text-muted-foreground italic">Loading user...</span>}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Automatically signed with your account name
+                  </p>
                 </div>
               )}
 

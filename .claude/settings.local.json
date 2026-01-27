@@ -5,7 +5,13 @@
       "Bash(grep:*)",
       "Bash(npx tsc:*)",
       "Bash(node scripts/run-migration.js:*)",
-      "Bash(node scripts/migrate-station-assignment.mjs:*)"
+      "Bash(node scripts/migrate-station-assignment.mjs:*)",
+      "Bash(npx next lint:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run lint)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)"
     ]
   }
 }

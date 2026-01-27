@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -66,6 +66,9 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
   // Progress tracking
   const [checkProgress, setCheckProgress] = useState(0)
   const [currentStage, setCurrentStage] = useState('')
+  const progressRef = useRef(0)
+  const stageRef = useRef(0)
+  const isCompletedRef = useRef(false)
 
   // Load existing check when component mounts or schedule changes
   useEffect(() => {
@@ -142,42 +145,49 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
     setCurrentStage('Initializing check...')
     console.log('Running new inventory check for schedule:', scheduleId)
     
-    // Smooth progress animation
-    let currentProgress = 0
+    // Reset refs
+    progressRef.current = 0
+    stageRef.current = 0
+    isCompletedRef.current = false
+    
     const progressStages = [
-      { target: 15, message: 'Loading production schedule...', duration: 500 },
-      { target: 35, message: 'Extracting recipe ingredients...', duration: 1200 },
-      { target: 55, message: 'Processing sub-recipes...', duration: 1500 },
-      { target: 70, message: 'Aggregating requirements...', duration: 1000 },
-      { target: 85, message: 'Comparing with inventory...', duration: 1200 },
+      { target: 15, message: 'Loading production schedule...' },
+      { target: 35, message: 'Extracting recipe ingredients...' },
+      { target: 55, message: 'Processing sub-recipes...' },
+      { target: 70, message: 'Aggregating requirements...' },
+      { target: 85, message: 'Comparing with inventory...' },
     ]
     
-    let stageIndex = 0
-    let isCompleted = false
-    
-    // Animate progress smoothly
+    // Animate progress smoothly - increment by small amounts frequently
+    console.log('Starting progress animation...')
     const progressInterval = setInterval(() => {
-      if (isCompleted || !checking) {
+      if (isCompletedRef.current) {
         clearInterval(progressInterval)
         return
       }
       
+      const stageIndex = stageRef.current
       if (stageIndex < progressStages.length) {
         const stage = progressStages[stageIndex]
         
         // Increment progress smoothly towards target
-        if (currentProgress < stage.target) {
-          currentProgress += 1
-          setCheckProgress(currentProgress)
+        if (progressRef.current < stage.target) {
+          progressRef.current += 0.15 // Small increments for smooth animation
+          const newProgress = Math.floor(Math.min(progressRef.current, stage.target))
+          setCheckProgress(newProgress)
+          if (newProgress % 5 === 0) {
+            console.log(`Progress: ${newProgress}%, Stage: ${stage.message}`)
+          }
         } else {
           // Move to next stage
-          stageIndex++
-          if (stageIndex < progressStages.length) {
-            setCurrentStage(progressStages[stageIndex].message)
+          stageRef.current++
+          if (stageRef.current < progressStages.length) {
+            console.log(`Moving to stage ${stageRef.current}: ${progressStages[stageRef.current].message}`)
+            setCurrentStage(progressStages[stageRef.current].message)
           }
         }
       }
-    }, 80) // Update every 80ms for smooth animation
+    }, 200) // Update every 200ms
     
     try {
       const response = await fetch('/api/inventory-check/run', {
@@ -187,12 +197,12 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
       })
       
       clearInterval(progressInterval)
-      isCompleted = true
+      isCompletedRef.current = true
       
       if (response.ok) {
         // Quickly finish the progress bar
         setCurrentStage('Processing results...')
-        for (let i = currentProgress; i <= 95; i += 5) {
+        for (let i = Math.floor(progressRef.current); i <= 95; i += 5) {
           setCheckProgress(i)
           await new Promise(resolve => setTimeout(resolve, 50))
         }
@@ -215,7 +225,7 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
       }
     } catch (error) {
       clearInterval(progressInterval)
-      isCompleted = true
+      isCompletedRef.current = true
       console.error('Error running check:', error)
       setCurrentStage('Error occurred. Please try again.')
       await new Promise(resolve => setTimeout(resolve, 2000))
@@ -230,13 +240,24 @@ export function InventoryStatusWidget({ scheduleId, scheduleName }: InventorySta
     // Group shortages by production date
     const shortagesByDate = new Map<string, ShortageDetail[]>()
     
+    console.log('Processing check result with', result.shortages?.length || 0, 'shortages')
+    
     for (const shortage of result.shortages || []) {
-      const date = shortage.production_date || result.productionDates[0]
+      // Try both property names (snake_case from DB and camelCase from code)
+      const date = shortage.productionDate || shortage.production_date
+      
+      if (!date) {
+        console.warn('Shortage missing production date:', shortage)
+        continue // Skip shortages without dates instead of defaulting to first day
+      }
+      
       if (!shortagesByDate.has(date)) {
         shortagesByDate.set(date, [])
       }
       shortagesByDate.get(date)!.push(shortage)
     }
+    
+    console.log('Shortages grouped by date:', Array.from(shortagesByDate.entries()).map(([date, items]) => `${date}: ${items.length}`))
 
     // Create day statuses
     const statuses: DayStatus[] = result.productionDates.map((date: string) => {

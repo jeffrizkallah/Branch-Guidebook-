@@ -13,9 +13,9 @@ import { AddItemModal } from '@/components/AddItemModal'
 import { FollowUpModal } from '@/components/FollowUpModal'
 import { PackingProgressOverview } from '@/components/PackingProgressOverview'
 import { useAuth } from '@/hooks/useAuth'
-import { 
-  ArrowLeft, 
-  AlertTriangle, 
+import {
+  ArrowLeft,
+  AlertTriangle,
   CheckCircle2,
   XCircle,
   Package,
@@ -30,9 +30,43 @@ import {
   Plus,
   RefreshCw,
   ExternalLink,
-  CalendarClock
+  CalendarClock,
+  Trash2,
+  Scale,
+  CheckSquare,
+  Square,
+  MinusSquare
 } from 'lucide-react'
 import type { Dispatch, BranchDispatch, DispatchItem } from '@/lib/data'
+
+// Tolerance threshold for partial deliveries (12.5%)
+// Items within 87.5% to 112.5% of ordered qty won't be flagged as issues
+const TOLERANCE_PERCENT = 12.5
+
+/**
+ * Check if a partial item is within acceptable tolerance
+ * Returns true if the received quantity is within tolerance of ordered quantity
+ */
+const isWithinTolerance = (orderedQty: number, receivedQty: number | null): boolean => {
+  if (receivedQty === null || orderedQty === 0) return false
+  const ratio = receivedQty / orderedQty
+  const lowerBound = 1 - (TOLERANCE_PERCENT / 100)
+  const upperBound = 1 + (TOLERANCE_PERCENT / 100)
+  return ratio >= lowerBound && ratio <= upperBound
+}
+
+/**
+ * Check if an item should be considered a "real" issue
+ * Partial items within tolerance are not considered real issues
+ */
+const isRealIssue = (item: DispatchItem): boolean => {
+  if (!item.issue) return false
+  if (item.expectedVariance) return false
+  if (item.issue === 'partial' && isWithinTolerance(item.orderedQty, item.receivedQty)) {
+    return false
+  }
+  return true
+}
 
 interface ReportPageProps {
   params: {
@@ -55,6 +89,12 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const [addItemModalOpen, setAddItemModalOpen] = useState(false)
   const [addItemPreselectedBranch, setAddItemPreselectedBranch] = useState<string | undefined>(undefined)
   const [followUpModalOpen, setFollowUpModalOpen] = useState(false)
+  const [removingItem, setRemovingItem] = useState<{ branchSlug: string; itemId: string; itemName: string; branchName: string } | null>(null)
+  const [removeLoading, setRemoveLoading] = useState(false)
+  // State for bulk issue dismissal
+  const [selectedIssueItems, setSelectedIssueItems] = useState<Record<string, Set<string>>>({})
+  const [dismissingIssues, setDismissingIssues] = useState<{ branchSlug: string; branchName: string; itemCount: number } | null>(null)
+  const [dismissLoading, setDismissLoading] = useState(false)
   const router = useRouter()
   const isPrintMode = searchParams.print === '1'
   const { canEdit } = useAuth()
@@ -78,6 +118,111 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     }
   }
 
+  const handleRemoveItem = async () => {
+    if (!removingItem || !dispatch) return
+
+    setRemoveLoading(true)
+    try {
+      const response = await fetch(`/api/dispatch/${dispatch.id}/remove-item`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branchSlug: removingItem.branchSlug,
+          itemId: removingItem.itemId
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to remove item')
+      }
+
+      // Refresh dispatch data
+      await fetchDispatch()
+      setRemovingItem(null)
+    } catch (error) {
+      console.error('Error removing item:', error)
+      alert(error instanceof Error ? error.message : 'Failed to remove item')
+    } finally {
+      setRemoveLoading(false)
+    }
+  }
+
+  // Toggle selection of a single issue item
+  const toggleIssueItemSelection = (branchSlug: string, itemId: string) => {
+    setSelectedIssueItems(prev => {
+      const branchSet = new Set(prev[branchSlug] || [])
+      if (branchSet.has(itemId)) {
+        branchSet.delete(itemId)
+      } else {
+        branchSet.add(itemId)
+      }
+      return { ...prev, [branchSlug]: branchSet }
+    })
+  }
+
+  // Select all issue items for a branch
+  const selectAllIssueItems = (branchSlug: string, itemIds: string[]) => {
+    setSelectedIssueItems(prev => ({
+      ...prev,
+      [branchSlug]: new Set(itemIds)
+    }))
+  }
+
+  // Deselect all issue items for a branch
+  const deselectAllIssueItems = (branchSlug: string) => {
+    setSelectedIssueItems(prev => ({
+      ...prev,
+      [branchSlug]: new Set()
+    }))
+  }
+
+  // Get selection count for a branch
+  const getSelectedCount = (branchSlug: string): number => {
+    return selectedIssueItems[branchSlug]?.size || 0
+  }
+
+  // Check if an item is selected
+  const isItemSelected = (branchSlug: string, itemId: string): boolean => {
+    return selectedIssueItems[branchSlug]?.has(itemId) || false
+  }
+
+  // Handle dismissing issues for selected items
+  const handleDismissIssues = async () => {
+    if (!dismissingIssues || !dispatch) return
+
+    setDismissLoading(true)
+    try {
+      const selectedIds = Array.from(selectedIssueItems[dismissingIssues.branchSlug] || [])
+
+      const response = await fetch(`/api/dispatch/${dispatch.id}/dismiss-issues`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branchSlug: dismissingIssues.branchSlug,
+          itemIds: selectedIds
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to dismiss issues')
+      }
+
+      // Clear selection for this branch
+      deselectAllIssueItems(dismissingIssues.branchSlug)
+
+      // Refresh dispatch data
+      await fetchDispatch()
+      setDismissingIssues(null)
+    } catch (error) {
+      console.error('Error dismissing issues:', error)
+      alert(error instanceof Error ? error.message : 'Failed to dismiss issues')
+    } finally {
+      setDismissLoading(false)
+    }
+  }
+
   // Get follow-up dispatches for this dispatch
   const followUpDispatches = allDispatches.filter(
     d => dispatch?.followUpDispatchIds?.includes(d.id)
@@ -88,12 +233,12 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     ? allDispatches.find(d => d.id === dispatch.parentDispatchId)
     : null
 
-  // Count unresolved real issues (items that could go into a follow-up, excluding packaging variances)
+  // Count unresolved real issues (items that could go into a follow-up, excluding packaging variances and items within tolerance)
   const unresolvedIssueCount = dispatch?.branchDispatches.reduce((count, bd) => {
-    return count + bd.items.filter(item => 
-      item.issue && 
+    return count + bd.items.filter(item =>
+      item.issue &&
       item.resolutionStatus !== 'resolved' &&
-      !item.expectedVariance &&
+      isRealIssue(item) &&
       (item.orderedQty - (item.receivedQty ?? 0)) > 0
     ).length
   }, 0) ?? 0
@@ -254,12 +399,15 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
   const inProgressBranches = dispatch.branchDispatches.filter(bd => bd.status === 'receiving').length
 
   // Issue statistics
-  const allItems = dispatch.branchDispatches.flatMap(bd => 
+  const allItems = dispatch.branchDispatches.flatMap(bd =>
     bd.items.map(item => ({ ...item, branchName: bd.branchName, branchSlug: bd.branchSlug }))
   )
   const itemsWithIssues = allItems.filter(item => item.issue !== null)
-  const realIssues = itemsWithIssues.filter(item => !item.expectedVariance)
+  const realIssues = itemsWithIssues.filter(item => isRealIssue(item))
   const packagingVariances = itemsWithIssues.filter(item => item.expectedVariance === true)
+  const withinToleranceItems = itemsWithIssues.filter(item =>
+    item.issue === 'partial' && isWithinTolerance(item.orderedQty, item.receivedQty)
+  )
   const missingItems = itemsWithIssues.filter(item => item.issue === 'missing')
   const damagedItems = itemsWithIssues.filter(item => item.issue === 'damaged')
   const partialItems = itemsWithIssues.filter(item => item.issue === 'partial')
@@ -274,17 +422,17 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
       ...bd,
       items: bd.items.filter(item => {
         // First filter by issue type
-        const matchesIssueType = filterIssueType === 'all' 
-          ? item.issue !== null 
+        const matchesIssueType = filterIssueType === 'all'
+          ? item.issue !== null
           : item.issue === filterIssueType
-        
+
         if (!matchesIssueType) return false
-        
+
         // Then filter by real issues vs all
         if (issueViewFilter === 'real') {
-          return !item.expectedVariance
+          return isRealIssue(item)
         }
-        
+
         return true
       })
     }))
@@ -320,7 +468,17 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
     })
   }
 
-  const getIssueTypeBadge = (issueType: 'missing' | 'damaged' | 'partial' | 'shortage') => {
+  const getIssueTypeBadge = (issueType: 'missing' | 'damaged' | 'partial' | 'shortage', item?: DispatchItem) => {
+    // Check if this is a partial item within tolerance
+    if (item && issueType === 'partial' && isWithinTolerance(item.orderedQty, item.receivedQty)) {
+      return (
+        <Badge className="bg-teal-500 text-white flex items-center gap-1">
+          <Scale className="h-3 w-3" />
+          Within Tolerance
+        </Badge>
+      )
+    }
+
     const config = {
       missing: { color: 'bg-red-500', label: 'Missing', icon: XCircle },
       damaged: { color: 'bg-orange-500', label: 'Damaged', icon: AlertTriangle },
@@ -556,7 +714,11 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                   <div className="text-2xl font-bold text-yellow-600">{partialItems.length}</div>
                   <div className="text-xs text-muted-foreground mt-1">Partial Deliveries</div>
                   <div className="text-[10px] text-muted-foreground mt-2">
-                    {damagedItems.length} damaged items
+                    {withinToleranceItems.length > 0 ? (
+                      <span className="text-teal-600">{withinToleranceItems.length} within tolerance</span>
+                    ) : (
+                      <>{damagedItems.length} damaged items</>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -596,9 +758,12 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                         Show All ({itemsWithIssues.length})
                       </Button>
                     </div>
-                    {packagingVariances.length > 0 && (
+                    {(packagingVariances.length > 0 || withinToleranceItems.length > 0) && (
                       <span className="text-xs text-muted-foreground">
-                        ⓘ {packagingVariances.length} packaging variance{packagingVariances.length !== 1 ? 's' : ''} {issueViewFilter === 'real' ? 'excluded' : 'included'}
+                        ⓘ {issueViewFilter === 'real' ? 'Excluding: ' : 'Including: '}
+                        {packagingVariances.length > 0 && `${packagingVariances.length} packaging`}
+                        {packagingVariances.length > 0 && withinToleranceItems.length > 0 && ', '}
+                        {withinToleranceItems.length > 0 && `${withinToleranceItems.length} within tolerance (±12.5%)`}
                       </span>
                     )}
                   </div>
@@ -797,11 +962,88 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                       
                       {isIssueExpanded && (
                         <CardContent>
+                          {/* Bulk Actions Bar */}
+                          {canAddItems && (
+                            <div className="mb-4 flex items-center justify-between bg-muted/50 p-3 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium">
+                                  {getSelectedCount(bd.branchSlug) > 0 ? (
+                                    <>{getSelectedCount(bd.branchSlug)} of {bd.items.length} selected</>
+                                  ) : (
+                                    <>Select items to dismiss as not an issue</>
+                                  )}
+                                </span>
+                                {bd.items.length > 0 && (
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => selectAllIssueItems(bd.branchSlug, bd.items.map(i => i.id))}
+                                      className="text-xs"
+                                    >
+                                      Select All
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deselectAllIssueItems(bd.branchSlug)}
+                                      className="text-xs"
+                                      disabled={getSelectedCount(bd.branchSlug) === 0}
+                                    >
+                                      Clear
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                              {getSelectedCount(bd.branchSlug) > 0 && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setDismissingIssues({
+                                    branchSlug: bd.branchSlug,
+                                    branchName: bd.branchName,
+                                    itemCount: getSelectedCount(bd.branchSlug)
+                                  })}
+                                  className="bg-teal-50 border-teal-300 text-teal-700 hover:bg-teal-100"
+                                >
+                                  <CheckSquare className="h-4 w-4 mr-2" />
+                                  Mark {getSelectedCount(bd.branchSlug)} as Not an Issue
+                                </Button>
+                              )}
+                            </div>
+                          )}
+
                           {/* Issues Table */}
                           <div className="border rounded-lg overflow-auto max-h-[600px]">
                             <table className="w-full">
                               <thead className="bg-muted sticky top-0 z-10">
                                 <tr>
+                                  {canAddItems && (
+                                    <th className="text-center p-3 font-medium bg-muted w-12">
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          const allIds = bd.items.map(i => i.id)
+                                          const allSelected = allIds.every(id => isItemSelected(bd.branchSlug, id))
+                                          if (allSelected) {
+                                            deselectAllIssueItems(bd.branchSlug)
+                                          } else {
+                                            selectAllIssueItems(bd.branchSlug, allIds)
+                                          }
+                                        }}
+                                        className="hover:bg-muted-foreground/10 p-1 rounded"
+                                        title={bd.items.every(i => isItemSelected(bd.branchSlug, i.id)) ? "Deselect all" : "Select all"}
+                                      >
+                                        {bd.items.length > 0 && bd.items.every(i => isItemSelected(bd.branchSlug, i.id)) ? (
+                                          <CheckSquare className="h-4 w-4 text-primary" />
+                                        ) : bd.items.some(i => isItemSelected(bd.branchSlug, i.id)) ? (
+                                          <MinusSquare className="h-4 w-4 text-primary" />
+                                        ) : (
+                                          <Square className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                      </button>
+                                    </th>
+                                  )}
                                   <th className="text-left p-3 font-medium bg-muted">Item Name</th>
                                   <th className="text-center p-3 font-medium bg-muted">Ordered</th>
                                   <th className="text-center p-3 font-medium bg-muted">Packed</th>
@@ -811,6 +1053,9 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                   <th className="text-center p-3 font-medium bg-muted">Issue Type</th>
                                   <th className="text-center p-3 font-medium bg-muted">Resolution</th>
                                   <th className="text-left p-3 font-medium bg-muted">Notes</th>
+                                  {canAddItems && (bd.status === 'pending' || bd.status === 'packing') && (
+                                    <th className="text-center p-3 font-medium bg-muted w-16">Actions</th>
+                                  )}
                                 </tr>
                               </thead>
                               <tbody>
@@ -827,7 +1072,27 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                     : null
                                   
                                   return (
-                                    <tr key={item.id} className="border-t hover:bg-muted/50">
+                                    <tr
+                                      key={item.id}
+                                      className={`border-t hover:bg-muted/50 ${isItemSelected(bd.branchSlug, item.id) ? 'bg-teal-50' : ''}`}
+                                    >
+                                      {canAddItems && (
+                                        <td className="p-3 text-center">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              toggleIssueItemSelection(bd.branchSlug, item.id)
+                                            }}
+                                            className="hover:bg-muted-foreground/10 p-1 rounded"
+                                          >
+                                            {isItemSelected(bd.branchSlug, item.id) ? (
+                                              <CheckSquare className="h-4 w-4 text-teal-600" />
+                                            ) : (
+                                              <Square className="h-4 w-4 text-muted-foreground" />
+                                            )}
+                                          </button>
+                                        </td>
+                                      )}
                                       <td className="p-3">
                                           <div className="flex items-center gap-2">
                                             <span className="font-medium">{item.name}</span>
@@ -863,7 +1128,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                       </td>
                                       <td className="p-3 text-center text-sm text-muted-foreground">{item.orderedQty > 150 ? 'unit' : 'KG'}</td>
                                       <td className="p-3 text-center">
-                                        {item.issue && getIssueTypeBadge(item.issue)}
+                                        {item.issue && getIssueTypeBadge(item.issue, item)}
                                       </td>
                                       <td className="p-3 text-center">
                                         {item.resolutionStatus === 'resolved' ? (
@@ -890,6 +1155,27 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                       <td className="p-3 text-sm">
                                         {item.notes || <span className="text-muted-foreground italic">No notes</span>}
                                       </td>
+                                      {canAddItems && (bd.status === 'pending' || bd.status === 'packing') && (
+                                        <td className="p-3 text-center">
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setRemovingItem({
+                                                branchSlug: bd.branchSlug,
+                                                itemId: item.id,
+                                                itemName: item.name,
+                                                branchName: bd.branchName
+                                              })
+                                            }}
+                                            title={`Remove ${item.name}`}
+                                          >
+                                            <Trash2 className="h-4 w-4" />
+                                          </Button>
+                                        </td>
+                                      )}
                                     </tr>
                                   )
                                 })}
@@ -1051,6 +1337,9 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                   <th className="text-center p-3 font-medium bg-muted">Unit</th>
                                   <th className="text-center p-3 font-medium bg-muted">Status</th>
                                   <th className="text-left p-3 font-medium bg-muted">Notes</th>
+                                  {canAddItems && (bd.status === 'pending' || bd.status === 'packing') && (
+                                    <th className="text-center p-3 font-medium bg-muted w-16">Actions</th>
+                                  )}
                                 </tr>
                               </thead>
                               <tbody>
@@ -1104,7 +1393,7 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                         <td className="p-3 text-center text-sm text-muted-foreground">{item.orderedQty > 150 ? 'unit' : 'KG'}</td>
                                         <td className="p-3 text-center">
                                           {hasIssue ? (
-                                            getIssueTypeBadge(item.issue!)
+                                            getIssueTypeBadge(item.issue!, item)
                                           ) : isPerfect ? (
                                             <Badge className="bg-green-500 text-white flex items-center gap-1 w-fit mx-auto">
                                               <CheckCircle2 className="h-3 w-3" />
@@ -1123,6 +1412,27 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
                                         <td className="p-3 text-sm">
                                           {item.notes || <span className="text-muted-foreground italic">No notes</span>}
                                         </td>
+                                        {canAddItems && (bd.status === 'pending' || bd.status === 'packing') && (
+                                          <td className="p-3 text-center">
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                              onClick={(e) => {
+                                                e.stopPropagation()
+                                                setRemovingItem({
+                                                  branchSlug: bd.branchSlug,
+                                                  itemId: item.id,
+                                                  itemName: item.name,
+                                                  branchName: bd.branchName
+                                                })
+                                              }}
+                                              title={`Remove ${item.name}`}
+                                            >
+                                              <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                          </td>
+                                        )}
                                       </tr>
                                     )
                                   })}
@@ -1173,6 +1483,97 @@ export default function DispatchReportPage({ params, searchParams }: ReportPageP
           dispatch={dispatch}
           onFollowUpCreated={fetchDispatch}
         />
+      )}
+
+      {/* Remove Item Confirmation Dialog */}
+      {removingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => !removeLoading && setRemovingItem(null)}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-2">Remove Item</h3>
+            <p className="text-muted-foreground mb-4">
+              Are you sure you want to remove <span className="font-medium text-foreground">{removingItem.itemName}</span> from <span className="font-medium text-foreground">{removingItem.branchName}</span>?
+            </p>
+            <p className="text-sm text-amber-600 mb-4">
+              This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setRemovingItem(null)}
+                disabled={removeLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleRemoveItem}
+                disabled={removeLoading}
+                className="flex items-center gap-2"
+              >
+                {removeLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Removing...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Remove
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dismiss Issues Confirmation Dialog */}
+      {dismissingIssues && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => !dismissLoading && setDismissingIssues(null)}
+          />
+          <div className="relative bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-2">Dismiss Issues</h3>
+            <p className="text-muted-foreground mb-4">
+              Are you sure you want to mark <span className="font-medium text-foreground">{dismissingIssues.itemCount} item{dismissingIssues.itemCount > 1 ? 's' : ''}</span> in <span className="font-medium text-foreground">{dismissingIssues.branchName}</span> as not having issues?
+            </p>
+            <p className="text-sm text-teal-600 mb-4">
+              These items will no longer appear in the issues list. Use this to clean up false positives and focus on real issues.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setDismissingIssues(null)}
+                disabled={dismissLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDismissIssues}
+                disabled={dismissLoading}
+                className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"
+              >
+                {dismissLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Dismissing...
+                  </>
+                ) : (
+                  <>
+                    <CheckSquare className="h-4 w-4" />
+                    Dismiss Issues
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

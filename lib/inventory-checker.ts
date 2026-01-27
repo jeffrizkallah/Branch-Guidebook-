@@ -294,30 +294,14 @@ async function findInventoryMatch(
 }
 
 /**
- * Compare required ingredients against inventory
+ * Compare required ingredients against inventory with running inventory tracking
  */
 async function compareWithInventory(
   requiredIngredients: AggregatedIngredient[],
-  productionDate: string
-): Promise<{ shortages: ShortageResult[]; inventoryDate: string | null }> {
-  // Get latest inventory for Central Kitchen
-  const inventoryResult = await sql`
-    SELECT 
-      item,
-      quantity,
-      unit,
-      inventory_date
-    FROM branch_inventory
-    WHERE branch = 'Central Kitchen'
-      AND inventory_date = (
-        SELECT MAX(inventory_date)
-        FROM branch_inventory
-        WHERE branch = 'Central Kitchen'
-      )
-  `
-  
-  const inventory = inventoryResult.rows as InventoryItem[]
-  const inventoryDate = inventory.length > 0 ? inventory[0].inventory_date : null
+  productionDate: string,
+  runningInventory: Map<string, { quantity: number; unit: string; baseQuantity: number; baseUnit: string; item: string }>,
+  staticInventory: InventoryItem[]
+): Promise<ShortageResult[]> {
   const shortages: ShortageResult[] = []
   
   // Calculate days until production
@@ -326,19 +310,36 @@ async function compareWithInventory(
   const daysUntilProduction = Math.ceil((prodDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
   
   for (const ingredient of requiredIngredients) {
-    const inventoryItem = await findInventoryMatch(ingredient.name, inventory)
+    const inventoryItem = await findInventoryMatch(ingredient.name, staticInventory)
     
-    let availableQuantity = 0
     let availableBaseQuantity = 0
+    let inventoryItemName: string | null = null
     
     if (inventoryItem) {
-      availableQuantity = inventoryItem.quantity
-      const { baseQuantity } = convertToBaseUnit(availableQuantity, inventoryItem.unit)
-      availableBaseQuantity = baseQuantity
+      inventoryItemName = inventoryItem.item
+      // Use the inventory item's original base unit from when it was stored
+      const { baseUnit: invBaseUnit } = convertToBaseUnit(inventoryItem.quantity, inventoryItem.unit)
+      const key = `${inventoryItem.item.toLowerCase()}:${invBaseUnit}`
+      const runningItem = runningInventory.get(key)
+      
+      if (runningItem) {
+        if (runningItem.baseUnit === ingredient.baseUnit) {
+          // Units match - we can compare directly
+          availableBaseQuantity = runningItem.baseQuantity
+        } else {
+          // Units don't match (e.g., weight vs volume) - incompatible, treat as unavailable
+          availableBaseQuantity = 0
+        }
+      } else {
+        // Not in running inventory (might have been a fuzzy match that doesn't exist in inventory)
+        availableBaseQuantity = 0
+      }
     }
     
     const shortfall = ingredient.baseQuantity - availableBaseQuantity
-    const shortfallPercent = (shortfall / ingredient.baseQuantity) * 100
+    const shortfallPercent = availableBaseQuantity > 0 
+      ? (shortfall / ingredient.baseQuantity) * 100 
+      : 100
     
     // Determine status
     let status: 'MISSING' | 'PARTIAL' | 'CRITICAL' | 'SUFFICIENT'
@@ -364,11 +365,27 @@ async function compareWithInventory(
       priority = 'LOW'
     }
     
+    // Deduct consumed amount from running inventory
+    if (inventoryItem) {
+      const { baseUnit: invBaseUnit } = convertToBaseUnit(inventoryItem.quantity, inventoryItem.unit)
+      const key = `${inventoryItem.item.toLowerCase()}:${invBaseUnit}`
+      const runningItem = runningInventory.get(key)
+      
+      if (runningItem && runningItem.baseUnit === ingredient.baseUnit) {
+        // Deduct what we used (or what was available if not enough)
+        const consumed = Math.min(ingredient.baseQuantity, runningItem.baseQuantity)
+        runningItem.baseQuantity -= consumed
+        
+        // Update the map
+        runningInventory.set(key, runningItem)
+      }
+    }
+    
     // Only add to shortages if there's actually a shortage
     if (status !== 'SUFFICIENT') {
       shortages.push({
         ingredient: ingredient.name,
-        inventoryItem: inventoryItem?.item || null,
+        inventoryItem: inventoryItemName,
         required: Math.round(ingredient.baseQuantity * 100) / 100,
         available: Math.round(availableBaseQuantity * 100) / 100,
         shortfall: Math.round(shortfall * 100) / 100,
@@ -382,7 +399,7 @@ async function compareWithInventory(
     }
   }
   
-  return { shortages, inventoryDate }
+  return shortages
 }
 
 /**
@@ -403,15 +420,51 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
   }
   
   const schedule = scheduleResult.rows[0].schedule_data
+  
+  // Get latest inventory for Central Kitchen ONCE at the beginning
+  const inventoryResult = await sql`
+    SELECT 
+      item,
+      quantity,
+      unit,
+      inventory_date
+    FROM branch_inventory
+    WHERE branch = 'Central Kitchen'
+      AND inventory_date = (
+        SELECT MAX(inventory_date)
+        FROM branch_inventory
+        WHERE branch = 'Central Kitchen'
+      )
+  `
+  
+  const staticInventory = inventoryResult.rows as InventoryItem[]
+  const inventoryDate = staticInventory.length > 0 ? staticInventory[0].inventory_date : null
+  
+  // Initialize running inventory - this will track consumption day by day
+  const runningInventory = new Map<string, { quantity: number; unit: string; baseQuantity: number; baseUnit: string; item: string }>()
+  
+  for (const invItem of staticInventory) {
+    const { baseQuantity, baseUnit } = convertToBaseUnit(invItem.quantity, invItem.unit)
+    const key = `${invItem.item.toLowerCase()}:${baseUnit}`
+    runningInventory.set(key, {
+      quantity: invItem.quantity,
+      unit: invItem.unit,
+      baseQuantity,
+      baseUnit,
+      item: invItem.item
+    })
+  }
+  
   const productionDates: string[] = []
   const allShortages: ShortageResult[] = []
   let totalIngredients = 0
-  let inventoryDate: string | null = null
   
   // Process each day separately to get accurate per-day shortages
   for (const day of schedule.days) {
     productionDates.push(day.date)
     const dayIngredients: FlattenedIngredient[] = []
+    
+    console.log(`\n📅 Processing day: ${day.date}`)
     
     // Extract ingredients for this specific day
     for (const item of day.items) {
@@ -443,13 +496,13 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
     const aggregated = aggregateIngredients(dayIngredients)
     totalIngredients += aggregated.length
     
-    // Compare this day's requirements with inventory
-    const { shortages, inventoryDate: invDate } = await compareWithInventory(aggregated, day.date)
+    console.log(`  - Ingredients needed: ${aggregated.length}`)
     
-    // Keep track of inventory date from first check
-    if (!inventoryDate && invDate) {
-      inventoryDate = invDate
-    }
+    // Compare this day's requirements with running inventory
+    // This will also deduct consumed ingredients from runningInventory
+    const shortages = await compareWithInventory(aggregated, day.date, runningInventory, staticInventory)
+    
+    console.log(`  - Shortages found: ${shortages.length}`)
     
     // Add this day's shortages to the overall list
     allShortages.push(...shortages)
@@ -486,15 +539,21 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
       partial_ingredients_count, sufficient_ingredients_count,
       overall_status, checked_by, check_type
     ) VALUES (
-      ${checkId}, ${scheduleId}, ${JSON.stringify(productionDates)}, 'COMPLETED',
+      ${checkId}, ${scheduleId}, ${productionDates}, 'COMPLETED',
       ${totalIngredients}, ${missing}, ${partial}, ${sufficient},
       ${overallStatus}, ${userId || 'system'}, ${userId ? 'MANUAL' : 'AUTOMATIC'}
     )
   `
   
   // Save shortages to database
+  console.log(`💾 Saving ${shortages.length} shortages to database...`)
+  
   for (const shortage of shortages) {
     const shortageId = `shortage-${checkId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    
+    if (!shortage.productionDate) {
+      console.error('⚠️ Shortage missing productionDate:', shortage.ingredient)
+    }
     
     await sql`
       INSERT INTO ingredient_shortages (
@@ -513,6 +572,8 @@ export async function runInventoryCheck(scheduleId: string, userId?: string): Pr
       )
     `
   }
+  
+  console.log(`✅ All shortages saved to database`)
   
   console.log(`✅ Check complete: ${overallStatus} (${missing} missing, ${partial} partial, ${sufficient} sufficient)`)
   
@@ -570,6 +631,14 @@ export async function getLatestCheck(scheduleId: string): Promise<CheckResult | 
     affected_production_items: row.affected_production_items,
     production_date: row.production_date
   }))
+  
+  // Log date distribution for debugging
+  const dateCount = new Map<string, number>()
+  for (const shortage of shortages) {
+    const date = shortage.production_date || 'NO_DATE'
+    dateCount.set(date, (dateCount.get(date) || 0) + 1)
+  }
+  console.log('📊 Shortages by date from DB:', Array.from(dateCount.entries()))
   
   return {
     checkId: check.check_id,
