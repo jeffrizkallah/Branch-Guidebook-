@@ -11,7 +11,10 @@
       "Bash(npx eslint:*)",
       "Bash(npm run lint)",
       "Bash(git diff:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd dispatch management features with issue dismissal and item removal\n\n- Add API endpoints for dismissing issues and removing items from dispatch\n- Enhance dispatch report page with improved functionality\n- Update inventory checker and status widget\n- Improve FollowUpModal and RolePreviewBanner components\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix type error: stringify productionDates array for SQL insert\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

@@ -64,6 +64,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
             { href: '/admin/notifications', label: 'Notifications' },
             // { href: '/admin/chat-channels', label: 'Chat Channels' }, // Disabled for now
             { href: '/admin/analytics', label: 'Analytics' },
+            { href: '/admin/analytics/waste', label: 'Waste Analytics' },
           ]
         },
       ]
@@ -122,6 +123,7 @@ function getNavItems(role: UserRole | null, userBranches?: string[]): NavItem[] 
           subItems: [
             { href: '/regional', label: 'Dashboard' },
             { href: '/regional/analytics', label: 'Sales Analytics' },
+            { href: '/admin/analytics/waste', label: 'Waste Analytics' },
             { href: '/regional/quality-control', label: 'Quality Control' },
             { href: '/regional/budget', label: 'Budget Planner' },
           ]

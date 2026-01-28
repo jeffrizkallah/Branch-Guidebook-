@@ -36,6 +36,8 @@ import {
 } from 'lucide-react'
 import { Sparkline } from '@/components/Sparkline'
 import { DispatchTimelineWidget } from '@/components/DispatchTimelineWidget'
+import { WasteAnalyticsWidget } from '@/components/WasteAnalyticsWidget'
+import { ProductionVarianceWidget } from '@/components/ProductionVarianceWidget'
 import { cn } from '@/lib/utils'
 
 interface Branch {
@@ -1030,6 +1032,12 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Waste Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 xs:gap-4">
+        <WasteAnalyticsWidget variant="detailed" showLink={true} />
+        <ProductionVarianceWidget variant="detailed" showLink={true} />
+      </div>
 
       {/* Management Cards */}
       <div className="space-y-2 xs:space-y-3" data-tour-id="admin-quick-actions">

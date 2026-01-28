@@ -36,6 +36,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { RoleSidebar } from '@/components/RoleSidebar'
 import { Footer } from '@/components/Footer'
 import { ProductionMonitorWidget } from '@/components/operations/ProductionMonitorWidget'
+import { WasteAnalyticsWidget } from '@/components/WasteAnalyticsWidget'
+import { ProductionVarianceWidget } from '@/components/ProductionVarianceWidget'
 
 interface DashboardStats {
   recipes: number
@@ -329,6 +331,12 @@ export default function OperationsDashboardPage() {
           {/* Production Monitor Widget */}
           <div className="mb-8">
             <ProductionMonitorWidget />
+          </div>
+
+          {/* Waste Analytics Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+            <WasteAnalyticsWidget variant="summary" showLink={true} />
+            <ProductionVarianceWidget variant="ck-only" showLink={true} />
           </div>
 
           {/* Management Section */}

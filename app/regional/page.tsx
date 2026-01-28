@@ -32,6 +32,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 import { Sparkline } from '@/components/Sparkline'
 import { DispatchTimelineWidget } from '@/components/DispatchTimelineWidget'
+import { WasteAnalyticsWidget } from '@/components/WasteAnalyticsWidget'
+import { ProductionVarianceWidget } from '@/components/ProductionVarianceWidget'
 
 interface Branch {
   id: string
@@ -685,10 +687,16 @@ export default function RegionalDashboardPage() {
           </Card>
 
           {/* Dispatch Widget */}
-          <DispatchTimelineWidget 
+          <DispatchTimelineWidget
             dispatches={dispatches}
             maxBranches={12}
           />
+
+          {/* Waste Analytics Widget */}
+          <WasteAnalyticsWidget variant="summary" showLink={true} />
+
+          {/* Production Variance Widget */}
+          <ProductionVarianceWidget variant="summary" showLink={true} />
 
           {/* Budget Quick Access */}
           <Card className="border-l-4 border-l-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50">

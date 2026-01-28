@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { WasteAnalyticsWidget } from '@/components/WasteAnalyticsWidget'
 
 interface Branch {
   id: string
@@ -620,6 +621,12 @@ export default function BranchManagerDashboard() {
                 </CardContent>
               </Card>
 
+              {/* Waste Analytics Widget */}
+              <WasteAnalyticsWidget
+                variant="branch-list"
+                branches={branches.map(b => b.slug)}
+                showLink={false}
+              />
 
               {/* Recent Dispatches */}
               {dispatches.length > 0 && (
