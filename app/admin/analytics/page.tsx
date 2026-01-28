@@ -272,7 +272,14 @@ export default function EnhancedAnalyticsPage() {
       setSalesTypeData(salesTypeData)
       setMultiPeriodBranches(multiPeriodData.branches || [])
       setDailyBreakdown(dailyData.daily || [])
-      setInsights(insightsData.insights || [])
+      
+      // Sort insights: positive first, then neutral/info, then negative/alert
+      const sortedInsights = (insightsData.insights || []).sort((a: Insight, b: Insight) => {
+        const order: Record<string, number> = { positive: 0, neutral: 1, info: 1, negative: 2, alert: 2 }
+        return (order[a.type] || 3) - (order[b.type] || 3)
+      })
+      setInsights(sortedInsights)
+      
       setSubscriptionMetrics(subscriptionData)
       setProducts(productsData.topByRevenue || [])
       setCategories(categoriesData.categories || [])
