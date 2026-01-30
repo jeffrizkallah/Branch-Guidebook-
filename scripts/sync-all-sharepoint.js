@@ -167,7 +167,7 @@ const FILE_CONFIGS = {
       items: row['Items'] ? String(row['Items']).trim() : null,
       category: row['Category'] ? String(row['Category']).trim() : null,
       product_group: row['Group'] ? String(row['Group']).trim() : null,
-      quantity: parseFloat(row['Quantity']) || 0,
+      quantity: parseFloat(row['Qty']) || 0,  // Fixed: was 'Quantity', should be 'Qty'
       cost: parseFloat(row['Cost']) || 0,
       barcode: row['Barcode'] ? String(row['Barcode']).trim() : null,
     }),

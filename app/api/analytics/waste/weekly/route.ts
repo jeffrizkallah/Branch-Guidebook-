@@ -46,26 +46,39 @@ export async function GET() {
     const weekStartStr = weekStart.toISOString().split('T')[0]
     const weekEndStr = weekEnd.toISOString().split('T')[0]
 
-    // Get waste and COGS (cost of goods received) data per branch for the week
-    // Use normalized branch names for better matching between tables
-    // Calculate waste % against COGS (transfer cost) instead of revenue for more accurate metrics
+    // Calculate COGS using recipe-based costs
+    // For items with recipes, use recipe_total_cost
+    // For items without recipes, estimate cost as 30% of revenue (typical food cost %)
     const result = await sql`
-      WITH received AS (
+      WITH sales_with_cost AS (
         SELECT
-          to_branch as branch,
-          LOWER(REGEXP_REPLACE(TRIM(to_branch), '[_\\-\\s]+', ' ', 'g')) as normalized_branch,
-          COALESCE(SUM(cost), 0) as cogs
-        FROM odoo_transfer
-        WHERE effective_date >= ${weekStartStr}::date AND effective_date <= ${weekEndStr}::date
-        GROUP BY to_branch
+          s.branch,
+          s.items,
+          s.qty,
+          s.price_subtotal_with_tax as item_revenue,
+          -- Get recipe cost (using MAX to handle duplicates)
+          COALESCE(MAX(r.recipe_total_cost), 0) as unit_cost,
+          -- Calculate item COGS: qty × recipe_cost, or fallback to 30% of revenue
+          CASE
+            WHEN MAX(r.recipe_total_cost) IS NOT NULL AND MAX(r.recipe_total_cost) > 0
+            THEN s.qty * MAX(r.recipe_total_cost)
+            ELSE s.price_subtotal_with_tax * 0.30
+          END as item_cogs
+        FROM odoo_sales s
+        LEFT JOIN odoo_recipe r ON LOWER(TRIM(s.items)) = LOWER(TRIM(r.item))
+        WHERE s.date >= ${weekStartStr}::date 
+          AND s.date <= ${weekEndStr}::date
+          AND s.branch IS NOT NULL
+          AND s.branch != ''
+        GROUP BY s.id, s.branch, s.items, s.qty, s.price_subtotal_with_tax
       ),
-      sales AS (
+      branch_cogs AS (
         SELECT
           branch,
           LOWER(REGEXP_REPLACE(TRIM(branch), '[_\\-\\s]+', ' ', 'g')) as normalized_branch,
-          COALESCE(SUM(price_subtotal_with_tax), 0) as revenue
-        FROM odoo_sales
-        WHERE date >= ${weekStartStr}::date AND date <= ${weekEndStr}::date
+          SUM(item_cogs) as total_cogs,
+          SUM(item_revenue) as total_revenue
+        FROM sales_with_cost
         GROUP BY branch
       ),
       waste AS (
@@ -79,24 +92,24 @@ export async function GET() {
         GROUP BY branch
       )
       SELECT
-        COALESCE(r.branch, s.branch, w.branch) as branch,
+        COALESCE(bc.branch, w.branch) as branch,
         COALESCE(w.waste_cost, 0) as waste_amount,
-        COALESCE(r.cogs, 0) as cogs,
-        COALESCE(s.revenue, 0) as order_revenue,
+        COALESCE(bc.total_cogs, 0) as cogs,
+        COALESCE(bc.total_revenue, 0) as order_revenue,
+        COALESCE(bc.total_revenue, 0) as revenue,
         COALESCE(w.waste_records, 0) as waste_records,
         CASE
-          WHEN COALESCE(r.cogs, 0) > 0
-          THEN ROUND((COALESCE(w.waste_cost, 0) / r.cogs) * 100, 2)
+          WHEN COALESCE(bc.total_cogs, 0) > 0
+          THEN ROUND((COALESCE(w.waste_cost, 0) / bc.total_cogs) * 100, 2)
           ELSE 0
         END as waste_pct
-      FROM received r
-      FULL OUTER JOIN sales s ON r.normalized_branch = s.normalized_branch
-      FULL OUTER JOIN waste w ON COALESCE(r.normalized_branch, s.normalized_branch) = w.normalized_branch
-      WHERE COALESCE(r.branch, s.branch, w.branch) IS NOT NULL
-        AND COALESCE(r.branch, s.branch, w.branch) NOT ILIKE '%central%'
-        AND COALESCE(r.branch, s.branch, w.branch) NOT ILIKE '%kitchen%'
-        AND COALESCE(r.branch, s.branch, w.branch) NOT ILIKE '%ck %'
-        AND COALESCE(r.branch, s.branch, w.branch) NOT ILIKE 'ck_%'
+      FROM branch_cogs bc
+      FULL OUTER JOIN waste w ON bc.normalized_branch = w.normalized_branch
+      WHERE COALESCE(bc.branch, w.branch) IS NOT NULL
+        AND COALESCE(bc.branch, w.branch) NOT ILIKE '%central%'
+        AND COALESCE(bc.branch, w.branch) NOT ILIKE '%kitchen%'
+        AND COALESCE(bc.branch, w.branch) NOT ILIKE '%ck %'
+        AND COALESCE(bc.branch, w.branch) NOT ILIKE 'ck_%'
       ORDER BY waste_pct DESC
     `
 
@@ -105,7 +118,8 @@ export async function GET() {
       branch: row.branch || 'Unknown',
       wasteAmount: Number(row.waste_amount),
       cogs: Number(row.cogs),
-      orderRevenue: Number(row.order_revenue),
+      orderRevenue: Number(row.cogs), // Show COGS as "orderRevenue" for display
+      revenue: Number(row.revenue), // Actual revenue for food cost calculation
       wastePct: Number(row.waste_pct),
       dataQuality: Number(row.waste_records) > 0 ? 'complete' : 'partial' as 'complete' | 'partial'
     }))

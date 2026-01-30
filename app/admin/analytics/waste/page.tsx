@@ -39,6 +39,8 @@ interface WasteByBranch {
   orderRevenue: number
   wastePct: number
   dataQuality: 'complete' | 'partial'
+  cogs?: number
+  revenue?: number
 }
 
 interface DailyWaste {
@@ -238,7 +240,7 @@ export default function WasteAnalyticsPage() {
               Waste Analytics
             </h1>
             <p className="text-sm text-muted-foreground">
-              Monitor waste percentages and production variance across branches
+              Monitor waste percentages (calculated against expected COGS from recipes) and production variance across branches
             </p>
           </div>
         </div>
@@ -304,7 +306,7 @@ export default function WasteAnalyticsPage() {
                     {summary.thisWeek.wastePct.toFixed(1)}%
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {formatCurrency(summary.thisWeek.totalWaste)} / {formatCurrency(summary.thisWeek.totalRevenue)}
+                    {formatCurrency(summary.thisWeek.totalWaste)} waste / {formatCurrency(summary.thisWeek.totalRevenue)} COGS
                   </p>
                 </div>
                 <Trash2 className="h-8 w-8 text-muted-foreground/30" />
@@ -415,11 +417,21 @@ export default function WasteAnalyticsPage() {
                           )}>
                             {idx + 1}
                           </span>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">{branch.branch}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatCurrency(branch.wasteAmount)} waste / {formatCurrency(branch.orderRevenue)} revenue
-                            </p>
+                            <div className="text-xs text-muted-foreground space-y-0.5">
+                              <p>
+                                Waste: {formatCurrency(branch.wasteAmount)} • COGS: {formatCurrency(branch.cogs || branch.orderRevenue)}
+                              </p>
+                              <p className="flex items-center gap-2">
+                                <span>Calculation: {formatCurrency(branch.wasteAmount)} ÷ {formatCurrency(branch.cogs || branch.orderRevenue)} = {branch.wastePct.toFixed(1)}%</span>
+                              </p>
+                              {branch.revenue && branch.cogs && (
+                                <p className="text-[11px] text-muted-foreground/80">
+                                  Food Cost: {((branch.cogs / branch.revenue) * 100).toFixed(1)}% of {formatCurrency(branch.revenue)} revenue
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className={cn(

@@ -49,16 +49,35 @@ export async function GET() {
     const lastWeekStartStr = lastWeekStart.toISOString().split('T')[0]
     const lastWeekEndStr = lastWeekEnd.toISOString().split('T')[0]
 
-    // Get this week's totals - using COGS (transfer cost) instead of revenue
+    // Get this week's totals - using recipe-based COGS
     const thisWeekResult = await sql`
-      WITH received AS (
-        SELECT COALESCE(SUM(cost), 0) as cogs
-        FROM odoo_transfer
-        WHERE effective_date >= ${thisWeekStartStr}::date AND effective_date <= ${thisWeekEndStr}::date
-          AND to_branch NOT ILIKE '%central%'
-          AND to_branch NOT ILIKE '%kitchen%'
-          AND to_branch NOT ILIKE '%ck %'
-          AND to_branch NOT ILIKE 'ck_%'
+      WITH sales_with_cost AS (
+        SELECT
+          s.branch,
+          s.items,
+          s.qty,
+          s.price_subtotal_with_tax as item_revenue,
+          COALESCE(MAX(r.recipe_total_cost), 0) as unit_cost,
+          CASE
+            WHEN MAX(r.recipe_total_cost) IS NOT NULL AND MAX(r.recipe_total_cost) > 0
+            THEN s.qty * MAX(r.recipe_total_cost)
+            ELSE s.price_subtotal_with_tax * 0.30
+          END as item_cogs
+        FROM odoo_sales s
+        LEFT JOIN odoo_recipe r ON LOWER(TRIM(s.items)) = LOWER(TRIM(r.item))
+        WHERE s.date >= ${thisWeekStartStr}::date 
+          AND s.date <= ${thisWeekEndStr}::date
+          AND s.branch IS NOT NULL
+          AND s.branch != ''
+          AND s.branch NOT ILIKE '%central%'
+          AND s.branch NOT ILIKE '%kitchen%'
+          AND s.branch NOT ILIKE '%ck %'
+          AND s.branch NOT ILIKE 'ck_%'
+        GROUP BY s.id, s.branch, s.items, s.qty, s.price_subtotal_with_tax
+      ),
+      cogs_total AS (
+        SELECT COALESCE(SUM(item_cogs), 0) as total_cogs
+        FROM sales_with_cost
       ),
       waste AS (
         SELECT COALESCE(SUM(cost), 0) as waste_cost
@@ -66,26 +85,45 @@ export async function GET() {
         WHERE date >= ${thisWeekStartStr}::date AND date <= ${thisWeekEndStr}::date
       )
       SELECT
-        r.cogs as total_cogs,
+        c.total_cogs,
         w.waste_cost as total_waste,
         CASE
-          WHEN r.cogs > 0
-          THEN ROUND((w.waste_cost / r.cogs) * 100, 2)
+          WHEN c.total_cogs > 0
+          THEN ROUND((w.waste_cost / c.total_cogs) * 100, 2)
           ELSE 0
         END as waste_pct
-      FROM received r, waste w
+      FROM cogs_total c, waste w
     `
 
-    // Get last week's totals - using COGS (transfer cost) instead of revenue
+    // Get last week's totals - using recipe-based COGS
     const lastWeekResult = await sql`
-      WITH received AS (
-        SELECT COALESCE(SUM(cost), 0) as cogs
-        FROM odoo_transfer
-        WHERE effective_date >= ${lastWeekStartStr}::date AND effective_date <= ${lastWeekEndStr}::date
-          AND to_branch NOT ILIKE '%central%'
-          AND to_branch NOT ILIKE '%kitchen%'
-          AND to_branch NOT ILIKE '%ck %'
-          AND to_branch NOT ILIKE 'ck_%'
+      WITH sales_with_cost AS (
+        SELECT
+          s.branch,
+          s.items,
+          s.qty,
+          s.price_subtotal_with_tax as item_revenue,
+          COALESCE(MAX(r.recipe_total_cost), 0) as unit_cost,
+          CASE
+            WHEN MAX(r.recipe_total_cost) IS NOT NULL AND MAX(r.recipe_total_cost) > 0
+            THEN s.qty * MAX(r.recipe_total_cost)
+            ELSE s.price_subtotal_with_tax * 0.30
+          END as item_cogs
+        FROM odoo_sales s
+        LEFT JOIN odoo_recipe r ON LOWER(TRIM(s.items)) = LOWER(TRIM(r.item))
+        WHERE s.date >= ${lastWeekStartStr}::date 
+          AND s.date <= ${lastWeekEndStr}::date
+          AND s.branch IS NOT NULL
+          AND s.branch != ''
+          AND s.branch NOT ILIKE '%central%'
+          AND s.branch NOT ILIKE '%kitchen%'
+          AND s.branch NOT ILIKE '%ck %'
+          AND s.branch NOT ILIKE 'ck_%'
+        GROUP BY s.id, s.branch, s.items, s.qty, s.price_subtotal_with_tax
+      ),
+      cogs_total AS (
+        SELECT COALESCE(SUM(item_cogs), 0) as total_cogs
+        FROM sales_with_cost
       ),
       waste AS (
         SELECT COALESCE(SUM(cost), 0) as waste_cost
@@ -93,27 +131,45 @@ export async function GET() {
         WHERE date >= ${lastWeekStartStr}::date AND date <= ${lastWeekEndStr}::date
       )
       SELECT
-        r.cogs as total_cogs,
+        c.total_cogs,
         w.waste_cost as total_waste,
         CASE
-          WHEN r.cogs > 0
-          THEN ROUND((w.waste_cost / r.cogs) * 100, 2)
+          WHEN c.total_cogs > 0
+          THEN ROUND((w.waste_cost / c.total_cogs) * 100, 2)
           ELSE 0
         END as waste_pct
-      FROM received r, waste w
+      FROM cogs_total c, waste w
     `
 
-    // Get high waste branches (>5%) for this week - using COGS instead of revenue
-    // Use normalized branch names for better matching between tables
+    // Get high waste branches (>5%) for this week - using recipe-based COGS
     const highWasteResult = await sql`
-      WITH received AS (
+      WITH sales_with_cost AS (
         SELECT
-          to_branch as branch,
-          LOWER(REGEXP_REPLACE(TRIM(to_branch), '[_\\-\\s]+', ' ', 'g')) as normalized_branch,
-          COALESCE(SUM(cost), 0) as cogs
-        FROM odoo_transfer
-        WHERE effective_date >= ${thisWeekStartStr}::date AND effective_date <= ${thisWeekEndStr}::date
-        GROUP BY to_branch
+          s.branch,
+          s.items,
+          s.qty,
+          s.price_subtotal_with_tax as item_revenue,
+          COALESCE(MAX(r.recipe_total_cost), 0) as unit_cost,
+          CASE
+            WHEN MAX(r.recipe_total_cost) IS NOT NULL AND MAX(r.recipe_total_cost) > 0
+            THEN s.qty * MAX(r.recipe_total_cost)
+            ELSE s.price_subtotal_with_tax * 0.30
+          END as item_cogs
+        FROM odoo_sales s
+        LEFT JOIN odoo_recipe r ON LOWER(TRIM(s.items)) = LOWER(TRIM(r.item))
+        WHERE s.date >= ${thisWeekStartStr}::date 
+          AND s.date <= ${thisWeekEndStr}::date
+          AND s.branch IS NOT NULL
+          AND s.branch != ''
+        GROUP BY s.id, s.branch, s.items, s.qty, s.price_subtotal_with_tax
+      ),
+      branch_cogs AS (
+        SELECT
+          branch,
+          LOWER(REGEXP_REPLACE(TRIM(branch), '[_\\-\\s]+', ' ', 'g')) as normalized_branch,
+          SUM(item_cogs) as total_cogs
+        FROM sales_with_cost
+        GROUP BY branch
       ),
       waste AS (
         SELECT
@@ -126,21 +182,21 @@ export async function GET() {
       ),
       combined AS (
         SELECT
-          COALESCE(r.branch, w.branch) as branch,
-          COALESCE(r.cogs, 0) as cogs,
+          COALESCE(bc.branch, w.branch) as branch,
+          COALESCE(bc.total_cogs, 0) as cogs,
           COALESCE(w.waste_cost, 0) as waste_cost,
           CASE
-            WHEN COALESCE(r.cogs, 0) > 0
-            THEN ROUND((COALESCE(w.waste_cost, 0) / r.cogs) * 100, 2)
+            WHEN COALESCE(bc.total_cogs, 0) > 0
+            THEN ROUND((COALESCE(w.waste_cost, 0) / bc.total_cogs) * 100, 2)
             ELSE 0
           END as waste_pct
-        FROM received r
-        FULL OUTER JOIN waste w ON r.normalized_branch = w.normalized_branch
-        WHERE COALESCE(r.branch, w.branch) IS NOT NULL
-          AND COALESCE(r.branch, w.branch) NOT ILIKE '%central%'
-          AND COALESCE(r.branch, w.branch) NOT ILIKE '%kitchen%'
-          AND COALESCE(r.branch, w.branch) NOT ILIKE '%ck %'
-          AND COALESCE(r.branch, w.branch) NOT ILIKE 'ck_%'
+        FROM branch_cogs bc
+        FULL OUTER JOIN waste w ON bc.normalized_branch = w.normalized_branch
+        WHERE COALESCE(bc.branch, w.branch) IS NOT NULL
+          AND COALESCE(bc.branch, w.branch) NOT ILIKE '%central%'
+          AND COALESCE(bc.branch, w.branch) NOT ILIKE '%kitchen%'
+          AND COALESCE(bc.branch, w.branch) NOT ILIKE '%ck %'
+          AND COALESCE(bc.branch, w.branch) NOT ILIKE 'ck_%'
       )
       SELECT branch, waste_pct
       FROM combined

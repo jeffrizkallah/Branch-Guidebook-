@@ -22,13 +22,11 @@ CHANGES/ADDITIONS
 - **(DONE)** Figure out hwo to digitize the daily recipes and production order for CK
 - **(DONE)** Add a way where suzan can from a submissions give a note which will arrive the branch manager dashboard where they can see notes and tips on their submissions
 - **(DONE)** Fix the Branch Manager dashboard page
-
-- Add Inventory System
 - **(DONE)** To extract the inventory levels of the branches, theyre located in the 4 main files in our sharpoint for our company the files are named (Branch_Mngt V_New_Soufouh.xlsb, Branch_Mngt V_New_YAS. xlsb, Branch_Mngt V_New_Sharja.xlsb, Branch_Daily_Closing Central_Kitchen.xlsx) and in each of these files, there is a sheet called inventory with the headers (Inventory Date	Branch	Item	Category	Quantity	Unit	Product Expiry Date	 Unit Cost	Total Cost) each branch fills their inventory in them (how are we going to extract this and fill it in the Neon db) keep in mind most of these are .xlsb files.
-- Add Ordering section for branches 
-- Breakdown of orders into recipes, sub-recipes, and ingredients
 - **(DONE)** Fix sales analytics to be more accurate and detailed (refer to mang ops file sharpoint) - Comprehensive redesign with subscription vs counter breakdown, multi-period comparison, insights, subscription metrics, daily breakdown, export functionality
-
+- Add Ordering section for branches 
+- Add Inventory System
+- Breakdown of orders into recipes, sub-recipes, and ingredients
 -Use the imported waste file from Odoo Report and analize it based on their order for the week, to give a percentage of waste everyweek based on the branches order, so how much did this branch waste per week based on thier order.this will show in the branch managers dashbaord. also it would be interesting to have a information about this in the admin, operations lead, and regional manager dashbaord somehow, with more detail like each branchs' waste per day. im not sure how the UI implemention will be of that it can also have awhole dedicated page for it. 
 
 
@@ -45,8 +43,8 @@ CHANGES/ADDITIONS
 
 
 # Dispatch Fixes 0.0.2
-- **(Train)** *(User sees a red trash icon on each item row (only for pending/packing dispatches))* In the dispatch dashbord the user should be able to remove items from a disaptch not just add items, right now we have a button on the top of the page to add an item, but i would also like a feature where they can remove an item from the current exsisting dispatch
-- **(Train)** (When an item is marked as "partial" and the received quantity is between 87.5% and 112.5% of the ordered quantity:
+- **(DONE)** *(User sees a red trash icon on each item row (only for pending/packing dispatches))* In the dispatch dashbord the user should be able to remove items from a disaptch not just add items, right now we have a button on the top of the page to add an item, but i would also like a feature where they can remove an item from the current exsisting dispatch
+- **(DONE)** (When an item is marked as "partial" and the received quantity is between 87.5% and 112.5% of the ordered quantity:
 - **(DONE)** When packing and recieving you can no longer sign with any name you want in the end of the page, it will automatically use your user first and last name, so the staff cant just write whatever they want 
 - **(DONE)** In the dispatch view report page, in the section where there are issues per branch, add a feature where you can choose items and mark them as not an issue, beucause sometimes items are marked as an issue but they arent really an issue so i want t oremove them as issues so we can really focus on the real issues
 - Usually the Central Kitchen only sends fruits and vegetables to DIP, all other branches get them from the suppliers so if at anytime a new dispatch was uploaded and there was fruits and vegetables for other rbanches i want the items to be removed, the only branch that can recieve fruits and vegetables is DIP
