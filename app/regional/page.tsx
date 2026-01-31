@@ -21,9 +21,7 @@ import {
   Clock,
   AlertTriangle,
   ArrowRight,
-  Building2,
   Eye,
-  MapPin,
   Wallet,
   Calendar,
   Package,
@@ -721,68 +719,6 @@ export default function RegionalDashboardPage() {
         </div>
       </div>
 
-      {/* Branches Grid */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-cyan-600" />
-              All Branches ({branches.length})
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {branches.map(branch => {
-              const branchRevenue = yesterdayBranches.find(
-                b => b.branch.toLowerCase().replace(/_/g, '-') === branch.slug.toLowerCase() ||
-                     b.branch.toLowerCase().replace(/ /g, '-') === branch.slug.toLowerCase()
-              )
-              const qualityStatus = qualitySummary?.todayCompliance.find(q => q.branchSlug === branch.slug)
-              
-              return (
-                <Link key={branch.id} href={`/branch/${branch.slug}`}>
-                  <Card className="hover:shadow-lg transition-all duration-300 cursor-pointer h-full">
-                    <CardContent className="pt-4">
-                      <h3 className="font-semibold text-sm mb-1 truncate">{branch.name}</h3>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mb-3">
-                        <MapPin className="h-3 w-3" />
-                        {branch.location}
-                      </p>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-bold">
-                            {branchRevenue ? formatCurrency(branchRevenue.revenue) : '--'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">yesterday</p>
-                        </div>
-                        
-                        {qualityStatus && (
-                          <div className="flex gap-1">
-                            <div className={cn(
-                              "w-5 h-5 rounded flex items-center justify-center",
-                              qualityStatus.breakfastSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'
-                            )}>
-                              <Coffee className="h-3 w-3" />
-                            </div>
-                            <div className={cn(
-                              "w-5 h-5 rounded flex items-center justify-center",
-                              qualityStatus.lunchSubmitted ? 'bg-green-500 text-white' : 'bg-gray-200'
-                            )}>
-                              <Sun className="h-3 w-3" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              )
-            })}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
